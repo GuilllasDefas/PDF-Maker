@@ -2,3 +2,4 @@ Pillow
 keyboard
 reportlab
 pyinstaller
+pyautogui

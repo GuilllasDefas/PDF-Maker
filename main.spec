@@ -8,8 +8,8 @@ a = Analysis(
     datas=[],
     hiddenimports=[
         'keyboard', 
-        'pyautogui', 
         'PIL', 
+        'pyautogui',
         'reportlab',
         'src.config.config',
         'src.core.screenshot',
@@ -20,7 +20,7 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=['pyautogui'],
+    excludes=[],
     noarchive=False,
     optimize=2,
 )
