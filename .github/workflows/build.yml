@@ -172,8 +172,8 @@ jobs:
           body: |           
             ## Melhorias e Correções
 
-            - Pre-Release (Recomendado: Somente .zip)
-            - Adicionado campo de caminho para salvar o PDF e suas imagens
+            - Ajuste de layout de atalhos
+            - Adicionado Botão para abrir pasta salva
 
           draft: false
           prerelease: true
