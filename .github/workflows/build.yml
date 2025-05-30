@@ -80,8 +80,6 @@ jobs:
             Get-ChildItem "dist\PDF-Maker" -Recurse | Format-Table Name, FullName
           } else {
             Write-Host "ERRO: Diretório dist\PDF-Maker não foi criado!"
-            Write-Host "Conteúdo do diretório dist:"
-            Get-ChildItem "dist" | Format-Table Name, FullName
             exit 1
           }
 
