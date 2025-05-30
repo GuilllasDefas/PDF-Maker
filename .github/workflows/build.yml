@@ -107,33 +107,21 @@ jobs:
           AppVersion=$version
           AppPublisher=GuilllasDefas
           AppPublisherURL=https://github.com/GuilllasDefas/PDF_Maker
-          AppSupportURL=https://github.com/GuilllasDefas/PDF_Maker/issues
-          AppUpdatesURL=https://github.com/GuilllasDefas/PDF_Maker/releases
           DefaultDirName={autopf}\PDF Maker
           DefaultGroupName=PDF Maker
-          AllowNoIcons=yes
-          LicenseFile=
           OutputDir=setup-output
           OutputBaseFilename=PDF-Maker-Setup-${{ steps.get_version.outputs.VERSION }}
           Compression=lzma
           SolidCompression=yes
           WizardStyle=modern
           ArchitecturesInstallIn64BitMode=x64
-          ChangesAssociations=yes
           RestartIfNeededByRun=no
-          PrivilegesRequired=lowest
-          OutputManifestFile=Setup-Manifest.txt
-          Uninstallable=yes
-          UninstallDisplayIcon={app}\PDF-Maker.exe
-          UninstallDisplayName=PDF Maker
-          CreateUninstallRegKey=yes
           
           [Languages]
           Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
           
           [Tasks]
           Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-          Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 6.1
           
           [Files]
           Source: "dist\PDF-Maker\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -142,53 +130,24 @@ jobs:
           Name: "{group}\PDF Maker"; Filename: "{app}\PDF-Maker.exe"; WorkingDir: "{app}"
           Name: "{group}\{cm:UninstallProgram,PDF Maker}"; Filename: "{uninstallexe}"
           Name: "{autodesktop}\PDF Maker"; Filename: "{app}\PDF-Maker.exe"; Tasks: desktopicon; WorkingDir: "{app}"
-          Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\PDF Maker"; Filename: "{app}\PDF-Maker.exe"; Tasks: quicklaunchicon; WorkingDir: "{app}"
-          
-          [Registry]
-          Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\PDF-Maker.exe"; ValueType: string; ValueName: ""; ValueData: "PDF Maker"; Flags: uninsdeletekey
-          Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\PDF-Maker.exe\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\PDF-Maker.exe,0"; Flags: uninsdeletekey
-          Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\PDF-Maker.exe\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\PDF-Maker.exe"" ""%1"""; Flags: uninsdeletekey
           
           [Run]
-          Filename: "{app}\PDF-Maker.exe"; Description: "{cm:LaunchProgram,PDF Maker}"; \
-            Flags: nowait postinstall skipifsilent runascurrentuser shellexec
-          Filename: "ie4uinit.exe"; Parameters: "-show"; Flags: runhidden waituntilterminated; \
-            StatusMsg: "Atualizando cache de ícones..."; RunOnceId: "RefreshIcons"
+          Filename: "{app}\PDF-Maker.exe"; Description: "{cm:LaunchProgram,PDF Maker}"; Flags: nowait postinstall skipifsilent
           
           [UninstallDelete]
           Type: filesandordirs; Name: "{app}"
-          
-          [UninstallRun]
-          Filename: "ie4uinit.exe"; Parameters: "-show"; Flags: runhidden waituntilterminated; \
-            RunOnceId: "RefreshIconsUninstall"
           "@
           
           $script | Out-File -FilePath "setup.iss" -Encoding UTF8
-          
-          Write-Host "Script do Inno Setup criado com sucesso!"
-          Write-Host "Verificando arquivos que serão incluídos no setup:"
-          Get-ChildItem "dist\PDF-Maker" -Recurse | Select-Object Name, FullName
+  
 
       # 10) Gera o setup.exe
       - name: Build Setup with Inno Setup
         run: |
-          # Verificar uma última vez se tudo está pronto
-          if (-not (Test-Path "dist\PDF-Maker")) {
-            Write-Host "ERRO: Diretório dist\PDF-Maker ainda não existe!"
-            exit 1
-          }
-          
-          if (-not (Test-Path "setup.iss")) {
-            Write-Host "ERRO: Arquivo setup.iss não foi criado!"
-            exit 1
-          }
-          
           $innoPath = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
           if (-not (Test-Path $innoPath)) {
             $innoPath = "${env:ProgramFiles}\Inno Setup 6\ISCC.exe"
           }
-          
-          Write-Host "Executando Inno Setup..."
           & $innoPath "setup.iss"
 
       # 11) Empacota num ZIP
