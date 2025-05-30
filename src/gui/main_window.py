@@ -1,7 +1,7 @@
 import os
 import threading
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, filedialog
 from PIL import Image, ImageTk, ImageFile
 import keyboard
 from src.config.config import (
@@ -297,14 +297,55 @@ class PDFMakerApp:
                 canvas.config(image='', text=f"Erro: {str(e)[:20]}...")
         else:
             canvas.config(image='', text="(vazio)")
-    
+            
     def _generate_pdf(self):
-        """Gera o PDF com as imagens capturadas."""
+        """Gera o PDF com as imagens capturadas e permite escolher o local de salvamento."""
         paths = self.screenshot_manager.get_image_paths()
-        if paths:
-            if self.pdf_generator.generate_pdf(paths, PDF_OUTPUT):
-                messagebox.showinfo("PDF", f"PDF gerado: {PDF_OUTPUT}")
-            else:
-                messagebox.showerror("Erro", "Falha ao gerar PDF.")
-        else:
+        if not paths:
             messagebox.showwarning("PDF", "Nenhuma imagem para gerar PDF.")
+            return
+            
+        # Configurar o nome do arquivo PDF
+        base_dir = self.screenshot_manager.get_base_dir()
+        
+        # Se não tiver configurado o diretório, peça para configurar
+        if not base_dir:
+            if not self.screenshot_manager.set_directory():
+                messagebox.showerror("Erro", "Não foi possível configurar o diretório.")
+                return
+            base_dir = self.screenshot_manager.get_base_dir()
+        
+        # Definir caminho padrão para o PDF
+        default_pdf_path = os.path.join(base_dir, "output.pdf")
+        
+        # Abrir diálogo para o usuário escolher onde salvar o PDF
+        root = tk.Tk()
+        root.withdraw()
+        pdf_path = filedialog.asksaveasfilename(
+            initialdir=base_dir,
+            initialfile="output.pdf",
+            defaultextension=".pdf",
+            filetypes=[("PDF files", "*.pdf"), ("All files", "*.*")],
+            title="Salvar PDF como"
+        )
+        root.destroy()
+        
+        if not pdf_path:
+            print("Operação de salvamento cancelada pelo usuário.")
+            return
+            
+        # Gerar o PDF no local escolhido
+        was_using_temp = self.screenshot_manager.is_temp_dir()
+        if self.pdf_generator.generate_pdf(paths, pdf_path):
+            messagebox.showinfo("PDF", f"PDF gerado: {pdf_path}")
+            
+            # Limpar imagens temporárias após gerar o PDF com sucesso
+            if was_using_temp:
+                self.screenshot_manager.cleanup_temp_images()
+                # Resetar contadores de imagem
+                self.counter = 0
+                self.last_image = None
+                self.current_image = None
+                self.root.after(100, self._update_images)
+        else:
+            messagebox.showerror("Erro", "Falha ao gerar PDF.")

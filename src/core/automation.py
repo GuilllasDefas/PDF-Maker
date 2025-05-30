@@ -47,6 +47,15 @@ class AutomationManager:
     def _run_automation(self, interval: float, num_captures: int):
         """Executa o loop de automação."""
         try:
+            # Verificar se o diretório está configurado
+            if not self.screenshot_manager.get_base_dir():
+                if not self.screenshot_manager.set_directory():
+                    if self.on_status_callback:
+                        self.on_status_callback("Status: Falha ao configurar diretório")
+                    if self.on_finish_callback:
+                        self.on_finish_callback()
+                    return
+                    
             for i in range(num_captures):
                 if not self.is_running:
                     break
