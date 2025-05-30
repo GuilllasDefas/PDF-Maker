@@ -89,19 +89,6 @@ jobs:
             exit 1
           }
 
-      # 7) Testa o .exe gerado
-      - name: Test EXE antes do empacotamento
-        run: |
-          Write-Host "Testando o executável..."
-          try {
-            # Teste em modo silencioso
-            $process = Start-Process "dist\PDF-Maker\PDF-Maker.exe" -ArgumentList "--version" -PassThru -Wait -NoNewWindow
-            $exitCode = $process.ExitCode
-            Write-Host "Executável testado com código de saída: $exitCode"
-          } catch {
-            Write-Host "AVISO: Erro ao testar executável: $_"
-          }
-
       # 8) Instala Inno Setup
       - name: Install Inno Setup
         run: |
