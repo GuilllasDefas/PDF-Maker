@@ -7,6 +7,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Image folder
+images/
+
+# Output file
+*.pdf
+
 # C extensions
 *.so
 

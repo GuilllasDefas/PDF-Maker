@@ -1,9 +1,9 @@
-name: Build e Release YouTube Downloader
+name: Build e Release PDF Maker
 
 on:
   push:
     branches:
-      - master
+      - main
 
 permissions:
   contents: write
@@ -72,7 +72,7 @@ jobs:
 
       # 6) Gera o .exe usando o arquivo .spec
       - name: Build EXE com arquivo .spec
-        run: pyinstaller "YouTube Downloader.spec"
+        run: pyinstaller "main.spec"
 
       # 7) Instala Inno Setup
       - name: Install Inno Setup
@@ -87,24 +87,23 @@ jobs:
           $version = "${{ steps.get_version.outputs.VERSION }}".TrimStart('v')
           $script = @"
           [Setup]
-          AppName=YouTube Downloader
+          AppName=PDF Maker
           AppVersion=$version
           AppPublisher=GuilllasDefas
-          AppPublisherURL=https://github.com/GuilllasDefas/YT-Downloader
-          AppSupportURL=https://github.com/GuilllasDefas/YT-Downloader/issues
-          AppUpdatesURL=https://github.com/GuilllasDefas/YT-Downloader/releases
-          DefaultDirName={autopf}\YouTube Downloader
-          DefaultGroupName=YouTube Downloader
+          AppPublisherURL=https://github.com/GuilllasDefas/PDF_Maker
+          AppSupportURL=https://github.com/GuilllasDefas/PDF_Maker/issues
+          AppUpdatesURL=https://github.com/GuilllasDefas/PDF_Maker/releases
+          DefaultDirName={autopf}\PDF Maker
+          DefaultGroupName=PDF Maker
           AllowNoIcons=yes
           LicenseFile=
           OutputDir=setup-output
-          OutputBaseFilename=YouTube-Downloader-Setup-${{ steps.get_version.outputs.VERSION }}
+          OutputBaseFilename=PDF-Maker-Setup-${{ steps.get_version.outputs.VERSION }}
           SetupIconFile="resources/logo.ico"
           Compression=lzma
           SolidCompression=yes
           WizardStyle=modern
           ArchitecturesInstallIn64BitMode=x64
-          ; Configurações para garantir que o ícone funcione corretamente
           ChangesAssociations=yes
           RestartIfNeededByRun=no
           
@@ -116,22 +115,22 @@ jobs:
           Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 6.1
           
           [Files]
-          Source: "dist\YouTube Downloader\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+          Source: "dist\PDF-Maker\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
           Source: "resources\logo.ico"; DestDir: "{app}"; Flags: ignoreversion
           
           [Icons]
-          Name: "{group}\YouTube Downloader"; Filename: "{app}\YouTube Downloader.exe"; IconFilename: "{app}\logo.ico"; WorkingDir: "{app}"
-          Name: "{group}\{cm:UninstallProgram,YouTube Downloader}"; Filename: "{uninstallexe}"
-          Name: "{autodesktop}\YouTube Downloader"; Filename: "{app}\YouTube Downloader.exe"; Tasks: desktopicon; IconFilename: "{app}\logo.ico"; WorkingDir: "{app}"
-          Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\YouTube Downloader"; Filename: "{app}\YouTube Downloader.exe"; Tasks: quicklaunchicon; IconFilename: "{app}\logo.ico"; WorkingDir: "{app}"
+          Name: "{group}\PDF Maker"; Filename: "{app}\PDF-Maker.exe"; IconFilename: "{app}\logo.ico"; WorkingDir: "{app}"
+          Name: "{group}\{cm:UninstallProgram,PDF Maker}"; Filename: "{uninstallexe}"
+          Name: "{autodesktop}\PDF Maker"; Filename: "{app}\PDF-Maker.exe"; Tasks: desktopicon; IconFilename: "{app}\logo.ico"; WorkingDir: "{app}"
+          Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\PDF Maker"; Filename: "{app}\PDF-Maker.exe"; Tasks: quicklaunchicon; IconFilename: "{app}\logo.ico"; WorkingDir: "{app}"
           
           [Registry]
-          Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\YouTube Downloader.exe"; ValueType: string; ValueName: ""; ValueData: "YouTube Downloader"; Flags: uninsdeletekey
-          Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\YouTube Downloader.exe\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\logo.ico,0"; Flags: uninsdeletekey
-          Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\YouTube Downloader.exe\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\YouTube Downloader.exe"" ""%1"""; Flags: uninsdeletekey
+          Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\PDF-Maker.exe"; ValueType: string; ValueName: ""; ValueData: "PDF Maker"; Flags: uninsdeletekey
+          Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\PDF-Maker.exe\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\logo.ico,0"; Flags: uninsdeletekey
+          Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\PDF-Maker.exe\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\PDF-Maker.exe"" ""%1"""; Flags: uninsdeletekey
           
           [Run]
-          Filename: "{app}\YouTube Downloader.exe"; Description: "{cm:LaunchProgram,YouTube Downloader}"; Flags: nowait postinstall skipifsilent
+          Filename: "{app}\PDF-Maker.exe"; Description: "{cm:LaunchProgram,PDF Maker}"; Flags: nowait postinstall skipifsilent
           Filename: "ie4uinit.exe"; Parameters: "-show"; Flags: runhidden waituntilterminated; StatusMsg: "Atualizando cache de ícones..."
           
           [UninstallDelete]
@@ -154,7 +153,7 @@ jobs:
 
       # 10) Empacota num ZIP
       - name: Zip App
-        run: Compress-Archive -Path "dist\YouTube Downloader\*" -DestinationPath "YouTube-Downloader.zip"
+        run: Compress-Archive -Path "dist\PDF-Maker\*" -DestinationPath "PDF-Maker.zip"
         
       # 11) Cria uma tag automática
       - name: Criar tag automática
@@ -170,15 +169,17 @@ jobs:
         uses: actions/create-release@v1
         with:
           tag_name: ${{ steps.get_version.outputs.VERSION }}
-          release_name: YouTube Downloader ${{ steps.get_version.outputs.VERSION }}
+          release_name: PDF Maker ${{ steps.get_version.outputs.VERSION }}
           body: |           
-            ## Melhoria
+            ## Melhorias
 
-            - Prioriza Codecs mais universais no download de vídeo
+            - Código refatorado seguindo boas práticas
+            - Estrutura modular organizada
+            - Melhor separação de responsabilidades
             - Adicionada compressão UPX para diminuir o tamanho da aplicação
 
           draft: false
-          prerelease: false
+          prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

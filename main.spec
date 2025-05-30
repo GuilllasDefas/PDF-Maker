@@ -10,12 +10,17 @@ a = Analysis(
         'keyboard', 
         'pyautogui', 
         'PIL', 
-        'reportlab'
+        'reportlab',
+        'src.config.config',
+        'src.core.screenshot',
+        'src.core.pdf_generator',
+        'src.core.automation',
+        'src.gui.main_window'
     ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=['pyautogui'],
     noarchive=False,
     optimize=2,
 )
@@ -27,7 +32,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [('O', None, 'OPTION'), ('O', None, 'OPTION')],
-    name='main',
+    name='PDF-Maker',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
