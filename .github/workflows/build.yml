@@ -86,22 +86,6 @@ jobs:
         run: |
           $version = "${{ steps.get_version.outputs.VERSION }}".TrimStart('v')
           
-          # Verificar se o arquivo de ícone existe
-          $iconFile = "resources/logo.ico"
-          $iconExists = Test-Path $iconFile
-          
-          if ($iconExists) {
-            Write-Host "Arquivo de ícone encontrado: $iconFile"
-            $setupIcon = "SetupIconFile=`"$iconFile`""
-            $iconFileCopy = "Source: `"$iconFile`"; DestDir: `"{app}`"; Flags: ignoreversion"
-            $iconReference = "IconFilename: `"{app}\logo.ico`""
-          } else {
-            Write-Host "Arquivo de ícone não encontrado. Usando configuração sem ícone."
-            $setupIcon = ""
-            $iconFileCopy = ""
-            $iconReference = ""
-          }
-          
           $script = @"
           [Setup]
           AppName=PDF Maker
@@ -116,7 +100,6 @@ jobs:
           LicenseFile=
           OutputDir=setup-output
           OutputBaseFilename=PDF-Maker-Setup-${{ steps.get_version.outputs.VERSION }}
-          $setupIcon
           Compression=lzma
           SolidCompression=yes
           WizardStyle=modern
@@ -133,13 +116,12 @@ jobs:
           
           [Files]
           Source: "dist\PDF-Maker\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-          $iconFileCopy
           
           [Icons]
-          Name: "{group}\PDF Maker"; Filename: "{app}\PDF-Maker.exe"; $iconReference; WorkingDir: "{app}"
+          Name: "{group}\PDF Maker"; Filename: "{app}\PDF-Maker.exe"; WorkingDir: "{app}"
           Name: "{group}\{cm:UninstallProgram,PDF Maker}"; Filename: "{uninstallexe}"
-          Name: "{autodesktop}\PDF Maker"; Filename: "{app}\PDF-Maker.exe"; Tasks: desktopicon; $iconReference; WorkingDir: "{app}"
-          Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\PDF Maker"; Filename: "{app}\PDF-Maker.exe"; Tasks: quicklaunchicon; $iconReference; WorkingDir: "{app}"
+          Name: "{autodesktop}\PDF Maker"; Filename: "{app}\PDF-Maker.exe"; Tasks: desktopicon; WorkingDir: "{app}"
+          Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\PDF Maker"; Filename: "{app}\PDF-Maker.exe"; Tasks: quicklaunchicon; WorkingDir: "{app}"
           
           [Registry]
           Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\PDF-Maker.exe"; ValueType: string; ValueName: ""; ValueData: "PDF Maker"; Flags: uninsdeletekey
@@ -160,8 +142,6 @@ jobs:
           $script | Out-File -FilePath "setup.iss" -Encoding UTF8
           
           Write-Host "Script do Inno Setup criado com sucesso!"
-          Write-Host "Conteúdo do script:"
-          Get-Content "setup.iss" | Write-Host
 
       # 9) Gera o setup.exe
       - name: Build Setup with Inno Setup
