@@ -171,12 +171,9 @@ jobs:
           tag_name: ${{ steps.get_version.outputs.VERSION }}
           release_name: PDF Maker ${{ steps.get_version.outputs.VERSION }}
           body: |           
-            ## Melhorias
+            ## Melhorias e Correções
 
-            - Código refatorado seguindo boas práticas
-            - Estrutura modular organizada
-            - Melhor separação de responsabilidades
-            - Adicionada compressão UPX para diminuir o tamanho da aplicação
+            - Retirado pyautogui
 
           draft: false
           prerelease: true

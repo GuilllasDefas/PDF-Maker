@@ -1,4 +1,4 @@
-pyautogui
 Pillow
 keyboard
 reportlab
+pyinstaller
