@@ -249,7 +249,7 @@ class PDFMakerApp:
         self.btn_stop = ttk.Button(frame_buttons, text="Parar", command=self._stop_automation, state=tk.DISABLED)
         self.btn_stop.pack(side=tk.LEFT, padx=5)
         
-        ttk.Label(frame_buttons, text=f"Atalhos: {SCREENSHOT_HOTKEY}, {AUTOMATION_HOTKEY}").pack(side=tk.LEFT, padx=5)
+        ttk.Label(frame_buttons, text=f"Atalhos: \nTirar Print: {SCREENSHOT_HOTKEY}\nIniciar Automação: {AUTOMATION_HOTKEY}").pack(side=tk.LEFT, padx=5)
         
         self.automation_status = ttk.Label(frame_buttons, text="Status: Inativo")
         self.automation_status.pack(side=tk.RIGHT, padx=5)
