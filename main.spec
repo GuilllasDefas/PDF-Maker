@@ -74,9 +74,9 @@ exe = EXE(
     name='PDF-Maker',
     debug=False,
     bootloader_ignore_signals=False,
-    strip=False,  # Desativado para evitar erros
-    upx=True,    # Desativado para evitar erros
-    console=True,
+    strip=False,
+    upx=True,
+    console=False,  # Alterar para False para modo GUI
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
@@ -89,7 +89,7 @@ coll = COLLECT(
     a.binaries,
     a.datas,
     strip=False,  # Desativado para evitar erros
-    upx=True,    # Desativado para evitar erros
+    upx=True,
     upx_exclude=[],
     name='PDF-Maker'
 )

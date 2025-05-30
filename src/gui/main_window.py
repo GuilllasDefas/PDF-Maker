@@ -23,6 +23,10 @@ class PDFMakerApp:
         self.root.geometry(DEFAULT_WINDOW_SIZE)
         self.root.title(f"PDF Maker v{APP_VERSION} - Screenshot Tool")
         
+        # Extrair largura e altura de DEFAULT_WINDOW_SIZE (formato "widthxheight")
+        width, height = map(int, DEFAULT_WINDOW_SIZE.split('x'))
+        self.root.minsize(width, height)
+        
         # Managers
         self.screenshot_manager = ScreenshotManager()
         self.pdf_generator = PDFGenerator()
@@ -35,6 +39,7 @@ class PDFMakerApp:
         self.current_image = None
         self.img_display_size = DEFAULT_IMAGE_DISPLAY_SIZE
         self.update_download_url = None
+        self.base_directory = ""  # Novo campo para armazenar o diretório base
         
         # Configurar callbacks da automação
         self._setup_automation_callbacks()
@@ -50,6 +55,9 @@ class PDFMakerApp:
         
         # Verificar atualizações ao iniciar
         self._check_updates_on_startup()
+        
+        # Desabilitar funcionalidades até que um diretório seja selecionado
+        self._update_controls_state()
     
     def _setup_automation_callbacks(self):
         """Configura os callbacks da automação."""
@@ -74,6 +82,9 @@ class PDFMakerApp:
                                          command=self._manual_check_updates)
         self.btn_check_update.pack(side=tk.RIGHT)
         
+        # Frame para seleção de diretório base (NOVO)
+        self._build_directory_frame()
+        
         # Frame de imagens
         self._build_images_frame()
         
@@ -83,6 +94,58 @@ class PDFMakerApp:
         # Botão PDF
         self.btn_pdf = ttk.Button(self.root, text="Gerar PDF", command=self._generate_pdf)
         self.btn_pdf.pack(pady=10)
+    
+    def _build_directory_frame(self):
+        """Constrói o frame para seleção do diretório base."""
+        frame_dir = ttk.LabelFrame(self.root, text="Diretório para Salvar Imagens e PDF")
+        frame_dir.pack(fill=tk.X, padx=10, pady=5)
+        
+        # Campo de texto para o caminho
+        self.dir_var = tk.StringVar()
+        dir_entry = ttk.Entry(frame_dir, textvariable=self.dir_var, width=50)
+        dir_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5, pady=5)
+        
+        # Botão para selecionar diretório
+        btn_browse = ttk.Button(frame_dir, text="Procurar...", command=self._browse_directory)
+        btn_browse.pack(side=tk.RIGHT, padx=5, pady=5)
+    
+    def _browse_directory(self):
+        """Abre diálogo para selecionar diretório base."""
+        directory = filedialog.askdirectory(
+            title="Selecione o diretório para salvar imagens e PDF"
+        )
+        
+        if directory:
+            self.dir_var.set(directory)
+            self.base_directory = directory
+            
+            # Configurar o diretório no screenshot manager
+            screenshots_dir = os.path.join(directory, "screenshots")
+            if not os.path.exists(screenshots_dir):
+                os.makedirs(screenshots_dir)
+            
+            self.screenshot_manager.set_directory(screenshots_dir)
+            self._update_controls_state()
+    
+    def _update_controls_state(self):
+        """Atualiza o estado dos controles com base na seleção de diretório."""
+        if self.base_directory and os.path.isdir(self.base_directory):
+            # Diretório válido selecionado - habilitar controles
+            state = tk.NORMAL
+        else:
+            # Nenhum diretório válido - desabilitar controles
+            state = tk.DISABLED
+        
+        # Desabilitar/habilitar controles relevantes
+        self.btn_pdf.config(state=state)
+        
+        # Atualize os widgets no frame de automação
+        if hasattr(self, "btn_start"):
+            self.btn_start.config(state=state)
+        
+        # Atualize o status
+        if not self.base_directory:
+            self.automation_status.config(text="Status: Selecione um diretório") if hasattr(self, "automation_status") else None
     
     def _check_updates_on_startup(self):
         """Verifica atualizações automaticamente ao iniciar."""
@@ -194,6 +257,11 @@ class PDFMakerApp:
     
     def _take_screenshot(self):
         """Captura uma screenshot."""
+        # Verificar se o diretório está configurado
+        if not self.base_directory or not os.path.isdir(self.base_directory):
+            messagebox.showerror("Erro", "Selecione um diretório válido antes de capturar screenshots.")
+            return
+        
         img_path = self.screenshot_manager.take_screenshot()
         if img_path:
             self.counter += 1
@@ -210,6 +278,11 @@ class PDFMakerApp:
     
     def _start_automation(self):
         """Inicia o processo de automação."""
+        # Verificar se o diretório está configurado
+        if not self.base_directory or not os.path.isdir(self.base_directory):
+            messagebox.showerror("Erro", "Selecione um diretório válido antes de iniciar a automação.")
+            return
+        
         try:
             interval = float(self.interval_var.get())
             num_captures = int(self.num_captures_var.get())
@@ -299,53 +372,22 @@ class PDFMakerApp:
             canvas.config(image='', text="(vazio)")
             
     def _generate_pdf(self):
-        """Gera o PDF com as imagens capturadas e permite escolher o local de salvamento."""
+        """Gera o PDF com as imagens capturadas no diretório selecionado."""
+        # Verificar se temos o diretório base configurado
+        if not self.base_directory or not os.path.isdir(self.base_directory):
+            messagebox.showerror("Erro", "Selecione um diretório válido antes de gerar o PDF.")
+            return
+        
         paths = self.screenshot_manager.get_image_paths()
         if not paths:
             messagebox.showwarning("PDF", "Nenhuma imagem para gerar PDF.")
             return
             
-        # Configurar o nome do arquivo PDF
-        base_dir = self.screenshot_manager.get_base_dir()
+        # Definir caminho para o PDF
+        pdf_path = os.path.join(self.base_directory, "output.pdf")
         
-        # Se não tiver configurado o diretório, peça para configurar
-        if not base_dir:
-            if not self.screenshot_manager.set_directory():
-                messagebox.showerror("Erro", "Não foi possível configurar o diretório.")
-                return
-            base_dir = self.screenshot_manager.get_base_dir()
-        
-        # Definir caminho padrão para o PDF
-        default_pdf_path = os.path.join(base_dir, "output.pdf")
-        
-        # Abrir diálogo para o usuário escolher onde salvar o PDF
-        root = tk.Tk()
-        root.withdraw()
-        pdf_path = filedialog.asksaveasfilename(
-            initialdir=base_dir,
-            initialfile="output.pdf",
-            defaultextension=".pdf",
-            filetypes=[("PDF files", "*.pdf"), ("All files", "*.*")],
-            title="Salvar PDF como"
-        )
-        root.destroy()
-        
-        if not pdf_path:
-            print("Operação de salvamento cancelada pelo usuário.")
-            return
-            
-        # Gerar o PDF no local escolhido
-        was_using_temp = self.screenshot_manager.is_temp_dir()
+        # Gerar o PDF
         if self.pdf_generator.generate_pdf(paths, pdf_path):
             messagebox.showinfo("PDF", f"PDF gerado: {pdf_path}")
-            
-            # Limpar imagens temporárias após gerar o PDF com sucesso
-            if was_using_temp:
-                self.screenshot_manager.cleanup_temp_images()
-                # Resetar contadores de imagem
-                self.counter = 0
-                self.last_image = None
-                self.current_image = None
-                self.root.after(100, self._update_images)
         else:
             messagebox.showerror("Erro", "Falha ao gerar PDF.")

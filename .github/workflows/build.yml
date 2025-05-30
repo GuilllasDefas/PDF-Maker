@@ -89,14 +89,27 @@ jobs:
             exit 1
           }
 
-      # 7) Instala Inno Setup
+      # 7) Testa o .exe gerado
+      - name: Test EXE antes do empacotamento
+        run: |
+          Write-Host "Testando o executável..."
+          try {
+            # Teste em modo silencioso
+            $process = Start-Process "dist\PDF-Maker\PDF-Maker.exe" -ArgumentList "--version" -PassThru -Wait -NoNewWindow
+            $exitCode = $process.ExitCode
+            Write-Host "Executável testado com código de saída: $exitCode"
+          } catch {
+            Write-Host "AVISO: Erro ao testar executável: $_"
+          }
+
+      # 8) Instala Inno Setup
       - name: Install Inno Setup
         run: |
           $url = "https://files.jrsoftware.org/is/6/innosetup-6.2.2.exe"
           Invoke-WebRequest -Uri $url -OutFile "innosetup-installer.exe"
           Start-Process -FilePath "innosetup-installer.exe" -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART" -Wait
 
-      # 8) Cria script do Inno Setup
+      # 9) Cria script do Inno Setup
       - name: Create Inno Setup Script
         run: |
           $version = "${{ steps.get_version.outputs.VERSION }}".TrimStart('v')
@@ -121,7 +134,7 @@ jobs:
           ArchitecturesInstallIn64BitMode=x64
           ChangesAssociations=yes
           RestartIfNeededByRun=no
-          PrivilegesRequired=admin
+          PrivilegesRequired=lowest
           OutputManifestFile=Setup-Manifest.txt
           Uninstallable=yes
           UninstallDisplayIcon={app}\PDF-Maker.exe
@@ -150,14 +163,17 @@ jobs:
           Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\PDF-Maker.exe\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\PDF-Maker.exe"" ""%1"""; Flags: uninsdeletekey
           
           [Run]
-          Filename: "{app}\PDF-Maker.exe"; Description: "{cm:LaunchProgram,PDF Maker}"; Flags: nowait postinstall skipifsilent
-          Filename: "ie4uinit.exe"; Parameters: "-show"; Flags: runhidden waituntilterminated; StatusMsg: "Atualizando cache de ícones..."
+          Filename: "{app}\PDF-Maker.exe"; Description: "{cm:LaunchProgram,PDF Maker}"; \
+            Flags: nowait postinstall skipifsilent runascurrentuser shellexec
+          Filename: "ie4uinit.exe"; Parameters: "-show"; Flags: runhidden waituntilterminated; \
+            StatusMsg: "Atualizando cache de ícones..."; RunOnceId: "RefreshIcons"
           
           [UninstallDelete]
           Type: filesandordirs; Name: "{app}"
           
           [UninstallRun]
-          Filename: "ie4uinit.exe"; Parameters: "-show"; Flags: runhidden waituntilterminated
+          Filename: "ie4uinit.exe"; Parameters: "-show"; Flags: runhidden waituntilterminated; \
+            RunOnceId: "RefreshIconsUninstall"
           "@
           
           $script | Out-File -FilePath "setup.iss" -Encoding UTF8
@@ -166,7 +182,7 @@ jobs:
           Write-Host "Verificando arquivos que serão incluídos no setup:"
           Get-ChildItem "dist\PDF-Maker" -Recurse | Select-Object Name, FullName
 
-      # 9) Gera o setup.exe
+      # 10) Gera o setup.exe
       - name: Build Setup with Inno Setup
         run: |
           # Verificar uma última vez se tudo está pronto
@@ -188,11 +204,11 @@ jobs:
           Write-Host "Executando Inno Setup..."
           & $innoPath "setup.iss"
 
-      # 10) Empacota num ZIP
+      # 11) Empacota num ZIP
       - name: Zip App
         run: Compress-Archive -Path "dist\PDF-Maker\*" -DestinationPath "PDF-Maker.zip"
         
-      # 11) Cria uma tag automática
+      # 12) Cria uma tag automática
       - name: Criar tag automática
         run: |
           git config --local user.email "action@github.com"
@@ -200,7 +216,7 @@ jobs:
           git tag -a ${{ steps.get_version.outputs.VERSION }} -m "Release automática ${{ steps.get_version.outputs.VERSION }}"
           git push origin ${{ steps.get_version.outputs.VERSION }}
 
-      # 12) Cria a Release
+      # 13) Cria a Release
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
@@ -210,14 +226,15 @@ jobs:
           body: |           
             ## Melhorias e Correções
 
-            - Pre-Release
+            - Pre-Release (Recomendado: Somente .zip)
+            - Adicionado campo de caminho para salvar o PDF e suas imagens
 
           draft: false
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 13) Anexa o ZIP à Release
+      # 14) Anexa o ZIP à Release
       - name: Upload ZIP Asset
         uses: actions/upload-release-asset@v1
         with:
@@ -228,7 +245,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 14) Anexa o Setup à Release
+      # 15) Anexa o Setup à Release
       - name: Upload Setup Asset
         uses: actions/upload-release-asset@v1
         with:
