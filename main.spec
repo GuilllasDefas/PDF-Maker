@@ -18,12 +18,13 @@ a = Analysis(
         'src.core.pdf_generator',
         'src.core.automation',
         'src.core.update_checker',
-        'src.gui.main_window'
+        'src.gui.main_window',
+        'pathlib'
     ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=['pathlib'],
+    excludes=[],
     noarchive=False,
     optimize=2,
 )
