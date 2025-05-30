@@ -72,7 +72,18 @@ jobs:
 
       # 6) Gera o .exe usando o arquivo .spec
       - name: Build EXE com arquivo .spec
-        run: pyinstaller "main.spec"
+        run: |
+          pyinstaller "main.spec"
+          # Verificar se o build foi bem-sucedido
+          if (Test-Path "dist\PDF-Maker") {
+            Write-Host "Build bem-sucedido! Conteúdo do diretório dist:"
+            Get-ChildItem "dist" -Recurse | Format-Table Name, FullName
+          } else {
+            Write-Host "ERRO: Diretório dist\PDF-Maker não foi criado!"
+            Write-Host "Conteúdo do diretório atual:"
+            Get-ChildItem "." -Recurse -Depth 2 | Format-Table Name, FullName
+            exit 1
+          }
 
       # 7) Instala Inno Setup
       - name: Install Inno Setup
@@ -85,6 +96,14 @@ jobs:
       - name: Create Inno Setup Script
         run: |
           $version = "${{ steps.get_version.outputs.VERSION }}".TrimStart('v')
+          
+          # Verificar novamente se o diretório existe antes de criar o script
+          if (-not (Test-Path "dist\PDF-Maker")) {
+            Write-Host "ERRO: Diretório dist\PDF-Maker não existe!"
+            Write-Host "Estrutura atual do diretório:"
+            Get-ChildItem "." -Recurse -Depth 3 | Where-Object { $_.PSIsContainer } | Format-Table Name, FullName
+            exit 1
+          }
           
           $script = @"
           [Setup]
@@ -142,14 +161,29 @@ jobs:
           $script | Out-File -FilePath "setup.iss" -Encoding UTF8
           
           Write-Host "Script do Inno Setup criado com sucesso!"
+          Write-Host "Verificando arquivos que serão incluídos no setup:"
+          Get-ChildItem "dist\PDF-Maker" -Recurse | Select-Object Name, FullName
 
       # 9) Gera o setup.exe
       - name: Build Setup with Inno Setup
         run: |
+          # Verificar uma última vez se tudo está pronto
+          if (-not (Test-Path "dist\PDF-Maker")) {
+            Write-Host "ERRO: Diretório dist\PDF-Maker ainda não existe!"
+            exit 1
+          }
+          
+          if (-not (Test-Path "setup.iss")) {
+            Write-Host "ERRO: Arquivo setup.iss não foi criado!"
+            exit 1
+          }
+          
           $innoPath = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
           if (-not (Test-Path $innoPath)) {
             $innoPath = "${env:ProgramFiles}\Inno Setup 6\ISCC.exe"
           }
+          
+          Write-Host "Executando Inno Setup..."
           & $innoPath "setup.iss"
 
       # 10) Empacota num ZIP
