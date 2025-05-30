@@ -133,6 +133,7 @@ jobs:
           
           [Run]
           Filename: "{app}\PDF-Maker.exe"; Description: "{cm:LaunchProgram,PDF Maker}"; Flags: nowait postinstall skipifsilent
+          Filename: "{app}\PDF-Maker.exe"; Description: "{cm:LaunchProgram,PDF Maker}"; Flags: nowait postinstall skipifsilent
           
           [UninstallDelete]
           Type: filesandordirs; Name: "{app}"
