@@ -77,11 +77,11 @@ jobs:
           # Verificar se o build foi bem-sucedido
           if (Test-Path "dist\PDF-Maker") {
             Write-Host "Build bem-sucedido! Conteúdo do diretório dist:"
-            Get-ChildItem "dist" -Recurse | Format-Table Name, FullName
+            Get-ChildItem "dist\PDF-Maker" -Recurse | Format-Table Name, FullName
           } else {
             Write-Host "ERRO: Diretório dist\PDF-Maker não foi criado!"
-            Write-Host "Conteúdo do diretório atual:"
-            Get-ChildItem "." -Recurse -Depth 2 | Format-Table Name, FullName
+            Write-Host "Conteúdo do diretório dist:"
+            Get-ChildItem "dist" | Format-Table Name, FullName
             exit 1
           }
 
@@ -96,14 +96,6 @@ jobs:
       - name: Create Inno Setup Script
         run: |
           $version = "${{ steps.get_version.outputs.VERSION }}".TrimStart('v')
-          
-          # Verificar novamente se o diretório existe antes de criar o script
-          if (-not (Test-Path "dist\PDF-Maker")) {
-            Write-Host "ERRO: Diretório dist\PDF-Maker não existe!"
-            Write-Host "Estrutura atual do diretório:"
-            Get-ChildItem "." -Recurse -Depth 3 | Where-Object { $_.PSIsContainer } | Format-Table Name, FullName
-            exit 1
-          }
           
           $script = @"
           [Setup]

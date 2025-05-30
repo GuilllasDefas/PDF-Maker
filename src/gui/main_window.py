@@ -7,11 +7,12 @@ import keyboard
 from src.config.config import (
     DEFAULT_WINDOW_SIZE, DEFAULT_IMAGE_DISPLAY_SIZE, 
     DEFAULT_INTERVAL, DEFAULT_NUM_CAPTURES,
-    SCREENSHOT_HOTKEY, AUTOMATION_HOTKEY, PDF_OUTPUT
+    SCREENSHOT_HOTKEY, AUTOMATION_HOTKEY, PDF_OUTPUT, APP_VERSION
 )
 from src.core.screenshot import ScreenshotManager
 from src.core.pdf_generator import PDFGenerator
 from src.core.automation import AutomationManager
+from src.core.update_checker import UpdateChecker
 
 # Permite carregar imagens truncadas
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -20,18 +21,20 @@ class PDFMakerApp:
     def __init__(self, root):
         self.root = root
         self.root.geometry(DEFAULT_WINDOW_SIZE)
-        self.root.title("PDF Maker - Screenshot Tool")
+        self.root.title(f"PDF Maker v{APP_VERSION} - Screenshot Tool")
         
         # Managers
         self.screenshot_manager = ScreenshotManager()
         self.pdf_generator = PDFGenerator()
         self.automation_manager = AutomationManager(self.screenshot_manager)
+        self.update_checker = UpdateChecker()
         
         # Estado da aplicação
         self.counter = 0
         self.last_image = None
         self.current_image = None
         self.img_display_size = DEFAULT_IMAGE_DISPLAY_SIZE
+        self.update_download_url = None
         
         # Configurar callbacks da automação
         self._setup_automation_callbacks()
@@ -44,6 +47,9 @@ class PDFMakerApp:
         
         # Configurar redimensionamento
         self._setup_resize_handling()
+        
+        # Verificar atualizações ao iniciar
+        self._check_updates_on_startup()
     
     def _setup_automation_callbacks(self):
         """Configura os callbacks da automação."""
@@ -55,9 +61,18 @@ class PDFMakerApp:
     
     def _build_ui(self):
         """Constrói a interface do usuário."""
+        # Frame superior com contador e botão de update
+        top_frame = ttk.Frame(self.root)
+        top_frame.pack(fill=tk.X, padx=10, pady=5)
+        
         # Counter label
-        self.label_counter = ttk.Label(self.root, text="Prints tirados: 0")
-        self.label_counter.pack(pady=5)
+        self.label_counter = ttk.Label(top_frame, text="Prints tirados: 0")
+        self.label_counter.pack(side=tk.LEFT)
+        
+        # Botão de verificar updates
+        self.btn_check_update = ttk.Button(top_frame, text="Verificar Atualizações", 
+                                         command=self._manual_check_updates)
+        self.btn_check_update.pack(side=tk.RIGHT)
         
         # Frame de imagens
         self._build_images_frame()
@@ -68,6 +83,46 @@ class PDFMakerApp:
         # Botão PDF
         self.btn_pdf = ttk.Button(self.root, text="Gerar PDF", command=self._generate_pdf)
         self.btn_pdf.pack(pady=10)
+    
+    def _check_updates_on_startup(self):
+        """Verifica atualizações automaticamente ao iniciar."""
+        def callback(has_update, latest_version, download_url):
+            if has_update:
+                self.update_download_url = download_url
+                self.root.after(0, lambda: self._show_update_notification(latest_version))
+        
+        self.update_checker.check_for_updates_async(callback)
+    
+    def _manual_check_updates(self):
+        """Verifica atualizações manualmente."""
+        self.btn_check_update.config(state=tk.DISABLED, text="Verificando...")
+        
+        def callback(has_update, latest_version, download_url):
+            self.root.after(0, lambda: self._manual_check_complete(has_update, latest_version, download_url))
+        
+        self.update_checker.check_for_updates_async(callback)
+    
+    def _manual_check_complete(self, has_update, latest_version, download_url):
+        """Callback para verificação manual."""
+        self.btn_check_update.config(state=tk.NORMAL, text="Verificar Atualizações")
+        
+        if has_update:
+            self.update_download_url = download_url
+            self._show_update_notification(latest_version)
+        else:
+            messagebox.showinfo("Atualizações", "Você está usando a versão mais recente!")
+    
+    def _show_update_notification(self, latest_version):
+        """Mostra notificação de atualização disponível."""
+        result = messagebox.askyesno(
+            "Atualização Disponível", 
+            f"Nova versão disponível: v{latest_version}\n"
+            f"Versão atual: v{APP_VERSION}\n\n"
+            "Deseja baixar a nova versão?"
+        )
+        
+        if result and self.update_download_url:
+            self.update_checker.open_download_page(self.update_download_url)
     
     def _build_images_frame(self):
         """Constrói o frame de exibição de imagens."""
