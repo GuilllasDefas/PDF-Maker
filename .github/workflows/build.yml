@@ -37,6 +37,7 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install --upgrade pip
+          pip install --upgrade setuptools wheel
           pip install -r requirements.txt
 
       # 5) Instala UPX para compressão de executáveis
@@ -120,6 +121,12 @@ jobs:
           ArchitecturesInstallIn64BitMode=x64
           ChangesAssociations=yes
           RestartIfNeededByRun=no
+          PrivilegesRequired=admin
+          OutputManifestFile=Setup-Manifest.txt
+          Uninstallable=yes
+          UninstallDisplayIcon={app}\PDF-Maker.exe
+          UninstallDisplayName=PDF Maker
+          CreateUninstallRegKey=yes
           
           [Languages]
           Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
