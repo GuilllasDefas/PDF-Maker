@@ -82,9 +82,9 @@ class PDFMakerApp:
                                          command=self._manual_check_updates)
         self.btn_check_update.pack(side=tk.RIGHT)
         
-        # Frame para seleção de diretório base (NOVO)
+        # Frame para seleção de diretório base
         self._build_directory_frame()
-        
+
         # Frame de imagens
         self._build_images_frame()
         
@@ -95,6 +95,16 @@ class PDFMakerApp:
         self.btn_pdf = ttk.Button(self.root, text="Gerar PDF", command=self._generate_pdf)
         self.btn_pdf.pack(pady=10)
     
+    def _open_selected_directory(self):
+        """Abre o diretório selecionado no Explorer."""
+        if self.base_directory and os.path.isdir(self.base_directory):
+            try:
+                os.startfile(self.base_directory)
+            except Exception as e:
+                messagebox.showerror("Erro", f"Não foi possível abrir a pasta:\n{e}")
+        else:
+            messagebox.showwarning("Aviso", "Selecione um diretório válido primeiro.")
+
     def _build_directory_frame(self):
         """Constrói o frame para seleção do diretório base."""
         frame_dir = ttk.LabelFrame(self.root, text="Diretório para Salvar Imagens e PDF")
@@ -107,7 +117,11 @@ class PDFMakerApp:
         
         # Botão para selecionar diretório
         btn_browse = ttk.Button(frame_dir, text="Procurar...", command=self._browse_directory)
-        btn_browse.pack(side=tk.RIGHT, padx=5, pady=5)
+        btn_browse.pack(side=tk.LEFT, padx=5, pady=5)
+
+        # Botão para abrir diretório
+        btn_open = ttk.Button(frame_dir, text="Abrir Pasta", command=self._open_selected_directory)
+        btn_open.pack(side=tk.RIGHT, padx=5, pady=5)
     
     def _browse_directory(self):
         """Abre diálogo para selecionar diretório base."""
