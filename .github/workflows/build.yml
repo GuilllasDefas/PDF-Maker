@@ -1,0 +1,205 @@
+name: Build e Release YouTube Downloader
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      # 1) Puxa o código
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      # 2) Seta Python
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      # 3) Extrai versão do arquivo Python
+      - name: Extract Version from Python Config
+        id: get_version
+        run: |
+          $version = python -c "from src.config.config import APP_VERSION; print(f'v{APP_VERSION}')"
+          echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+          echo "Versão extraída: $version"
+
+      # 4) Instala dependências e PyInstaller
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # 5) Instala UPX para compressão de executáveis
+      - name: Install UPX
+        run: |
+          # Baixar UPX
+          $upxUrl = "https://github.com/upx/upx/releases/download/v5.0.1/upx-5.0.1-win64.zip"
+          $upxZip = "upx.zip"
+          $upxDir = "upx"
+          
+          Write-Host "Baixando UPX..."
+          Invoke-WebRequest -Uri $upxUrl -OutFile $upxZip
+          
+          Write-Host "Extraindo UPX..."
+          Expand-Archive -Path $upxZip -DestinationPath $upxDir -Force
+          
+          # Encontrar o executável do UPX
+          $upxExePath = Get-ChildItem -Path $upxDir -Recurse -File -Filter "upx.exe" | Select-Object -First 1 -ExpandProperty FullName
+          $upxDirPath = Split-Path -Parent $upxExePath
+          
+          Write-Host "Caminho do UPX: $upxDirPath"
+          
+          # Adicionar ao PATH
+          $env:PATH = "$upxDirPath;$env:PATH"
+          
+          # Salvar no GITHUB_PATH para próximos steps
+          Add-Content $env:GITHUB_PATH $upxDirPath
+          
+          # Verificar se UPX foi instalado corretamente
+          & "$upxExePath" --version
+          
+          Write-Host "UPX instalado e configurado com sucesso!"
+
+      # 6) Gera o .exe usando o arquivo .spec
+      - name: Build EXE com arquivo .spec
+        run: pyinstaller "YouTube Downloader.spec"
+
+      # 7) Instala Inno Setup
+      - name: Install Inno Setup
+        run: |
+          $url = "https://files.jrsoftware.org/is/6/innosetup-6.2.2.exe"
+          Invoke-WebRequest -Uri $url -OutFile "innosetup-installer.exe"
+          Start-Process -FilePath "innosetup-installer.exe" -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART" -Wait
+
+      # 8) Cria script do Inno Setup
+      - name: Create Inno Setup Script
+        run: |
+          $version = "${{ steps.get_version.outputs.VERSION }}".TrimStart('v')
+          $script = @"
+          [Setup]
+          AppName=YouTube Downloader
+          AppVersion=$version
+          AppPublisher=GuilllasDefas
+          AppPublisherURL=https://github.com/GuilllasDefas/YT-Downloader
+          AppSupportURL=https://github.com/GuilllasDefas/YT-Downloader/issues
+          AppUpdatesURL=https://github.com/GuilllasDefas/YT-Downloader/releases
+          DefaultDirName={autopf}\YouTube Downloader
+          DefaultGroupName=YouTube Downloader
+          AllowNoIcons=yes
+          LicenseFile=
+          OutputDir=setup-output
+          OutputBaseFilename=YouTube-Downloader-Setup-${{ steps.get_version.outputs.VERSION }}
+          SetupIconFile="resources/logo.ico"
+          Compression=lzma
+          SolidCompression=yes
+          WizardStyle=modern
+          ArchitecturesInstallIn64BitMode=x64
+          ; Configurações para garantir que o ícone funcione corretamente
+          ChangesAssociations=yes
+          RestartIfNeededByRun=no
+          
+          [Languages]
+          Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
+          
+          [Tasks]
+          Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+          Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 6.1
+          
+          [Files]
+          Source: "dist\YouTube Downloader\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+          Source: "resources\logo.ico"; DestDir: "{app}"; Flags: ignoreversion
+          
+          [Icons]
+          Name: "{group}\YouTube Downloader"; Filename: "{app}\YouTube Downloader.exe"; IconFilename: "{app}\logo.ico"; WorkingDir: "{app}"
+          Name: "{group}\{cm:UninstallProgram,YouTube Downloader}"; Filename: "{uninstallexe}"
+          Name: "{autodesktop}\YouTube Downloader"; Filename: "{app}\YouTube Downloader.exe"; Tasks: desktopicon; IconFilename: "{app}\logo.ico"; WorkingDir: "{app}"
+          Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\YouTube Downloader"; Filename: "{app}\YouTube Downloader.exe"; Tasks: quicklaunchicon; IconFilename: "{app}\logo.ico"; WorkingDir: "{app}"
+          
+          [Registry]
+          Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\YouTube Downloader.exe"; ValueType: string; ValueName: ""; ValueData: "YouTube Downloader"; Flags: uninsdeletekey
+          Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\YouTube Downloader.exe\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\logo.ico,0"; Flags: uninsdeletekey
+          Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\YouTube Downloader.exe\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\YouTube Downloader.exe"" ""%1"""; Flags: uninsdeletekey
+          
+          [Run]
+          Filename: "{app}\YouTube Downloader.exe"; Description: "{cm:LaunchProgram,YouTube Downloader}"; Flags: nowait postinstall skipifsilent
+          Filename: "ie4uinit.exe"; Parameters: "-show"; Flags: runhidden waituntilterminated; StatusMsg: "Atualizando cache de ícones..."
+          
+          [UninstallDelete]
+          Type: filesandordirs; Name: "{app}"
+          
+          [UninstallRun]
+          Filename: "ie4uinit.exe"; Parameters: "-show"; Flags: runhidden waituntilterminated
+          "@
+          
+          $script | Out-File -FilePath "setup.iss" -Encoding UTF8
+
+      # 9) Gera o setup.exe
+      - name: Build Setup with Inno Setup
+        run: |
+          $innoPath = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $innoPath)) {
+            $innoPath = "${env:ProgramFiles}\Inno Setup 6\ISCC.exe"
+          }
+          & $innoPath "setup.iss"
+
+      # 10) Empacota num ZIP
+      - name: Zip App
+        run: Compress-Archive -Path "dist\YouTube Downloader\*" -DestinationPath "YouTube-Downloader.zip"
+        
+      # 11) Cria uma tag automática
+      - name: Criar tag automática
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag -a ${{ steps.get_version.outputs.VERSION }} -m "Release automática ${{ steps.get_version.outputs.VERSION }}"
+          git push origin ${{ steps.get_version.outputs.VERSION }}
+
+      # 12) Cria a Release
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          release_name: YouTube Downloader ${{ steps.get_version.outputs.VERSION }}
+          body: |           
+            ## Melhoria
+
+            - Prioriza Codecs mais universais no download de vídeo
+            - Adicionada compressão UPX para diminuir o tamanho da aplicação
+
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 13) Anexa o ZIP à Release
+      - name: Upload ZIP Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: PDF-Maker.zip
+          asset_name: PDF-Maker-${{ steps.get_version.outputs.VERSION }}.zip
+          asset_content_type: application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 14) Anexa o Setup à Release
+      - name: Upload Setup Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: setup-output/PDF-Maker-Setup-${{ steps.get_version.outputs.VERSION }}.exe
+          asset_name: PDF-Maker-Setup-${{ steps.get_version.outputs.VERSION }}.exe
+          asset_content_type: application/octet-stream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
