@@ -73,7 +73,12 @@ jobs:
       # 6) Gera o .exe usando o arquivo .spec
       - name: Build EXE com arquivo .spec
         run: |
+          # Desinstalar explicitamente o pathlib antes de executar PyInstaller
+          pip uninstall -y pathlib
+          
+          # Executar PyInstaller
           pyinstaller "main.spec"
+          
           # Verificar se o build foi bem-sucedido
           if (Test-Path "dist\PDF-Maker") {
             Write-Host "Build bem-sucedido! Conteúdo do diretório dist:"
