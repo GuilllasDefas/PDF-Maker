@@ -71,6 +71,20 @@ jobs:
           
           Write-Host "UPX instalado e configurado com sucesso!"
 
+      # 5.5) Criar pasta presets na raiz do projeto antes da compilação
+      - name: Create Source Presets Folder
+        run: |
+          # Criar a pasta presets na raiz do projeto
+          New-Item -Path "presets" -ItemType Directory -Force
+          
+          # Verificar se a pasta foi criada com sucesso
+          if (Test-Path "presets") {
+            Write-Host "Pasta presets na raiz do projeto criada com sucesso!"
+          } else {
+            Write-Host "ERRO: Falha ao criar a pasta presets na raiz!"
+            exit 1
+          }
+
       # 6) Gera o .exe usando o arquivo .spec
       - name: Build EXE com arquivo .spec
         run: |
@@ -88,23 +102,6 @@ jobs:
             Write-Host "ERRO: Diretório dist\PDF-Maker não foi criado!"
             exit 1
           }
-
-      # 7) Criar pasta presets na raiz do projeto compilado
-      - name: Create Presets Folder
-        run: |
-          # Criar a pasta presets no diretório dist\PDF-Maker
-          New-Item -Path "dist\PDF-Maker\presets" -ItemType Directory -Force
-          
-          # Verificar se a pasta foi criada com sucesso
-          if (Test-Path "dist\PDF-Maker\presets") {
-            Write-Host "Pasta presets criada com sucesso!"
-          } else {
-            Write-Host "ERRO: Falha ao criar a pasta presets!"
-            exit 1
-          }
-          
-          # Opcionalmente, você pode copiar arquivos para esta pasta
-          # Copy-Item -Path "caminho\para\arquivos\de\presets\*" -Destination "dist\PDF-Maker\presets\" -Recurse -Force
 
       # 8) Instala Inno Setup
       - name: Install Inno Setup
