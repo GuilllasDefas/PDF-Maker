@@ -5,13 +5,14 @@ import time
 import tkinter as tk
 from tkinter import filedialog
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Tuple
 from src.config.config import IMAGES_DIR
 
 class ScreenshotManager:
     def __init__(self, images_dir: str = IMAGES_DIR):
         self.base_dir = None
         self.images_dir = None
+        self.capture_area = None  # Para captura de área específica (x1, y1, x2, y2)
         
     def set_directory(self, base_dir: Optional[str] = None):
         """Define o diretório base para salvar arquivos."""
@@ -24,6 +25,10 @@ class ScreenshotManager:
             self._ensure_directory_exists()
             return True
         return False
+    
+    def set_capture_area(self, area: Optional[Tuple[int, int, int, int]]):
+        """Define a área de captura (x1, y1, x2, y2)"""
+        self.capture_area = area
     
     def _ask_user_for_directory(self) -> str:
         """Pergunta ao usuário onde salvar as capturas de tela."""
@@ -80,7 +85,14 @@ class ScreenshotManager:
             path = os.path.join(self.images_dir, filename)
             
             print(f"Tentando salvar screenshot em: {path}")
-            screenshot = pyautogui.screenshot()
+            
+            # Capturar tela completa ou área específica
+            if self.capture_area:
+                x1, y1, x2, y2 = self.capture_area
+                screenshot = pyautogui.screenshot(region=(x1, y1, x2-x1, y2-y1))
+            else:
+                screenshot = pyautogui.screenshot()
+                
             screenshot.save(path)
             
             # Verifica se o arquivo foi salvo corretamente

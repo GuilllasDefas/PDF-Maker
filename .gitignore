@@ -7,11 +7,16 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#Presets
+
+presets/
+
 # Image folder
 images/
 
 # Output file
 *.pdf
+*.png
 
 # C extensions
 *.so
