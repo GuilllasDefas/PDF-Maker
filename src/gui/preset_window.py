@@ -461,7 +461,7 @@ class PresetConfigWindow:
                 display_name = self._get_friendly_key_name(key)
                 self.stop_key_label.config(text=display_name)
                 self.stop_on_key.set(True)
-                messagebox.showinfo(f"Tecla de parada configurada: {key}")
+                messagebox.showinfo("Info", f"Tecla de ação configurada: {key}")
         except Exception as e:
             messagebox.showerror("Erro", f"Falha ao capturar tecla: {str(e)}")
         finally:
@@ -488,7 +488,7 @@ class PresetConfigWindow:
                 display_name = self._get_friendly_key_name(key)
                 self.action_key_label.config(text=display_name)
                 self.action_type.set("key")
-                messagebox.showinfo(f"Tecla de ação configurada: {key}")
+                messagebox.showinfo("Info", f"Tecla de ação configurada: {key}")
         except Exception as e:
             messagebox.showerror("Erro", f"Falha ao capturar tecla: {str(e)}")
         finally:

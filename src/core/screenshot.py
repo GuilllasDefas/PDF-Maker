@@ -21,7 +21,9 @@ class ScreenshotManager:
         
         if base_dir:
             self.base_dir = base_dir
-            self.images_dir = os.path.join(base_dir, "Images")
+            # Criar uma pasta Screenshots com timestamp para esta sessão
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            self.images_dir = os.path.join(base_dir, f"Screenshots_{timestamp}")
             self._ensure_directory_exists()
             return True
         return False
@@ -72,19 +74,23 @@ class ScreenshotManager:
     def take_screenshot(self) -> Optional[str]:
         """Captura uma screenshot e salva no diretório de imagens."""
         try:
+            # Gerar timestamp para o nome do arquivo
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            
             # Verificar se o diretório ainda existe antes de salvar
             if not self.images_dir or not os.path.exists(self.images_dir):
-                print(f"Diretório de imagens não definido ou não existe. Usando temporário...")
+                print(f"Diretório de screenshots não definido ou não existe. Usando temporário...")
                 import tempfile
                 temp_base = os.path.join(tempfile.gettempdir(), "PDF_Maker")
                 self.base_dir = temp_base
-                self.images_dir = os.path.join(temp_base, "Images")
+                # Criar uma pasta temporária com timestamp
+                timestamp_dir = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                self.images_dir = os.path.join(temp_base, f"Screenshots_{timestamp_dir}")
                 self._ensure_directory_exists()
             
-            filename = datetime.now().strftime("%Y%m%d_%H%M%S") + ".png"
+            # Criar o nome do arquivo com timestamp
+            filename = f"screenshot_{timestamp}.png"
             path = os.path.join(self.images_dir, filename)
-            
-            print(f"Tentando salvar screenshot em: {path}")
             
             # Capturar tela completa ou área específica
             if self.capture_area:
@@ -162,3 +168,7 @@ class ScreenshotManager:
         except Exception as e:
             print(f"Erro ao limpar imagens temporárias: {e}")
             return False
+    
+    def get_images_dir(self) -> Optional[str]:
+        """Retorna o diretório onde as imagens estão armazenadas."""
+        return self.images_dir

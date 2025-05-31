@@ -4,10 +4,11 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 from PIL import Image, ImageTk, ImageFile
 import keyboard
+from datetime import datetime  # Adicionar import para timestamp
 from src.config.config import (
     DEFAULT_WINDOW_SIZE, DEFAULT_IMAGE_DISPLAY_SIZE, 
     DEFAULT_INTERVAL, DEFAULT_NUM_CAPTURES,
-    SCREENSHOT_HOTKEY, AUTOMATION_HOTKEY, PDF_OUTPUT, APP_VERSION
+    SCREENSHOT_HOTKEY, AUTOMATION_HOTKEY, APP_VERSION
 )
 from src.core.screenshot import ScreenshotManager
 from src.core.pdf_generator import PDFGenerator
@@ -40,13 +41,21 @@ class PDFMakerApp:
         self.current_image = None
         self.img_display_size = DEFAULT_IMAGE_DISPLAY_SIZE
         self.update_download_url = None
-        self.base_directory = ""  # Novo campo para armazenar o diretório base
+        self.base_directory = self._load_last_directory()  # Carrega a última pasta usada
         
         # Configurar callbacks da automação
         self._setup_automation_callbacks()
         
         # Construir interface
         self._build_ui()
+        
+        # Se tiver diretório salvo, configure-o
+        if self.base_directory:
+            self.dir_var.set(self.base_directory)
+            screenshots_dir = os.path.join(self.base_directory, "screenshots")
+            if not os.path.exists(screenshots_dir):
+                os.makedirs(screenshots_dir)
+            self.screenshot_manager.set_directory(screenshots_dir)
         
         # Iniciar listener de atalhos
         self._start_hotkey_listener()
@@ -59,6 +68,28 @@ class PDFMakerApp:
         
         # Desabilitar funcionalidades até que um diretório seja selecionado
         self._update_controls_state()
+    
+    def _load_last_directory(self):
+        """Carrega o último diretório usado de um arquivo simples."""
+        try:
+            last_dir_file = os.path.join(os.path.expanduser("~"), ".pdf_maker_lastdir")
+            if os.path.exists(last_dir_file):
+                with open(last_dir_file, 'r') as f:
+                    last_dir = f.read().strip()
+                    if os.path.isdir(last_dir):
+                        return last_dir
+        except:
+            pass  # Se houver qualquer erro, apenas retorna vazio
+        return ""
+    
+    def _save_last_directory(self, directory):
+        """Salva o último diretório usado em um arquivo simples."""
+        try:
+            last_dir_file = os.path.join(os.path.expanduser("~"), ".pdf_maker_lastdir")
+            with open(last_dir_file, 'w') as f:
+                f.write(directory)
+        except:
+            pass  # Se houver qualquer erro, ignore silenciosamente
     
     def _setup_automation_callbacks(self):
         """Configura os callbacks da automação."""
@@ -126,8 +157,12 @@ class PDFMakerApp:
     
     def _browse_directory(self):
         """Abre diálogo para selecionar diretório base."""
+        # Usar o último diretório como inicial, se disponível
+        initial_dir = self.base_directory if self.base_directory else os.path.expanduser("~")
+        
         directory = filedialog.askdirectory(
-            title="Selecione o diretório para salvar imagens e PDF"
+            title="Selecione o diretório para salvar imagens e PDF",
+            initialdir=initial_dir
         )
         
         if directory:
@@ -141,6 +176,9 @@ class PDFMakerApp:
             
             self.screenshot_manager.set_directory(screenshots_dir)
             self._update_controls_state()
+            
+            # Salvar o diretório para uso futuro
+            self._save_last_directory(directory)
     
     def _update_controls_state(self):
         """Atualiza o estado dos controles com base na seleção de diretório."""
@@ -455,13 +493,18 @@ class PDFMakerApp:
             messagebox.showerror("Erro", "Selecione um diretório válido antes de gerar o PDF.")
             return
         
+        # Obter caminhos das imagens e diretório onde estão armazenadas
         paths = self.screenshot_manager.get_image_paths()
         if not paths:
             messagebox.showwarning("PDF", "Nenhuma imagem para gerar PDF.")
             return
-            
-        # Definir caminho para o PDF
-        pdf_path = os.path.join(self.base_directory, "output.pdf")
+        
+        # Usar o diretório das capturas para salvar o PDF
+        screenshots_dir = self.screenshot_manager.get_images_dir()
+        
+        # Definir caminho para o PDF com timestamp
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        pdf_path = os.path.join(screenshots_dir, f"PDF Maker_{timestamp}.pdf")
         
         # Gerar o PDF
         if self.pdf_generator.generate_pdf(paths, pdf_path):

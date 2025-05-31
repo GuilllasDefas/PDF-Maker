@@ -3,6 +3,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
 from typing import List
 from src.config.config import DEFAULT_DPI
+from tkinter import messagebox
 
 # Permite carregar imagens truncadas
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -23,12 +24,12 @@ class PDFGenerator:
                 if self._add_image_to_pdf(c, img_path):
                     c.showPage()
                 else:
-                    print(f"Falha ao processar imagem: {img_path}")
+                    messagebox.showerror("Erro", f"Falha ao processar imagem: {img_path}")
             
             c.save()
             return True
         except Exception as e:
-            print(f"Erro ao gerar PDF: {e}")
+            messagebox.showerror("Erro", f"Erro ao gerar PDF: {e}")
             return False
     
     def _add_image_to_pdf(self, canvas_obj, img_path: str) -> bool:
@@ -60,5 +61,5 @@ class PDFGenerator:
                 
                 return True
         except Exception as e:
-            print(f"Erro ao processar imagem {img_path}: {e}")
+            messagebox.showerror("Erro", f"Erro ao processar imagem {img_path}: {e}")
             return False

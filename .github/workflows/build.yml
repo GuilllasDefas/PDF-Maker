@@ -79,15 +79,6 @@ jobs:
           
           # Executar PyInstaller
           pyinstaller "main.spec"
-          
-          # Verificar se o build foi bem-sucedido
-          if (Test-Path "dist\PDF-Maker") {
-            Write-Host "Build bem-sucedido! Conteúdo do diretório dist:"
-            Get-ChildItem "dist\PDF-Maker" -Recurse | Format-Table Name, FullName
-          } else {
-            Write-Host "ERRO: Diretório dist\PDF-Maker não foi criado!"
-            exit 1
-          }
     
       # 7) Instala Inno Setup
       - name: Install Inno Setup
@@ -171,8 +162,8 @@ jobs:
           body: |           
             ## Melhorias e Correções
 
-            - Corrigida a detecção de versão
-            - Corrigido a função de salvar preset
+            - Salva o ultimo diretório utilizado
+            - Salva as imagens e pdf em um diretório contendo data e hora da execução (evitando sobrescrita)
 
           draft: false
           prerelease: true
