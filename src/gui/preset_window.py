@@ -5,6 +5,8 @@ from tkinter import ttk, messagebox
 import keyboard
 import threading
 import time
+import sys
+import platform
 from typing import Dict, Any, Callable, Optional, Tuple
 
 class AreaSelector:
@@ -179,13 +181,18 @@ class PresetConfigWindow:
         self.parent = parent
         self.base_dir = base_dir
         self.callback = callback
-        self.presets_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "presets")
         self.window = None
         self.capture_area = None
         self.area_feedback_label = None
         
+         # Determinar o diretório apropriado para armazenar presets baseado no sistema operacional
+        self.presets_dir = self._get_app_data_dir()
+
         # Criar diretório de presets se não existir
-        os.makedirs(self.presets_dir, exist_ok=True)
+        try:
+            os.makedirs(self.presets_dir, exist_ok=True)
+        except Exception as e:
+            messagebox.showwarning(f"Erro ao criar diretório de presets: {e}")
         
         # Variáveis para os campos do formulário
         self.preset_name = tk.StringVar()
@@ -400,7 +407,7 @@ class PresetConfigWindow:
             try:
                 self._load_preset(silent=True)
             except Exception as e:
-                print(f"Erro ao carregar preset inicial: {e}")
+                messagebox.showerror(f"Erro ao carregar preset inicial: {e}")
     
     def _select_area(self):
         """Abre a seleção de área"""
@@ -425,14 +432,13 @@ class PresetConfigWindow:
                 self.capture_type.set("area")  # Seleciona o radiobutton de área automaticamente
                 # Atualiza o feedback visual
                 self.area_feedback_label.config(text=f"Área: {area[0]},{area[1]} até {area[2]},{area[3]}")
-                print(f"Área selecionada: {area}")
             
             # Restaurar a janela principal na mesma posição
             self.window.deiconify()
             self.window.geometry(f"+{x}+{y}")
             
         except Exception as e:
-            print(f"Erro ao selecionar área: {e}")
+            messagebox.showerror(f"Erro ao selecionar área: {e}")
             self.window.deiconify()
             messagebox.showerror("Erro", f"Falha ao selecionar área: {str(e)}")
     
@@ -455,9 +461,8 @@ class PresetConfigWindow:
                 display_name = self._get_friendly_key_name(key)
                 self.stop_key_label.config(text=display_name)
                 self.stop_on_key.set(True)
-                print(f"Tecla de parada configurada: {key}")
+                messagebox.showinfo(f"Tecla de parada configurada: {key}")
         except Exception as e:
-            print(f"Erro ao capturar tecla: {e}")
             messagebox.showerror("Erro", f"Falha ao capturar tecla: {str(e)}")
         finally:
             # Restaurar a janela principal na mesma posição
@@ -483,9 +488,8 @@ class PresetConfigWindow:
                 display_name = self._get_friendly_key_name(key)
                 self.action_key_label.config(text=display_name)
                 self.action_type.set("key")
-                print(f"Tecla de ação configurada: {key}")
+                messagebox.showinfo(f"Tecla de ação configurada: {key}")
         except Exception as e:
-            print(f"Erro ao capturar tecla: {e}")
             messagebox.showerror("Erro", f"Falha ao capturar tecla: {str(e)}")
         finally:
             # Restaurar a janela principal na mesma posição
@@ -523,6 +527,10 @@ class PresetConfigWindow:
             # Criar dados do preset
             preset_data = self._collect_preset_data()
             
+            # Verificar se o diretório existe, se não, criá-lo
+            if not os.path.exists(self.presets_dir):
+                os.makedirs(self.presets_dir, exist_ok=True)
+                
             # Salvar como JSON
             filename = os.path.join(self.presets_dir, f"{name}.json")
             with open(filename, "w") as f:
@@ -531,8 +539,13 @@ class PresetConfigWindow:
             messagebox.showinfo("Sucesso", f"Preset '{name}' salvo com sucesso!")
             self._update_preset_list()
             
+        except PermissionError:
+            # Tratamento específico para erros de permissão
+            error_msg = f"Sem permissão para salvar no diretório: {self.presets_dir}\n"
+            error_msg += "O programa não possui permissões de escrita neste local."
+            messagebox.showerror("Erro de Permissão", error_msg)
         except Exception as e:
-            messagebox.showerror("Erro", f"Falha ao salvar preset: {str(e)}")
+            messagebox.showerror("Erro", f"Falha ao salvar preset: {str(e)}\nDiretório: {self.presets_dir}")
     
     def _collect_preset_data(self) -> Dict[str, Any]:
         """Coleta os dados do formulário para um dicionário"""
@@ -672,3 +685,26 @@ class PresetConfigWindow:
                 
         except Exception as e:
             messagebox.showerror("Erro", f"Falha ao aplicar configurações: {str(e)}")
+    
+    def _get_app_data_dir(self):
+        """
+        Retorna o diretório de dados apropriado para a aplicação com base no sistema operacional.
+        Garante compatibilidade com versões compiladas.
+        """
+        app_name = "PDF Maker"
+        
+        try:            
+            # Windows: AppData/Roaming
+            if platform.system() == "Windows":
+                app_data = os.path.join(os.environ.get('APPDATA', os.path.expanduser("~")), app_name)
+            
+            # Adicionar subdiretório presets
+            presets_dir = os.path.join(app_data, "presets")
+            return presets_dir
+            
+        except Exception as e:
+            # Fallback para Documents
+            messagebox.showerror(f"Erro ao determinar diretório de dados: {e}")
+            user_home = os.path.expanduser("~")
+            documents_dir = os.path.join(user_home, "Documents", app_name, "presets")
+            return documents_dir
