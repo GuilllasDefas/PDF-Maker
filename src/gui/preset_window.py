@@ -101,7 +101,7 @@ class KeyCaptureDialog:
         dialog.attributes('-topmost', True)
         
         # Centralizar na tela
-        dialog_width = 300
+        dialog_width = 270
         dialog_height = 150
         screen_width = dialog.winfo_screenwidth()
         screen_height = dialog.winfo_screenheight()
@@ -111,10 +111,10 @@ class KeyCaptureDialog:
         
         # Label de instrução
         ttk.Label(dialog, text="Pressione a tecla que deseja capturar:", 
-                  font=("Arial", 12)).pack(pady=(20, 10))
+                  font=("Arial", 10)).pack(pady=(20, 10))
         
         # Label para mostrar a tecla capturada
-        key_label = ttk.Label(dialog, text="Aguardando...", font=("Arial", 14, "bold"))
+        key_label = ttk.Label(dialog, text="Aguardando...", font=("Arial", 10, "bold"))
         key_label.pack(pady=10)
         
         # Variável para controlar o listener
@@ -214,8 +214,8 @@ class PresetConfigWindow:
             
         self.window = tk.Toplevel(self.parent)
         self.window.title("🖼️ Configurar Captura Automática")
-        self.window.geometry("800x650")  # Aumentado para melhor acomodar todos os elementos
-        self.window.minsize(750, 600)    # Define tamanho mínimo para garantir visibilidade dos botões
+        self.window.geometry("570x630")  # Aumentado para melhor acomodar todos os elementos
+        self.window.minsize(550, 500)    # Define tamanho mínimo para garantir visibilidade dos botões
         self.window.resizable(True, True)
         self.window.transient(self.parent)
         self.window.protocol("WM_DELETE_WINDOW", self._on_close)

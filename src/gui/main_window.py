@@ -248,7 +248,7 @@ class PDFMakerApp:
         # Segunda linha dedicada ao botão de presets (para maior visibilidade)
         self.btn_presets = ttk.Button(
             frame_config, 
-            text="✨ Configurar Presets Avançados", 
+            text="Configurar Automação", 
             command=self._open_preset_config,
             style="Accent.TButton"  # Estilo destacado
         )
@@ -257,7 +257,7 @@ class PDFMakerApp:
         # Criar estilo destacado para o botão
         style = ttk.Style()
         if 'Accent.TButton' not in style.theme_names():
-            style.configure('Accent.TButton', font=('Helvetica', 10, 'bold'))
+            style.configure('Accent.TButton', font=('Helvetica', 9, 'bold'))
         
         # Botões
         frame_buttons = ttk.Frame(self.frame_automation)
@@ -399,6 +399,7 @@ class PDFMakerApp:
         """Callback chamado quando a automação termina."""
         self._set_automation_controls_state(True)
         self.automation_status.config(text="Status: Concluído")
+        messagebox.showinfo("Automação", "Concluída com sucesso!")
     
     def _initial_resize(self):
         """Redimensionamento inicial."""
