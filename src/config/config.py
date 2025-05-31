@@ -1,7 +1,7 @@
 import os
 
 # Versão da aplicação
-APP_VERSION = "0.1.2"
+APP_VERSION = "0.2.0"
 
 # Diretórios
 IMAGES_DIR = "images"

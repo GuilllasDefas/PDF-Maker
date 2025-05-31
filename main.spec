@@ -20,7 +20,8 @@ a = Analysis(
         'src.core.pdf_generator',
         'src.core.automation',
         'src.core.update_checker',
-        'src.gui.main_window'
+        'src.gui.main_window',
+        'src.gui.preset_window'
     ],
     hookspath=[],
     hooksconfig={},

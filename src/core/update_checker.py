@@ -12,7 +12,7 @@ class UpdateChecker:
         """Verifica atualizações de forma assíncrona."""
         def check():
             try:
-                has_update, latest_version, download_url = self._check_github_releases()
+                has_update, latest_version, download_url = self._check_github_prereleases()
                 callback(has_update, latest_version, download_url)
             except:
                 callback(False, None, None)
@@ -38,6 +38,30 @@ class UpdateChecker:
         has_update = self._is_newer_version(latest_version, self.current_version)
         return has_update, latest_version, download_url
     
+    def _check_github_prereleases(self):
+        """Verifica pre-releases no GitHub."""
+        url = f"https://api.github.com/repos/{self.github_repo}/releases"
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
+        
+        releases = response.json()
+        # Filtra apenas pre-releases
+        prereleases = [r for r in releases if r.get('prerelease')]
+        if not prereleases:
+            return False, None, None
+
+        # Pega o mais recente (assume ordenação por data de publicação)
+        latest = prereleases[0]
+        latest_version = latest['tag_name'].lstrip('v')
+        download_url = latest['html_url']
+        for asset in latest.get('assets', []):
+            if 'Setup' in asset['name'] and asset['name'].endswith('.exe'):
+                download_url = asset['browser_download_url']
+                break
+
+        has_update = self._is_newer_version(latest_version, self.current_version)
+        return has_update, latest_version, download_url
+
     def _is_newer_version(self, latest, current):
         """Compara versões no formato x.y.z"""
         try:

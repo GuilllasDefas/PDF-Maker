@@ -13,6 +13,7 @@ from src.core.screenshot import ScreenshotManager
 from src.core.pdf_generator import PDFGenerator
 from src.core.automation import AutomationManager
 from src.core.update_checker import UpdateChecker
+from src.gui.preset_window import PresetConfigWindow
 
 # Permite carregar imagens truncadas
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -21,7 +22,7 @@ class PDFMakerApp:
     def __init__(self, root):
         self.root = root
         self.root.geometry(DEFAULT_WINDOW_SIZE)
-        self.root.title(f"PDF Maker v{APP_VERSION} - Screenshot Tool")
+        self.root.title(f"PDF Maker v{APP_VERSION} beta - Screenshot Tool")
         
         # Extrair largura e altura de DEFAULT_WINDOW_SIZE (formato "widthxheight")
         width, height = map(int, DEFAULT_WINDOW_SIZE.split('x'))
@@ -157,6 +158,10 @@ class PDFMakerApp:
         if hasattr(self, "btn_start"):
             self.btn_start.config(state=state)
         
+        # Adicione o botão de presets à verificação
+        if hasattr(self, "btn_presets"):
+            self.btn_presets.config(state=state)
+            
         # Atualize o status
         if not self.base_directory:
             self.automation_status.config(text="Status: Selecione um diretório") if hasattr(self, "automation_status") else None
@@ -229,6 +234,7 @@ class PDFMakerApp:
         frame_config = ttk.Frame(self.frame_automation)
         frame_config.pack(fill=tk.X, padx=5, pady=5)
         
+        # Primeira linha com os campos numéricos
         ttk.Label(frame_config, text="Intervalo (segundos):").grid(row=0, column=0, padx=5)
         self.interval_var = tk.StringVar(value=str(DEFAULT_INTERVAL))
         self.interval_entry = ttk.Entry(frame_config, width=5, textvariable=self.interval_var)
@@ -238,6 +244,20 @@ class PDFMakerApp:
         self.num_captures_var = tk.StringVar(value=str(DEFAULT_NUM_CAPTURES))
         self.num_captures_entry = ttk.Entry(frame_config, width=5, textvariable=self.num_captures_var)
         self.num_captures_entry.grid(row=0, column=3, padx=5)
+        
+        # Segunda linha dedicada ao botão de presets (para maior visibilidade)
+        self.btn_presets = ttk.Button(
+            frame_config, 
+            text="✨ Configurar Presets Avançados", 
+            command=self._open_preset_config,
+            style="Accent.TButton"  # Estilo destacado
+        )
+        self.btn_presets.grid(row=1, column=0, columnspan=4, sticky="ew", padx=5, pady=5)
+        
+        # Criar estilo destacado para o botão
+        style = ttk.Style()
+        if 'Accent.TButton' not in style.theme_names():
+            style.configure('Accent.TButton', font=('Helvetica', 10, 'bold'))
         
         # Botões
         frame_buttons = ttk.Frame(self.frame_automation)
@@ -254,11 +274,47 @@ class PDFMakerApp:
         self.automation_status = ttk.Label(frame_buttons, text="Status: Inativo")
         self.automation_status.pack(side=tk.RIGHT, padx=5)
     
-    def _setup_resize_handling(self):
-        """Configura o tratamento de redimensionamento."""
-        self.root.bind("<Configure>", self._on_resize)
-        self.frame_images.bind("<Configure>", self._on_resize)
-        self.root.after(100, self._initial_resize)
+    def _open_preset_config(self):
+        """Abre a janela de configuração de presets."""
+        # Verificar se o diretório está configurado
+        if not self.base_directory or not os.path.isdir(self.base_directory):
+            messagebox.showerror("Erro", "Selecione um diretório válido antes de configurar presets.")
+            return
+        
+        # Criar e mostrar a janela de presets
+        preset_window = PresetConfigWindow(self.root, self.base_directory, callback=self._apply_preset)
+        preset_window.show()
+    
+    def _apply_preset(self, preset_data):
+        """Aplica as configurações do preset selecionado."""
+        if not preset_data:
+            return
+            
+        # Atualiza as configurações básicas
+        self.interval_var.set(str(preset_data.get('interval', DEFAULT_INTERVAL)))
+        self.num_captures_var.set(str(preset_data.get('num_captures', DEFAULT_NUM_CAPTURES)))
+        
+        # Configura o screenshot manager com as opções de captura
+        capture_type = preset_data.get('capture_type', 'fullscreen')
+        if capture_type == 'area' and 'capture_area' in preset_data:
+            self.screenshot_manager.set_capture_area(preset_data['capture_area'])
+        else:
+            self.screenshot_manager.set_capture_area(None)  # Usar padrão
+        
+        # Configura o automation manager com ações e condições
+        self.automation_manager.set_action_between_captures(
+            preset_data.get('action_type'),
+            preset_data.get('action_key')
+        )
+        
+        self.automation_manager.set_stop_conditions(
+            preset_data.get('stop_on_key'),
+            preset_data.get('stop_key'),
+            preset_data.get('stop_after_time'),
+            preset_data.get('stop_time_value')
+        )
+        
+        messagebox.showinfo("Preset", "Preset aplicado com sucesso! Pronto para iniciar automação.")
     
     def _start_hotkey_listener(self):
         """Inicia o listener de atalhos de teclado."""
@@ -359,6 +415,12 @@ class PDFMakerApp:
             img_height = max(150, frame_height - 40)
             self.img_display_size = (img_width, img_height)
             self._update_images()
+    
+    def _setup_resize_handling(self):
+        """Configura o tratamento de redimensionamento."""
+        self.root.bind("<Configure>", self._on_resize)
+        self.frame_images.bind("<Configure>", self._on_resize)
+        self.root.after(100, self._initial_resize)
     
     def _update_images(self):
         """Atualiza as imagens exibidas."""

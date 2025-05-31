@@ -172,8 +172,7 @@ jobs:
           body: |           
             ## Melhorias e Correções
 
-            - Pre-Release (Recomendado: Somente .zip)
-            - Adicionado campo de caminho para salvar o PDF e suas imagens
+            - Adicionado update de pre-release (Enquanto a versão não é estável, ela pode conter bugs)
 
           draft: false
           prerelease: true
