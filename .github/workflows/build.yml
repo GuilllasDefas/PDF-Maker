@@ -186,8 +186,7 @@ jobs:
           body: |           
             ## Melhorias e Correções
 
-            - Foi adicionado configurações avançadas para Automação de prints
-            - Ajuste de fontes
+            - Corrigida a detecção de versão 
 
           draft: false
           prerelease: true
