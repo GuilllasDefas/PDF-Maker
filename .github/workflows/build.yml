@@ -71,19 +71,7 @@ jobs:
           
           Write-Host "UPX instalado e configurado com sucesso!"
 
-      # 5.5) Criar pasta presets na raiz do projeto antes da compilação
-      - name: Create Source Presets Folder
-        run: |
-          # Criar a pasta presets na raiz do projeto
-          New-Item -Path "presets" -ItemType Directory -Force
-          
-          # Verificar se a pasta foi criada com sucesso
-          if (Test-Path "presets") {
-            Write-Host "Pasta presets na raiz do projeto criada com sucesso!"
-          } else {
-            Write-Host "ERRO: Falha ao criar a pasta presets na raiz!"
-            exit 1
-          }
+      
 
       # 6) Gera o .exe usando o arquivo .spec
       - name: Build EXE com arquivo .spec
@@ -100,6 +88,28 @@ jobs:
             Get-ChildItem "dist\PDF-Maker" -Recurse | Format-Table Name, FullName
           } else {
             Write-Host "ERRO: Diretório dist\PDF-Maker não foi criado!"
+            exit 1
+          }
+      
+      # 7) Criar pasta presets dentro de _internal
+      - name: Create Presets Folder in _internal
+        run: |
+          # Verificar se o diretório _internal existe
+          if (Test-Path "dist\PDF-Maker\_internal") {
+            # Criar a pasta presets dentro de _internal
+            New-Item -Path "dist\PDF-Maker\_internal\presets" -ItemType Directory -Force
+            
+            # Verificar se a pasta foi criada com sucesso
+            if (Test-Path "dist\PDF-Maker\_internal\presets") {
+              Write-Host "Pasta presets criada com sucesso dentro de _internal!"
+            } else {
+              Write-Host "ERRO: Falha ao criar a pasta presets dentro de _internal!"
+              exit 1
+            }
+          } else {
+            Write-Host "ERRO: O diretório _internal não foi encontrado! Verifique se o build foi executado corretamente."
+            Write-Host "Estrutura de diretórios atual:"
+            Get-ChildItem "dist\PDF-Maker" -Recurse | Select-Object -First 10 | Format-Table Name, FullName
             exit 1
           }
 
@@ -154,7 +164,6 @@ jobs:
           
           $script | Out-File -FilePath "setup.iss" -Encoding UTF8
   
-
       # 10) Gera o setup.exe
       - name: Build Setup with Inno Setup
         run: |
