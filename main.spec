@@ -5,7 +5,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('presets', 'presets')],
     hiddenimports=[
         'keyboard', 
         'PIL._imaging',

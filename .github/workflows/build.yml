@@ -89,6 +89,23 @@ jobs:
             exit 1
           }
 
+      # 7) Criar pasta presets na raiz do projeto compilado
+      - name: Create Presets Folder
+        run: |
+          # Criar a pasta presets no diretório dist\PDF-Maker
+          New-Item -Path "dist\PDF-Maker\presets" -ItemType Directory -Force
+          
+          # Verificar se a pasta foi criada com sucesso
+          if (Test-Path "dist\PDF-Maker\presets") {
+            Write-Host "Pasta presets criada com sucesso!"
+          } else {
+            Write-Host "ERRO: Falha ao criar a pasta presets!"
+            exit 1
+          }
+          
+          # Opcionalmente, você pode copiar arquivos para esta pasta
+          # Copy-Item -Path "caminho\para\arquivos\de\presets\*" -Destination "dist\PDF-Maker\presets\" -Recurse -Force
+
       # 8) Instala Inno Setup
       - name: Install Inno Setup
         run: |
@@ -172,9 +189,8 @@ jobs:
           body: |           
             ## Melhorias e Correções
 
-            - Ajuste de layout de atalhos
-            - Adicionado Botão para abrir pasta salva
-            - Adicionado update de pre-release (Enquanto a versão não é estável, ela pode conter bugs)
+            - Foi adicionado configurações avançadas para Automação de prints
+            - Ajuste de fontes
 
           draft: false
           prerelease: true

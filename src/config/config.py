@@ -1,5 +1,3 @@
-import os
-
 # Versão da aplicação
 APP_VERSION = "0.2.0"
 
