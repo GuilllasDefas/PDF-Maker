@@ -21,9 +21,13 @@ class ScreenshotManager:
         
         if base_dir:
             self.base_dir = base_dir
-            # Criar uma pasta Screenshots com timestamp para esta sessão
-            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            self.images_dir = os.path.join(base_dir, f"Screenshots_{timestamp}")
+            # Se o diretório passado já é uma pasta de sessão, use diretamente
+            # Só cria subpasta se for o diretório padrão global
+            if base_dir == IMAGES_DIR:
+                timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                self.images_dir = os.path.join(base_dir, f"Screenshots_{timestamp}")
+            else:
+                self.images_dir = base_dir
             self._ensure_directory_exists()
             return True
         return False
@@ -76,22 +80,24 @@ class ScreenshotManager:
         try:
             # Gerar timestamp para o nome do arquivo
             timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            
+
             # Verificar se o diretório ainda existe antes de salvar
             if not self.images_dir or not os.path.exists(self.images_dir):
-                print(f"Diretório de screenshots não definido ou não existe. Usando temporário...")
-                import tempfile
-                temp_base = os.path.join(tempfile.gettempdir(), "PDF_Maker")
-                self.base_dir = temp_base
-                # Criar uma pasta temporária com timestamp
-                timestamp_dir = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-                self.images_dir = os.path.join(temp_base, f"Screenshots_{timestamp_dir}")
-                self._ensure_directory_exists()
-            
+                print(f"Diretório de screenshots não definido ou não existe. Criando diretório da sessão...")
+                if self.images_dir:
+                    os.makedirs(self.images_dir, exist_ok=True)
+                else:
+                    # fallback para temporário
+                    import tempfile
+                    temp_base = os.path.join(tempfile.gettempdir(), "PDF_Maker")
+                    self.base_dir = temp_base
+                    self.images_dir = temp_base
+                    os.makedirs(self.images_dir, exist_ok=True)
+
             # Criar o nome do arquivo com timestamp
             filename = f"screenshot_{timestamp}.png"
             path = os.path.join(self.images_dir, filename)
-            
+
             # Capturar tela completa ou área específica
             if self.capture_area:
                 x1, y1, x2, y2 = self.capture_area
@@ -100,7 +106,7 @@ class ScreenshotManager:
                 screenshot = pyautogui.screenshot()
                 
             screenshot.save(path)
-            
+
             # Verifica se o arquivo foi salvo corretamente
             if os.path.exists(path) and os.path.getsize(path) > 0:
                 time.sleep(0.1)  # Pausa para garantir que o arquivo foi escrito

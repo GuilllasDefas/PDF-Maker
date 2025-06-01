@@ -1,5 +1,5 @@
 # Versão da aplicação
-APP_VERSION = "0.2.2"
+APP_VERSION = "0.2.3"
 
 # Diretórios
 IMAGES_DIR = "images"
@@ -12,6 +12,7 @@ TEXT_OUTPUT = "texto_extraido.txt"
 # Configurações de interface
 DEFAULT_WINDOW_SIZE = "800x500"
 DEFAULT_IMAGE_DISPLAY_SIZE = (350, 250)
+ICON = "assets/PDF-Maker.ico"
 
 # Configurações de automação
 DEFAULT_INTERVAL = 2.0

@@ -107,6 +107,7 @@ jobs:
           WizardStyle=modern
           ArchitecturesInstallIn64BitMode=x64
           RestartIfNeededByRun=no
+          SetupIconFile={app}\assets\PDF-Maker.ico
           
           [Languages]
           Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
@@ -162,8 +163,8 @@ jobs:
           body: |           
             ## Melhorias e Correções
 
-            - Salva o ultimo diretório utilizado
-            - Salva as imagens e pdf em um diretório contendo data e hora da execução (evitando sobrescrita)
+            - Adicionado botão "Nova Sessão", que cria uma nova pasta para novos prints
+            - Adicionado ícone básico ao PDF Maker
 
           draft: false
           prerelease: true

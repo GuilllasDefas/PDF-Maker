@@ -1,4 +1,5 @@
 import os
+import sys
 import threading
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
@@ -7,7 +8,7 @@ import keyboard
 from datetime import datetime  # Adicionar import para timestamp
 from src.config.config import (
     DEFAULT_WINDOW_SIZE, DEFAULT_IMAGE_DISPLAY_SIZE, 
-    DEFAULT_INTERVAL, DEFAULT_NUM_CAPTURES,
+    DEFAULT_INTERVAL, DEFAULT_NUM_CAPTURES, ICON,
     SCREENSHOT_HOTKEY, AUTOMATION_HOTKEY, APP_VERSION
 )
 from src.core.screenshot import ScreenshotManager
@@ -15,6 +16,7 @@ from src.core.pdf_generator import PDFGenerator
 from src.core.automation import AutomationManager
 from src.core.update_checker import UpdateChecker
 from src.gui.preset_window import PresetConfigWindow
+
 
 # Permite carregar imagens truncadas
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -24,8 +26,10 @@ class PDFMakerApp:
         self.root = root
         self.root.geometry(DEFAULT_WINDOW_SIZE)
         self.root.title(f"PDF Maker v{APP_VERSION} beta - Screenshot Tool")
-        
-        # Extrair largura e altura de DEFAULT_WINDOW_SIZE (formato "widthxheight")
+        icon_path = ICON
+        if getattr(sys, 'frozen', False):
+            icon_path = os.path.join(sys._MEIPASS, ICON)
+        self.root.iconbitmap(icon_path)
         width, height = map(int, DEFAULT_WINDOW_SIZE.split('x'))
         self.root.minsize(width, height)
         
@@ -42,6 +46,7 @@ class PDFMakerApp:
         self.img_display_size = DEFAULT_IMAGE_DISPLAY_SIZE
         self.update_download_url = None
         self.base_directory = self._load_last_directory()  # Carrega a última pasta usada
+        self.session_screenshots_dir = None  # Novo: diretório da sessão atual
         
         # Configurar callbacks da automação
         self._setup_automation_callbacks()
@@ -52,11 +57,7 @@ class PDFMakerApp:
         # Se tiver diretório salvo, configure-o
         if self.base_directory:
             self.dir_var.set(self.base_directory)
-            screenshots_dir = os.path.join(self.base_directory, "screenshots")
-            if not os.path.exists(screenshots_dir):
-                os.makedirs(screenshots_dir)
-            self.screenshot_manager.set_directory(screenshots_dir)
-        
+            self._reset_session()  # Inicializa a sessão ao abrir o diretório
         # Iniciar listener de atalhos
         self._start_hotkey_listener()
         
@@ -123,9 +124,19 @@ class PDFMakerApp:
         # Frame de automação
         self._build_automation_frame()
         
-        # Botão PDF
-        self.btn_pdf = ttk.Button(self.root, text="Gerar PDF", command=self._generate_pdf)
-        self.btn_pdf.pack(pady=10)
+        # Frame para botões PDF e Nova Sessão lado a lado
+        frame_pdf_reset = ttk.Frame(self.root)
+        frame_pdf_reset.pack(pady=10)
+
+        self.btn_pdf = ttk.Button(frame_pdf_reset, text="Gerar PDF", command=self._generate_pdf)
+        self.btn_pdf.pack(side=tk.LEFT, padx=5)
+
+        self.btn_reset_session = ttk.Button(
+            frame_pdf_reset,
+            text="Nova Sessão",
+            command=self._reset_session
+        )
+        self.btn_reset_session.pack(side=tk.LEFT, padx=5)
     
     def _open_selected_directory(self):
         """Abre o diretório selecionado no Explorer."""
@@ -168,42 +179,53 @@ class PDFMakerApp:
         if directory:
             self.dir_var.set(directory)
             self.base_directory = directory
-            
-            # Configurar o diretório no screenshot manager
-            screenshots_dir = os.path.join(directory, "screenshots")
-            if not os.path.exists(screenshots_dir):
-                os.makedirs(screenshots_dir)
-            
-            self.screenshot_manager.set_directory(screenshots_dir)
+            self._reset_session()  # Resetar sessão ao trocar de diretório
             self._update_controls_state()
-            
-            # Salvar o diretório para uso futuro
             self._save_last_directory(directory)
     
+    def _reset_session(self):
+        """Reseta a sessão de screenshots, criando uma nova pasta para a próxima leva."""
+        if not self.base_directory or not os.path.isdir(self.base_directory):
+            self.session_screenshots_dir = None
+            self.screenshot_manager.set_directory(None)
+            self.counter = 0
+            self.last_image = None
+            self.current_image = None
+            self._update_images()
+            self._update_controls_state()
+            return
+
+        # Cria apenas UMA pasta de sessão diretamente no diretório base
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        session_dir = os.path.join(self.base_directory, f"sessao_prints_{timestamp}")
+        os.makedirs(session_dir, exist_ok=True)
+        self.session_screenshots_dir = session_dir
+        self.screenshot_manager.set_directory(session_dir)
+        self.counter = 0
+        self.last_image = None
+        self.current_image = None
+        self._update_images()
+        self._update_controls_state()
+
     def _update_controls_state(self):
         """Atualiza o estado dos controles com base na seleção de diretório."""
         if self.base_directory and os.path.isdir(self.base_directory):
-            # Diretório válido selecionado - habilitar controles
             state = tk.NORMAL
         else:
-            # Nenhum diretório válido - desabilitar controles
             state = tk.DISABLED
         
-        # Desabilitar/habilitar controles relevantes
         self.btn_pdf.config(state=state)
-        
-        # Atualize os widgets no frame de automação
         if hasattr(self, "btn_start"):
             self.btn_start.config(state=state)
-        
-        # Adicione o botão de presets à verificação
         if hasattr(self, "btn_presets"):
             self.btn_presets.config(state=state)
-            
-        # Atualize o status
+        if hasattr(self, "btn_reset_session"):
+            state_btn = tk.NORMAL if self.base_directory and os.path.isdir(self.base_directory) else tk.DISABLED
+            self.btn_reset_session.config(state=state_btn)
+
         if not self.base_directory:
             self.automation_status.config(text="Status: Selecione um diretório") if hasattr(self, "automation_status") else None
-    
+
     def _check_updates_on_startup(self):
         """Verifica atualizações automaticamente ao iniciar."""
         def callback(has_update, latest_version, download_url):
@@ -272,17 +294,6 @@ class PDFMakerApp:
         frame_config = ttk.Frame(self.frame_automation)
         frame_config.pack(fill=tk.X, padx=5, pady=5)
         
-        # Primeira linha com os campos numéricos
-        ttk.Label(frame_config, text="Intervalo (segundos):").grid(row=0, column=0, padx=5)
-        self.interval_var = tk.StringVar(value=str(DEFAULT_INTERVAL))
-        self.interval_entry = ttk.Entry(frame_config, width=5, textvariable=self.interval_var)
-        self.interval_entry.grid(row=0, column=1, padx=5)
-        
-        ttk.Label(frame_config, text="Número de capturas:").grid(row=0, column=2, padx=5)
-        self.num_captures_var = tk.StringVar(value=str(DEFAULT_NUM_CAPTURES))
-        self.num_captures_entry = ttk.Entry(frame_config, width=5, textvariable=self.num_captures_var)
-        self.num_captures_entry.grid(row=0, column=3, padx=5)
-        
         # Segunda linha dedicada ao botão de presets (para maior visibilidade)
         self.btn_presets = ttk.Button(
             frame_config, 
@@ -290,7 +301,7 @@ class PDFMakerApp:
             command=self._open_preset_config,
             style="Accent.TButton"  # Estilo destacado
         )
-        self.btn_presets.grid(row=1, column=0, columnspan=4, sticky="ew", padx=5, pady=5)
+        self.btn_presets.grid(row=0, column=0, columnspan=4, sticky="ew", padx=5, pady=5)
         
         # Criar estilo destacado para o botão
         style = ttk.Style()
@@ -370,6 +381,12 @@ class PDFMakerApp:
             messagebox.showerror("Erro", "Selecione um diretório válido antes de capturar screenshots.")
             return
         
+        # Garante que o diretório da sessão está definido
+        if not self.session_screenshots_dir:
+            self._reset_session()
+        # Garante que o ScreenshotManager está usando a pasta correta
+        if self.screenshot_manager.get_images_dir() != self.session_screenshots_dir:
+            self.screenshot_manager.set_directory(self.session_screenshots_dir)
         img_path = self.screenshot_manager.take_screenshot()
         if img_path:
             self.counter += 1
@@ -417,8 +434,6 @@ class PDFMakerApp:
     def _set_automation_controls_state(self, enabled: bool):
         """Define o estado dos controles de automação."""
         state = tk.NORMAL if enabled else tk.DISABLED
-        self.interval_entry.config(state=state)
-        self.num_captures_entry.config(state=state)
         self.btn_start.config(state=state)
         self.btn_stop.config(state=tk.DISABLED if enabled else tk.NORMAL)
     
@@ -499,8 +514,8 @@ class PDFMakerApp:
             messagebox.showwarning("PDF", "Nenhuma imagem para gerar PDF.")
             return
         
-        # Usar o diretório das capturas para salvar o PDF
-        screenshots_dir = self.screenshot_manager.get_images_dir()
+        # Usar o diretório da sessão para salvar o PDF
+        screenshots_dir = self.session_screenshots_dir or self.screenshot_manager.get_images_dir()
         
         # Definir caminho para o PDF com timestamp
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")

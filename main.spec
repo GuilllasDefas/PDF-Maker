@@ -5,7 +5,9 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[
+        ('assets/PDF-Maker.ico', 'assets'),  # Adiciona o ícone à build
+    ],
     hiddenimports=[
         'keyboard', 
         'PIL._imaging',
@@ -83,6 +85,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon='assets/PDF-Maker.ico',
 )
 
 coll = COLLECT(

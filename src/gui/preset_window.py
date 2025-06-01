@@ -1,13 +1,15 @@
 import os
+import sys
 import json
 import tkinter as tk
 from tkinter import ttk, messagebox
 import keyboard
 import threading
 import time
-import sys
 import platform
-from typing import Dict, Any, Callable, Optional, Tuple
+from typing import Dict, Any, Optional, Tuple
+
+from src.config.config import ICON
 
 class AreaSelector:
     """Classe para seleção de área na tela"""
@@ -95,13 +97,15 @@ class KeyCaptureDialog:
         
     def capture_key(self):
         """Abre um diálogo para capturar uma tecla e retorna o nome da tecla"""
-        # Criar janela independente (sem parent para evitar problemas de transient)
         dialog = tk.Toplevel()
         dialog.title("Capturar Tecla")
         dialog.geometry("300x150")
         dialog.resizable(False, False)
         dialog.attributes('-topmost', True)
-        
+        icon_path = ICON
+        if getattr(sys, 'frozen', False):
+            icon_path = os.path.join(sys._MEIPASS, ICON)
+        dialog.iconbitmap(icon_path)
         # Centralizar na tela
         dialog_width = 270
         dialog_height = 150
@@ -121,28 +125,29 @@ class KeyCaptureDialog:
         
         # Variável para controlar o listener
         self.listening = True
-        
+
         # Função para fechar o diálogo
         def close_dialog():
             self.listening = False
             dialog.destroy()
-        
+
         # Botão de cancelar
         ttk.Button(dialog, text="Cancelar", command=close_dialog).pack(pady=10)
-        
+
+        # Ao fechar pelo X ou ESC, também parar a thread
+        dialog.protocol("WM_DELETE_WINDOW", close_dialog)
+        dialog.bind("<Escape>", lambda e: close_dialog())
+
         # Iniciar captura em thread separada
-        capture_thread = threading.Thread(target=self._listen_for_key, 
-                                         args=(key_label, dialog))
+        capture_thread = threading.Thread(target=self._listen_for_key, args=(lambda: self.listening, key_label, dialog))
         capture_thread.daemon = True
         capture_thread.start()
-        
-        # Aguardar até que o diálogo seja fechado
+
         dialog.wait_window(dialog)
         return self.result
-    
-    def _listen_for_key(self, label, dialog):
+
+    def _listen_for_key(self, is_listening, label, dialog):
         """Escuta por pressionamento de teclas"""
-        # Dicionário de teclas especiais para nomes mais amigáveis
         special_keys = {
             'space': 'Espaço',
             'return': 'Enter',
@@ -153,27 +158,27 @@ class KeyCaptureDialog:
             'up': 'Cima ↑',
             'down': 'Baixo ↓'
         }
-        
-        while self.listening:
-            event = keyboard.read_event(suppress=True)
-            if event.event_type == keyboard.KEY_DOWN:
-                # Armazenar o nome da tecla
-                key_name = event.name
-                # Converter teclas especiais para nomes mais amigáveis
-                display_name = special_keys.get(key_name, key_name.upper())
-                
-                # Atualizar o label com a tecla capturada
-                dialog.after(0, lambda: label.config(text=display_name))
-                
-                # Salvar o resultado
-                self.result = key_name
-                
-                # Fechar o diálogo após um pequeno delay
-                dialog.after(500, dialog.destroy)
-                self.listening = False
+
+        while is_listening():
+            try:
+                event = keyboard.read_event(suppress=True)
+                if not is_listening():
+                    break
+                if event.event_type == keyboard.KEY_DOWN:
+                    key_name = event.name
+                    display_name = special_keys.get(key_name, key_name.upper())
+                    # Só atualiza o label se o widget ainda existir
+                    if label.winfo_exists() and dialog.winfo_exists():
+                        dialog.after(0, lambda: label.config(text=display_name))
+                    self.result = key_name
+                    # Fechar o diálogo após um pequeno delay, se ainda existir
+                    if dialog.winfo_exists():
+                        dialog.after(500, dialog.destroy)
+                    self.listening = False
+                    break
+                time.sleep(0.1)
+            except Exception:
                 break
-            
-            time.sleep(0.1)
 
 class PresetConfigWindow:
     """Janela de configuração de presets para automação de capturas"""
@@ -220,11 +225,15 @@ class PresetConfigWindow:
             return
             
         self.window = tk.Toplevel(self.parent)
-        self.window.title("🖼️ Configurar Captura Automática")
+        self.window.title("Configurar Captura Automática")
         self.window.geometry("570x630")  # Aumentado para melhor acomodar todos os elementos
         self.window.minsize(550, 500)    # Define tamanho mínimo para garantir visibilidade dos botões
         self.window.resizable(True, True)
         self.window.transient(self.parent)
+        icon_path = ICON
+        if getattr(sys, 'frozen', False):
+            icon_path = os.path.join(sys._MEIPASS, ICON)
+        self.window.iconbitmap(icon_path)
         self.window.protocol("WM_DELETE_WINDOW", self._on_close)
         
         # Layout principal com scrollbar para garantir que todos os elementos sejam visíveis
