@@ -47,6 +47,10 @@ class PDFMakerApp:
         self.update_download_url = None
         self.base_directory = self._load_last_directory()  # Carrega a última pasta usada
         self.session_screenshots_dir = None  # Novo: diretório da sessão atual
+
+        # Variáveis para automação
+        self.interval_var = tk.StringVar(value=str(DEFAULT_INTERVAL))
+        self.num_captures_var = tk.StringVar(value=str(DEFAULT_NUM_CAPTURES))
         
         # Configurar callbacks da automação
         self._setup_automation_callbacks()
@@ -303,6 +307,12 @@ class PDFMakerApp:
         )
         self.btn_presets.grid(row=0, column=0, columnspan=4, sticky="ew", padx=5, pady=5)
         
+        # Campos de entrada para intervalo e número de capturas (ADICIONE ESTES CAMPOS)
+        ttk.Label(frame_config, text="Intervalo (s):").grid(row=1, column=0, sticky="w", padx=5)
+        ttk.Entry(frame_config, textvariable=self.interval_var, width=8).grid(row=1, column=1, padx=5)
+        ttk.Label(frame_config, text="Qtd. Capturas:").grid(row=1, column=2, sticky="w", padx=5)
+        ttk.Entry(frame_config, textvariable=self.num_captures_var, width=8).grid(row=1, column=3, padx=5)
+
         # Criar estilo destacado para o botão
         style = ttk.Style()
         if 'Accent.TButton' not in style.theme_names():

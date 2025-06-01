@@ -6,7 +6,7 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[
-        ('assets/PDF-Maker.ico', 'assets'),  # Adiciona o ícone à build
+        ('assets/PDF-Maker.ico', 'assets'),
     ],
     hiddenimports=[
         'keyboard', 

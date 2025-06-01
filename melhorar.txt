@@ -1,0 +1,16 @@
+Correções necessárias (em ordem de prioridade):
+
+- Corrigir erro ao clicar em "Aplicar": apresenta a mensagem "Falha ao aplicar configurações: 'PDFMakerApp' object has no attribute 'interval_ver'".
+- Após selecionar um diretório, o status ainda exibe "Selecione um diretório"; corrigir para mostrar o diretório selecionado.
+- Remover label e caixa de entrada de texto de "Intervalos" e "Números de Capturas" (já existe opção em "Configurar Automação").
+- Após tirar prints, redimensionar a janela fica lento e trava; verificar e otimizar esse comportamento.
+
+Funcionalidades a adicionar (em ordem de prioridade):
+
+- Permitir capturas básicas de tela: opção para capturar tela inteira ou janela específica.
+- Adicionar botão para resetar a variável da pasta screenshots_data_hora (para iniciar nova coleta de prints).
+- Incluir indicador de tempo (para eventos com duração).
+- Adicionar barra de progresso (para mostrar progresso em tarefas).
+- Permitir customização dos atalhos principais.
+- Inserir ícone no aplicativo.
+- Adicionar botão "Sobre" (com verificação de atualizações em uma janela).
