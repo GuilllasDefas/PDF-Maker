@@ -2,10 +2,6 @@
 
 ## Correções Necessárias (Prioridade)
 
-- **Interface de Intervalos e Capturas**
-  - Remover label e caixa de entrada de texto de "Intervalos" e "Números de Capturas".  
-    (Já existe opção em "Configurar Automação".)
-
 - **Desempenho ao redimensionar**
   - Após tirar prints, redimensionar a janela fica lento e trava.  
     Verificar e otimizar esse comportamento.

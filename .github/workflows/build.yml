@@ -177,6 +177,7 @@ jobs:
 
             - O Aplciativo minimiza após clicar em "Selecionar Área" em configurações avançadas.
             - Removida Labels e Entradas "Intervalos" e "Qtd. Capturas" da Janela Principal (Pois já estão na janela de configurações avançadas).
+            - Ícone adicionado ao registro do Windows.
 
           draft: false
           prerelease: true
