@@ -306,12 +306,6 @@ class PDFMakerApp:
             style="Accent.TButton"  # Estilo destacado
         )
         self.btn_presets.grid(row=0, column=0, columnspan=4, sticky="ew", padx=5, pady=5)
-        
-        # Campos de entrada para intervalo e número de capturas (ADICIONE ESTES CAMPOS)
-        ttk.Label(frame_config, text="Intervalo (s):").grid(row=1, column=0, sticky="w", padx=5)
-        ttk.Entry(frame_config, textvariable=self.interval_var, width=8).grid(row=1, column=1, padx=5)
-        ttk.Label(frame_config, text="Qtd. Capturas:").grid(row=1, column=2, sticky="w", padx=5)
-        ttk.Entry(frame_config, textvariable=self.num_captures_var, width=8).grid(row=1, column=3, padx=5)
 
         # Criar estilo destacado para o botão
         style = ttk.Style()
