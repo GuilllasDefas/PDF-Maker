@@ -79,15 +79,10 @@ jobs:
           # Executar PyInstaller
           pyinstaller "main.spec"
 
-      # 7) Verificar existência do ícone PDF-Maker.ico no dist (verificação de integridade)
-      - name: Verificar existência do ícone PDF-Maker.ico no dist
+      # 7) Lista todas as pastas e arquivos em dist\PDF-Maker para depuração
+      - name: Mapear estrutura de pastas e arquivos do dist
         run: |
-          if (!(Test-Path "dist\PDF-Maker\_internal\assets\PDF-Maker.ico")) {
-            Write-Host "ERRO: O arquivo dist\PDF-Maker\_internal\assets\PDF-Maker.ico não foi encontrado!"
-            exit 1
-          } else {
-            Write-Host "Ícone encontrado em dist\PDF-Maker\_internal\assets\PDF-Maker.ico"
-          }
+          Get-ChildItem -Path dist\PDF-Maker\ -Recurse | Select-Object FullName
 
       # 8) Instala Inno Setup
       - name: Install Inno Setup
@@ -116,7 +111,7 @@ jobs:
           WizardStyle=modern
           ArchitecturesInstallIn64BitMode=x64
           RestartIfNeededByRun=no
-          SetupIconFile={app}\_internal\assets\PDF-Maker.ico
+          SetupIconFile=dist\PDF-Maker\_internal\assets\PDF-Maker.ico
           
           [Languages]
           Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
