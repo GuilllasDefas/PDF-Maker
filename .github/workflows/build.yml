@@ -79,14 +79,24 @@ jobs:
           # Executar PyInstaller
           pyinstaller "main.spec"
 
-      # 7) Instala Inno Setup
+      # 7) Verificar existência do ícone PDF-Maker.ico no dist (verificação de integridade)
+      - name: Verificar existência do ícone PDF-Maker.ico no dist
+        run: |
+          if (!(Test-Path "dist\PDF-Maker\_internal\assets\PDF-Maker.ico")) {
+            Write-Host "ERRO: O arquivo dist\PDF-Maker\_internal\assets\PDF-Maker.ico não foi encontrado!"
+            exit 1
+          } else {
+            Write-Host "Ícone encontrado em dist\PDF-Maker\_internal\assets\PDF-Maker.ico"
+          }
+
+      # 8) Instala Inno Setup
       - name: Install Inno Setup
         run: |
           $url = "https://files.jrsoftware.org/is/6/innosetup-6.2.2.exe"
           Invoke-WebRequest -Uri $url -OutFile "innosetup-installer.exe"
           Start-Process -FilePath "innosetup-installer.exe" -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART" -Wait
 
-      # 8) Cria script do Inno Setup
+      # 9) Cria script do Inno Setup
       - name: Create Inno Setup Script
         run: |
           $version = "${{ steps.get_version.outputs.VERSION }}".TrimStart('v')
@@ -131,7 +141,7 @@ jobs:
           
           $script | Out-File -FilePath "setup.iss" -Encoding UTF8
   
-      # 9) Gera o setup.exe
+      # 10) Gera o setup.exe
       - name: Build Setup with Inno Setup
         run: |
           $innoPath = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
@@ -140,11 +150,11 @@ jobs:
           }
           & $innoPath "setup.iss"
 
-      # 10) Empacota num ZIP
+      # 11) Empacota num ZIP
       - name: Zip App
         run: Compress-Archive -Path "dist\PDF-Maker\*" -DestinationPath "PDF-Maker.zip"
         
-      # 11) Cria uma tag automática
+      # 12) Cria uma tag automática
       - name: Criar tag automática
         run: |
           git config --local user.email "action@github.com"
@@ -152,7 +162,7 @@ jobs:
           git tag -a ${{ steps.get_version.outputs.VERSION }} -m "Release automática ${{ steps.get_version.outputs.VERSION }}"
           git push origin ${{ steps.get_version.outputs.VERSION }}
 
-      # 12) Cria a Release
+      # 13) Cria a Release
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
@@ -170,7 +180,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 13) Anexa o ZIP à Release
+      # 14) Anexa o ZIP à Release
       - name: Upload ZIP Asset
         uses: actions/upload-release-asset@v1
         with:
@@ -181,7 +191,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 14) Anexa o Setup à Release
+      # 15) Anexa o Setup à Release
       - name: Upload Setup Asset
         uses: actions/upload-release-asset@v1
         with:
