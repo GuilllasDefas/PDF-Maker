@@ -19,15 +19,6 @@
 - **Barra de Progresso**
   - Adicionar barra de progresso (para mostrar progresso em tarefas).
 
-- **Customização de Atalhos**
-  - Permitir customização dos atalhos principais.
-
-- **Ícone do Aplicativo**
-  - Inserir ícone no aplicativo.
-
-- **Botão "Sobre"**
-  - Adicionar botão "Sobre" (com verificação de atualizações em uma janela).
-
 ---
 
 ## Observações

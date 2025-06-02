@@ -88,10 +88,14 @@ class PDFMakerApp:
         file_menu = tk.Menu(self.menu_bar, tearoff=0)
         file_menu.add_command(label="Selecionar Diretório...", command=self._browse_directory)
         file_menu.add_command(label="Abrir Pasta", command=self._open_selected_directory)
+        
         file_menu.add_separator()
+
         file_menu.add_command(label="Nova Sessão", command=self._reset_session)
         file_menu.add_command(label="Gerar PDF", command=self._generate_pdf)
+
         file_menu.add_separator()
+
         file_menu.add_command(label="Sair", command=self.root.quit)
         self.menu_bar.add_cascade(label="Arquivo", menu=file_menu)
         
@@ -103,19 +107,21 @@ class PDFMakerApp:
         self.menu_bar.add_cascade(label="Ferramentas", menu=tools_menu)
         
         tools_menu.add_separator()
-        tools_menu.add_command(label="Configurar Automação", command=self._open_preset_config)
         tools_menu.add_command(label="Iniciar Automação", command=self._start_automation, 
                               accelerator=f"({AUTOMATION_HOTKEY})")
-        tools_menu.add_command(label="Parar Automação", command=self._stop_automation)        
+        tools_menu.add_command(label="Parar Automação", command=self._stop_automation)     
+        tools_menu.add_command(label="Configurar Automação", command=self._open_preset_config)   
         
         # Menu Ajuda
         help_menu = tk.Menu(self.menu_bar, tearoff=0)
         help_menu.add_command(label="Verificar Atualizações", command=self._manual_check_updates)
         help_menu.add_separator()
-        help_menu.add_command(label=f"Sobre PDF Maker v{APP_VERSION}", 
-                             command=lambda: messagebox.showinfo("Sobre", 
-                                          f"PDF Maker v{APP_VERSION} Beta\n\n"
-                                          "Captura e organiza screenshots para PDF."))
+        help_menu.add_command(label=f"Sobre", 
+                             command=lambda: messagebox.showinfo(
+                                 "Sobre", 
+                                 f"PDF Maker v{APP_VERSION}\n\n"
+                                 "Aplicativo para capturar e organizar screenshots em PDF."
+                             ))
         self.menu_bar.add_cascade(label="Ajuda", menu=help_menu)
     
     def _load_last_directory(self):

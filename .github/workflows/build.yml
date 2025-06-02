@@ -175,11 +175,12 @@ jobs:
           body: |           
             ## Melhorias e Correções
 
-            - O Aplciativo minimiza após clicar em "Selecionar Área" em configurações avançadas.
-            - Removida Labels e Entradas "Intervalos" e "Qtd. Capturas" da Janela Principal (Pois já estão na janela de configurações avançadas).
+            - O aplicativo agora minimiza ao clicar em "Selecionar Área" nas configurações avançadas.
+            - Removidas as labels e entradas "Intervalos" e "Qtd. Capturas" da janela principal (esses campos estão disponíveis apenas nas configurações avançadas).
             - Ícone adicionado ao registro do Windows.
-            - Adiciona Menus de "Arquivo", "Ferramentas" e "Ajuda" na Barra de Menu.
+            - Menus "Arquivo", "Ferramentas" e "Ajuda" adicionados à barra de menu.
             - Adicionado botão "Sobre" no menu "Ajuda".
+            - Agora é possível editar os atalhos no menu "Ferramentas" → "Configurar Atalhos".
 
           draft: false
           prerelease: true
