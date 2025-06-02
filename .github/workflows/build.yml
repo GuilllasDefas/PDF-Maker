@@ -176,6 +176,7 @@ jobs:
             ## Melhorias e Correções
 
             - O Aplciativo minimiza após clicar em "Selecionar Área" em configurações avançadas.
+            - Removida Labels e Entradas "Intervalos" e "Qtd. Capturas" da Janela Principal (Pois já estão na janela de configurações avançadas).
 
           draft: false
           prerelease: true
