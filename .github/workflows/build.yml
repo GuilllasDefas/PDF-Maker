@@ -23,7 +23,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12.9'
+          python-version: '3.12'
 
       # 3) Extrai versão do arquivo Python
       - name: Extract Version from Python Config
@@ -37,7 +37,6 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install --upgrade pip
-          pip install --upgrade setuptools wheel
           pip install -r requirements.txt
 
       # 5) Instala UPX para compressão de executáveis
@@ -79,7 +78,7 @@ jobs:
           
           # Executar PyInstaller
           pyinstaller "main.spec"
-    
+
       # 7) Instala Inno Setup
       - name: Install Inno Setup
         run: |
@@ -107,7 +106,7 @@ jobs:
           WizardStyle=modern
           ArchitecturesInstallIn64BitMode=x64
           RestartIfNeededByRun=no
-          SetupIconFile={app}\assets\PDF-Maker.ico
+          SetupIconFile={app}\_internal\assets\PDF-Maker.ico
           
           [Languages]
           Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
