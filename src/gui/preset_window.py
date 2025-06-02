@@ -34,7 +34,7 @@ class AreaSelector:
         
         # Mensagem de instruções
         label = tk.Label(self.root, text="Clique e arraste para selecionar a área. Pressione ESC para cancelar.",
-                          bg="white", fg="black", font=("Arial", 15))
+                          bg="white", fg="black", font=("Arial", 20))
         label.pack(pady=10)
         
         # Canvas para desenho da seleção

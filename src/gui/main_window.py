@@ -5,6 +5,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 from PIL import Image, ImageTk, ImageFile
 import keyboard
+import json
 from datetime import datetime  # Adicionar import para timestamp
 from src.config.config import (
     DEFAULT_WINDOW_SIZE, DEFAULT_IMAGE_DISPLAY_SIZE, 
@@ -16,6 +17,7 @@ from src.core.pdf_generator import PDFGenerator
 from src.core.automation import AutomationManager
 from src.core.update_checker import UpdateChecker
 from src.gui.preset_window import PresetConfigWindow
+from src.gui.hotkey_config import HotkeyConfigWindow
 
 
 # Permite carregar imagens truncadas
@@ -55,6 +57,9 @@ class PDFMakerApp:
         # Configurar callbacks da automação
         self._setup_automation_callbacks()
         
+        # Criar barra de menus
+        self._create_menu_bar()
+        
         # Construir interface
         self._build_ui()
         
@@ -73,6 +78,45 @@ class PDFMakerApp:
         
         # Desabilitar funcionalidades até que um diretório seja selecionado
         self._update_controls_state()
+    
+    def _create_menu_bar(self):
+        """Cria a barra de menus da aplicação."""
+        self.menu_bar = tk.Menu(self.root)
+        self.root.config(menu=self.menu_bar)
+        
+        # Menu Arquivo
+        file_menu = tk.Menu(self.menu_bar, tearoff=0)
+        file_menu.add_command(label="Selecionar Diretório...", command=self._browse_directory)
+        file_menu.add_command(label="Abrir Pasta", command=self._open_selected_directory)
+        file_menu.add_separator()
+        file_menu.add_command(label="Nova Sessão", command=self._reset_session)
+        file_menu.add_command(label="Gerar PDF", command=self._generate_pdf)
+        file_menu.add_separator()
+        file_menu.add_command(label="Sair", command=self.root.quit)
+        self.menu_bar.add_cascade(label="Arquivo", menu=file_menu)
+        
+        # Menu Ferramentas
+        tools_menu = tk.Menu(self.menu_bar, tearoff=0)
+        tools_menu.add_command(label="Tirar Screenshot", command=self._take_screenshot, 
+                              accelerator=f"({SCREENSHOT_HOTKEY})")
+        tools_menu.add_command(label="Configurar Atalhos", command=self._open_hotkey_config)
+        self.menu_bar.add_cascade(label="Ferramentas", menu=tools_menu)
+        
+        tools_menu.add_separator()
+        tools_menu.add_command(label="Configurar Automação", command=self._open_preset_config)
+        tools_menu.add_command(label="Iniciar Automação", command=self._start_automation, 
+                              accelerator=f"({AUTOMATION_HOTKEY})")
+        tools_menu.add_command(label="Parar Automação", command=self._stop_automation)        
+        
+        # Menu Ajuda
+        help_menu = tk.Menu(self.menu_bar, tearoff=0)
+        help_menu.add_command(label="Verificar Atualizações", command=self._manual_check_updates)
+        help_menu.add_separator()
+        help_menu.add_command(label=f"Sobre PDF Maker v{APP_VERSION}", 
+                             command=lambda: messagebox.showinfo("Sobre", 
+                                          f"PDF Maker v{APP_VERSION} Beta\n\n"
+                                          "Captura e organiza screenshots para PDF."))
+        self.menu_bar.add_cascade(label="Ajuda", menu=help_menu)
     
     def _load_last_directory(self):
         """Carrega o último diretório usado de um arquivo simples."""
@@ -106,7 +150,7 @@ class PDFMakerApp:
     
     def _build_ui(self):
         """Constrói a interface do usuário."""
-        # Frame superior com contador e botão de update
+        # Frame superior com contador e status
         top_frame = ttk.Frame(self.root)
         top_frame.pack(fill=tk.X, padx=10, pady=5)
         
@@ -114,10 +158,9 @@ class PDFMakerApp:
         self.label_counter = ttk.Label(top_frame, text="Prints tirados: 0")
         self.label_counter.pack(side=tk.LEFT)
         
-        # Botão de verificar updates
-        self.btn_check_update = ttk.Button(top_frame, text="Verificar Atualizações", 
-                                         command=self._manual_check_updates)
-        self.btn_check_update.pack(side=tk.RIGHT)
+        # Status label (substitui o botão de atualização que agora está no menu)
+        self.automation_status = ttk.Label(top_frame, text="Status: Inativo")
+        self.automation_status.pack(side=tk.RIGHT, padx=5)
         
         # Frame para seleção de diretório base
         self._build_directory_frame()
@@ -125,22 +168,8 @@ class PDFMakerApp:
         # Frame de imagens
         self._build_images_frame()
         
-        # Frame de automação
-        self._build_automation_frame()
-        
-        # Frame para botões PDF e Nova Sessão lado a lado
-        frame_pdf_reset = ttk.Frame(self.root)
-        frame_pdf_reset.pack(pady=10)
-
-        self.btn_pdf = ttk.Button(frame_pdf_reset, text="Gerar PDF", command=self._generate_pdf)
-        self.btn_pdf.pack(side=tk.LEFT, padx=5)
-
-        self.btn_reset_session = ttk.Button(
-            frame_pdf_reset,
-            text="Nova Sessão",
-            command=self._reset_session
-        )
-        self.btn_reset_session.pack(side=tk.LEFT, padx=5)
+        # Frame de botões rápidos (versão simplificada)
+        self._build_quick_actions_frame()
     
     def _open_selected_directory(self):
         """Abre o diretório selecionado no Explorer."""
@@ -169,6 +198,35 @@ class PDFMakerApp:
         # Botão para abrir diretório
         btn_open = ttk.Button(frame_dir, text="Abrir Pasta", command=self._open_selected_directory)
         btn_open.pack(side=tk.RIGHT, padx=5, pady=5)
+    
+    def _build_quick_actions_frame(self):
+        """Constrói o frame para ações rápidas."""
+        frame_actions = ttk.Frame(self.root)
+        frame_actions.pack(fill=tk.X, padx=10, pady=5)
+        
+        # Botão para tirar screenshot
+        btn_screenshot = ttk.Button(frame_actions, text=f"Tirar Screenshot ({SCREENSHOT_HOTKEY})", 
+                                   command=self._take_screenshot)
+        btn_screenshot.pack(side=tk.LEFT, padx=5, pady=5)
+        
+        # Botão para iniciar automação
+        self.btn_start = ttk.Button(frame_actions, text=f"Iniciar Automação ({AUTOMATION_HOTKEY})", 
+                                  command=self._start_automation)
+        self.btn_start.pack(side=tk.LEFT, padx=5, pady=5)
+        
+        # Botão para parar automação
+        self.btn_stop = ttk.Button(frame_actions, text="Parar", 
+                                 command=self._stop_automation, state=tk.DISABLED)
+        self.btn_stop.pack(side=tk.LEFT, padx=5, pady=5)
+        
+        # Botão para gerar PDF
+        self.btn_pdf = ttk.Button(frame_actions, text="Gerar PDF", command=self._generate_pdf)
+        self.btn_pdf.pack(side=tk.RIGHT, padx=5, pady=5)
+        
+        # Botão para nova sessão
+        self.btn_reset_session = ttk.Button(frame_actions, text="Nova Sessão", 
+                                         command=self._reset_session)
+        self.btn_reset_session.pack(side=tk.RIGHT, padx=5, pady=5)
     
     def _browse_directory(self):
         """Abre diálogo para selecionar diretório base."""
@@ -219,16 +277,22 @@ class PDFMakerApp:
             state = tk.DISABLED
         
         self.btn_pdf.config(state=state)
-        if hasattr(self, "btn_start"):
-            self.btn_start.config(state=state)
-        if hasattr(self, "btn_presets"):
-            self.btn_presets.config(state=state)
-        if hasattr(self, "btn_reset_session"):
-            state_btn = tk.NORMAL if self.base_directory and os.path.isdir(self.base_directory) else tk.DISABLED
-            self.btn_reset_session.config(state=state_btn)
+        self.btn_start.config(state=state)
+        self.btn_reset_session.config(state=state)
+        
+        # Também atualiza menus
+        if hasattr(self, "menu_bar"):
+            file_menu = self.menu_bar.winfo_children()[0]
+            file_menu.entryconfig("Gerar PDF", state=state)
+            file_menu.entryconfig("Nova Sessão", state=state)
+            
+            tools_menu = self.menu_bar.winfo_children()[1]
+            tools_menu.entryconfig("Tirar Screenshot", state=state)
+            tools_menu.entryconfig("Iniciar Automação", state=state)
+            tools_menu.entryconfig("Configurar Automação", state=state)
 
         if not self.base_directory:
-            self.automation_status.config(text="Status: Selecione um diretório") if hasattr(self, "automation_status") else None
+            self.automation_status.config(text="Status: Selecione um diretório")
 
     def _check_updates_on_startup(self):
         """Verifica atualizações automaticamente ao iniciar."""
@@ -241,7 +305,8 @@ class PDFMakerApp:
     
     def _manual_check_updates(self):
         """Verifica atualizações manualmente."""
-        self.btn_check_update.config(state=tk.DISABLED, text="Verificando...")
+        # Exibe mensagem de verificação no label de status
+        self.automation_status.config(text="Status: Verificando atualizações...")
         
         def callback(has_update, latest_version, download_url):
             self.root.after(0, lambda: self._manual_check_complete(has_update, latest_version, download_url))
@@ -250,7 +315,8 @@ class PDFMakerApp:
     
     def _manual_check_complete(self, has_update, latest_version, download_url):
         """Callback para verificação manual."""
-        self.btn_check_update.config(state=tk.NORMAL, text="Verificar Atualizações")
+        # Restaura o status ao término da verificação
+        self.automation_status.config(text="Status: Inativo")
         
         if has_update:
             self.update_download_url = download_url
@@ -288,44 +354,6 @@ class PDFMakerApp:
         self.canvas_last.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
         self.canvas_current = tk.Label(self.frame_images, background="lightgray")
         self.canvas_current.grid(row=1, column=1, sticky="nsew", padx=5, pady=5)
-    
-    def _build_automation_frame(self):
-        """Constrói o frame de automação."""
-        self.frame_automation = ttk.LabelFrame(self.root, text="Automação de Capturas")
-        self.frame_automation.pack(fill=tk.X, padx=10, pady=5)
-        
-        # Configurações
-        frame_config = ttk.Frame(self.frame_automation)
-        frame_config.pack(fill=tk.X, padx=5, pady=5)
-        
-        # Segunda linha dedicada ao botão de presets (para maior visibilidade)
-        self.btn_presets = ttk.Button(
-            frame_config, 
-            text="Configurar Automação", 
-            command=self._open_preset_config,
-            style="Accent.TButton"  # Estilo destacado
-        )
-        self.btn_presets.grid(row=0, column=0, columnspan=4, sticky="ew", padx=5, pady=5)
-
-        # Criar estilo destacado para o botão
-        style = ttk.Style()
-        if 'Accent.TButton' not in style.theme_names():
-            style.configure('Accent.TButton', font=('Helvetica', 9, 'bold'))
-        
-        # Botões
-        frame_buttons = ttk.Frame(self.frame_automation)
-        frame_buttons.pack(fill=tk.X, padx=5, pady=5)
-        
-        self.btn_start = ttk.Button(frame_buttons, text="Iniciar Automação", command=self._start_automation)
-        self.btn_start.pack(side=tk.LEFT, padx=5)
-        
-        self.btn_stop = ttk.Button(frame_buttons, text="Parar", command=self._stop_automation, state=tk.DISABLED)
-        self.btn_stop.pack(side=tk.LEFT, padx=5)
-        
-        ttk.Label(frame_buttons, text=f"Atalhos: \nTirar Print: {SCREENSHOT_HOTKEY}\nIniciar Automação: {AUTOMATION_HOTKEY}").pack(side=tk.LEFT, padx=5)
-        
-        self.automation_status = ttk.Label(frame_buttons, text="Status: Inativo")
-        self.automation_status.pack(side=tk.RIGHT, padx=5)
     
     def _open_preset_config(self):
         """Abre a janela de configuração de presets."""
@@ -369,11 +397,39 @@ class PDFMakerApp:
         
         messagebox.showinfo("Preset", "Preset aplicado com sucesso! Pronto para iniciar automação.")
     
+    def _open_hotkey_config(self):
+        """Abre a janela de configuração de atalhos."""
+        config_window = HotkeyConfigWindow(self.root, on_save_callback=self._on_hotkey_save)
+        config_window.show()
+
+    def _on_hotkey_save(self, config_data):
+        """Callback chamado quando os atalhos são salvos."""
+        # Atualiza os rótulos dos botões e menus (mesmo que os atalhos só funcionem após reiniciar)
+        tools_menu = self.menu_bar.winfo_children()[1]
+        tools_menu.entryconfig("Tirar Screenshot", 
+                             accelerator=f"({config_data['screenshot_hotkey']})")
+        tools_menu.entryconfig("Iniciar Automação", 
+                             accelerator=f"({config_data['automation_hotkey']})")
+        
+        # Atualiza texto dos botões na interface
+        for widget in self.root.winfo_children():
+            if isinstance(widget, ttk.Frame):
+                for child in widget.winfo_children():
+                    if isinstance(child, ttk.Button):
+                        if "Tirar Screenshot" in child['text']:
+                            child['text'] = f"Tirar Screenshot ({config_data['screenshot_hotkey']})"
+                        elif "Iniciar Automação" in child['text']:
+                            child['text'] = f"Iniciar Automação ({config_data['automation_hotkey']})"
+
     def _start_hotkey_listener(self):
         """Inicia o listener de atalhos de teclado."""
+        # Carrega as configurações atuais (que podem ter sido carregadas no config.py)
+        screenshot_hotkey = SCREENSHOT_HOTKEY
+        automation_hotkey = AUTOMATION_HOTKEY
+        
         def listen_hotkeys():
-            keyboard.add_hotkey(SCREENSHOT_HOTKEY, self._take_screenshot)
-            keyboard.add_hotkey(AUTOMATION_HOTKEY, self._start_automation_hotkey)
+            keyboard.add_hotkey(screenshot_hotkey, self._take_screenshot)
+            keyboard.add_hotkey(automation_hotkey, self._start_automation_hotkey)
             keyboard.wait()
         
         threading.Thread(target=listen_hotkeys, daemon=True).start()
