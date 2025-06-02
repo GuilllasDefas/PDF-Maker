@@ -2,14 +2,6 @@
 
 ## Correções Necessárias (Prioridade)
 
-- **Status do diretório**
-  - Após Clicar em "Selecionar Área" o aplciativo não minimiza.
-    - Corrigir antes de selecionar área.  
-
-- **Status do diretório**
-  - Após selecionar um diretório, o status ainda exibe "Selecione um diretório".  
-    Corrigir para mostrar o diretório selecionado.
-
 - **Interface de Intervalos e Capturas**
   - Remover label e caixa de entrada de texto de "Intervalos" e "Números de Capturas".  
     (Já existe opção em "Configurar Automação".)

@@ -36,7 +36,9 @@ jobs:
       # 4) Instala dependências e PyInstaller
       - name: Install Dependencies
         run: |
+          # Atualizar pip
           pip install --upgrade pip
+          # Instalando dependências do projeto
           pip install -r requirements.txt
 
       # 5) Instala UPX para compressão de executáveis
@@ -123,15 +125,21 @@ jobs:
           Source: "dist\PDF-Maker\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
           
           [Icons]
-          Name: "{group}\PDF Maker"; Filename: "{app}\PDF-Maker.exe"; WorkingDir: "{app}"
+          Name: "{group}\PDF Maker"; Filename: "{app}\PDF-Maker.exe"; IconFilename: "{app}\_internal\assets\PDF-Maker.ico"; WorkingDir: "{app}"
           Name: "{group}\{cm:UninstallProgram,PDF Maker}"; Filename: "{uninstallexe}"
-          Name: "{autodesktop}\PDF Maker"; Filename: "{app}\PDF-Maker.exe"; Tasks: desktopicon; WorkingDir: "{app}"
-          
+          Name: "{autodesktop}\PDF Maker"; Filename: "{app}\PDF-Maker.exe"; Tasks: desktopicon; IconFilename: "{app}\_internal\assets\PDF-Maker.ico"; WorkingDir: "{app}"
+          Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\PDF Maker"; Filename: "{app}\PDF-Maker.exe"; Tasks: desktopicon; IconFilename: "{app}\_internal\assets\PDF-Maker.ico"; WorkingDir: "{app}"
+
           [Run]
           Filename: "{app}\PDF-Maker.exe"; Description: "{cm:LaunchProgram,PDF Maker}"; Flags: nowait postinstall skipifsilent
           
           [UninstallDelete]
           Type: filesandordirs; Name: "{app}"
+
+          [Registry]
+          Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\PDF-Maker.exe"; ValueType: string; ValueName: ""; ValueData: "PDF Maker"; Flags: uninsdeletekey
+          Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\PDF-Maker.exe\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\_internal\assets\PDF-Maker.ico,0"; Flags: uninsdeletekey
+          Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\PDF-Maker.exe\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\PDF-Maker.exe"" ""%1"""; Flags: uninsdeletekey
           "@
           
           $script | Out-File -FilePath "setup.iss" -Encoding UTF8
@@ -167,8 +175,7 @@ jobs:
           body: |           
             ## Melhorias e Correções
 
-            - Adicionado botão "Nova Sessão", que cria uma nova pasta para novos prints
-            - Adicionado ícone básico ao PDF Maker
+            - O Aplciativo minimiza após clicar em "Selecionar Área" em configurações avançadas.
 
           draft: false
           prerelease: true

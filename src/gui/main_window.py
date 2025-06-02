@@ -25,7 +25,7 @@ class PDFMakerApp:
     def __init__(self, root):
         self.root = root
         self.root.geometry(DEFAULT_WINDOW_SIZE)
-        self.root.title(f"PDF Maker v{APP_VERSION} beta - Screenshot Tool")
+        self.root.title(f"PDF Maker v{APP_VERSION} Beta")
         icon_path = ICON
         if getattr(sys, 'frozen', False):
             icon_path = os.path.join(sys._MEIPASS, ICON)

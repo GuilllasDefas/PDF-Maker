@@ -34,7 +34,7 @@ class AreaSelector:
         
         # Mensagem de instruções
         label = tk.Label(self.root, text="Clique e arraste para selecionar a área. Pressione ESC para cancelar.",
-                          bg="white", fg="black", font=("Arial", 12))
+                          bg="white", fg="black", font=("Arial", 15))
         label.pack(pady=10)
         
         # Canvas para desenho da seleção
@@ -420,34 +420,41 @@ class PresetConfigWindow:
     
     def _select_area(self):
         """Abre a seleção de área"""
+        # Minimizar a janela principal
+        main_win = self.parent.winfo_toplevel() if self.parent else None
+        if main_win:
+            main_win.iconify()
+        # Esconder a janela de configuração (evita erro de transient)
+        self.window.withdraw()
+
         # Guardar posição atual da janela
         window_position = self.window.geometry().split("+")[1:]
         x, y = int(window_position[0]), int(window_position[1])
-        
-        # Esconder a janela temporariamente
-        self.window.withdraw()
-        
+
         # Pequeno delay antes de mostrar o seletor
-        self.window.after(100, lambda: self._show_area_selector(x, y))
-    
-    def _show_area_selector(self, x, y):
+        self.window.after(100, lambda: self._show_area_selector(x, y, main_win))
+
+    def _show_area_selector(self, x, y, main_win):
         """Mostra o seletor de área após delay"""
         try:
             selector = AreaSelector()  # Sem parent para evitar problemas de transient
             area = selector.select_area()
-            
+
             if area:
                 self.capture_area = area
                 self.capture_type.set("area")  # Seleciona o radiobutton de área automaticamente
                 # Atualiza o feedback visual
                 self.area_feedback_label.config(text=f"Área: {area[0]},{area[1]} até {area[2]},{area[3]}")
-            
-            # Restaurar a janela principal na mesma posição
+
+            # Restaurar as janelas minimizadas/escondidas
+            if main_win:
+                main_win.deiconify()
             self.window.deiconify()
             self.window.geometry(f"+{x}+{y}")
-            
+
         except Exception as e:
-            messagebox.showerror(f"Erro ao selecionar área: {e}")
+            if main_win:
+                main_win.deiconify()
             self.window.deiconify()
             messagebox.showerror("Erro", f"Falha ao selecionar área: {str(e)}")
     
