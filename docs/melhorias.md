@@ -2,10 +2,6 @@
 
 ## Correções Necessárias (Prioridade)
 
-- **Desempenho ao redimensionar**
-  - Após tirar prints, redimensionar a janela fica lento e trava.  
-    Verificar e otimizar esse comportamento.
-
 ---
 
 ## Funcionalidades a Adicionar (Prioridade)
@@ -19,8 +15,17 @@
 - **Barra de Progresso**
   - Adicionar barra de progresso (para mostrar progresso em tarefas).
 
-- **Remover Terminal**
-  - O Terminal está presente por questões de debug, mas deve ser removido uma vez que está tudo funcionando como devia.
+- **Melhorias de UX**
+  - Adicionar feedback visual ao tirar screenshot (ex: flash ou som).
+  - Permitir visualização em miniatura de todas as imagens da sessão.
+
+- **Configurações**
+  - Permitir salvar e carregar configurações do usuário (ex: último preset, preferências de janela).
+  - Adicionar opção de idioma (internacionalização).
+
+- **Automação**
+  - Permitir múltiplas ações entre capturas (ex: pressionar sequência de teclas).
+  - Adicionar logs detalhados das automações realizadas.
 
 ---
 
