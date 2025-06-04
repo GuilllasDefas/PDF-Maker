@@ -66,8 +66,8 @@ class PresetConfigWindow:
             
         self.window = tk.Toplevel(self.parent)
         self.window.title("Configurar Captura Automática")
-        self.window.geometry("570x630")  # Aumentado para melhor acomodar todos os elementos
-        self.window.minsize(550, 500)    # Define tamanho mínimo para garantir visibilidade dos botões
+        self.window.geometry("630x600")  # Aumentado para melhor acomodar todos os elementos
+        self.window.minsize(630, 520)    # Define tamanho mínimo para garantir visibilidade dos botões
         self.window.resizable(True, True)
         self.window.transient(self.parent)
         icon_path = ICON

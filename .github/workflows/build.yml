@@ -176,6 +176,7 @@ jobs:
             ## Melhorias e Correções
 
             - Corrigida aplicação de Presets
+            - Corrigida a proporção da janela PDF Maker
             - Adicionada a seleção de Janelas para automação de captura de tela
             - Removido o botão "Usar mesma área para todas as capturas".
 
