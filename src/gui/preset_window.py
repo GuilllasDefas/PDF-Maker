@@ -3,182 +3,17 @@ import sys
 import json
 import tkinter as tk
 from tkinter import ttk, messagebox
-import keyboard
 import threading
 import time
 import platform
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Optional, Tuple, List
+
+# Importar módulos separados
+from src.gui.components.area_selector import AreaSelector
+from src.gui.components.window_selector import WindowSelector
+from src.gui.components.key_capture import KeyCaptureDialog
 
 from src.config.config import ICON
-
-class AreaSelector:
-    """Classe para seleção de área na tela"""
-    def __init__(self, parent=None):
-        self.parent = parent
-        self.start_x = 0
-        self.start_y = 0
-        self.current_x = 0 
-        self.current_y = 0
-        self.root = None
-        self.canvas = None
-        
-    def select_area(self) -> Optional[Tuple[int, int, int, int]]:
-        """Abre uma janela de seleção de área e retorna as coordenadas (x1, y1, x2, y2)"""
-        # Criar uma nova janela independente (sem parent para evitar problemas com transient)
-        self.root = tk.Toplevel()
-        self.root.attributes('-fullscreen', True)
-        self.root.attributes('-alpha', 0.3)
-        self.root.attributes('-topmost', True)
-        self.root.configure(background='gray')
-        self.root.title("Selecione a Área")
-        
-        # Mensagem de instruções
-        label = tk.Label(self.root, text="Clique e arraste para selecionar a área. Pressione ESC para cancelar.",
-                          bg="white", fg="black", font=("Arial", 20))
-        label.pack(pady=10)
-        
-        # Canvas para desenho da seleção
-        self.canvas = tk.Canvas(self.root, cursor="cross", bg="gray")
-        self.canvas.pack(fill=tk.BOTH, expand=True)
-        
-        # Eventos
-        self.canvas.bind("<ButtonPress-1>", self._on_press)
-        self.canvas.bind("<B1-Motion>", self._on_drag)
-        self.canvas.bind("<ButtonRelease-1>", self._on_release)
-        self.root.bind("<Escape>", lambda e: self.root.destroy())
-        
-        # Variável para armazenar o resultado
-        self.result = None
-        
-        # Aguardar até que a janela seja fechada
-        self.root.wait_window(self.root)
-        return self.result
-    
-    def _on_press(self, event):
-        self.start_x = self.canvas.canvasx(event.x)
-        self.start_y = self.canvas.canvasy(event.y)
-        
-        # Criar um retângulo se não existir
-        if hasattr(self, 'rect'):
-            self.canvas.delete(self.rect)
-        self.rect = self.canvas.create_rectangle(
-            self.start_x, self.start_y, self.start_x, self.start_y,
-            outline='red', width=2, fill='blue', stipple='gray25'
-        )
-    
-    def _on_drag(self, event):
-        self.current_x = self.canvas.canvasx(event.x)
-        self.current_y = self.canvas.canvasy(event.y)
-        
-        # Atualizar o retângulo
-        self.canvas.coords(self.rect, self.start_x, self.start_y,
-                          self.current_x, self.current_y)
-    
-    def _on_release(self, event):
-        # Coordenadas finais
-        x1 = min(self.start_x, self.current_x)
-        y1 = min(self.start_y, self.current_y)
-        x2 = max(self.start_x, self.current_x)
-        y2 = max(self.start_y, self.current_y)
-        
-        # Verificar se a área é válida (mínimo 10x10)
-        if (x2 - x1) > 10 and (y2 - y1) > 10:
-            self.result = (int(x1), int(y1), int(x2), int(y2))
-            self.root.destroy()
-        else:
-            messagebox.showwarning("Área inválida", 
-                                  "A área selecionada é muito pequena. Selecione uma área maior.")
-
-class KeyCaptureDialog:
-    """Diálogo para captura de tecla pressionada pelo usuário"""
-    def __init__(self, parent=None):
-        self.parent = parent
-        self.result = None
-        
-    def capture_key(self):
-        """Abre um diálogo para capturar uma tecla e retorna o nome da tecla"""
-        dialog = tk.Toplevel()
-        dialog.title("Capturar Tecla")
-        dialog.geometry("300x150")
-        dialog.resizable(False, False)
-        dialog.attributes('-topmost', True)
-        icon_path = ICON
-        if getattr(sys, 'frozen', False):
-            icon_path = os.path.join(sys._MEIPASS, ICON)
-        dialog.iconbitmap(icon_path)
-        # Centralizar na tela
-        dialog_width = 270
-        dialog_height = 150
-        screen_width = dialog.winfo_screenwidth()
-        screen_height = dialog.winfo_screenheight()
-        x = (screen_width - dialog_width) // 2
-        y = (screen_height - dialog_height) // 2
-        dialog.geometry(f"{dialog_width}x{dialog_height}+{x}+{y}")
-        
-        # Label de instrução
-        ttk.Label(dialog, text="Pressione a tecla que deseja capturar:", 
-                  font=("Arial", 10)).pack(pady=(20, 10))
-        
-        # Label para mostrar a tecla capturada
-        key_label = ttk.Label(dialog, text="Aguardando...", font=("Arial", 10, "bold"))
-        key_label.pack(pady=10)
-        
-        # Variável para controlar o listener
-        self.listening = True
-
-        # Função para fechar o diálogo
-        def close_dialog():
-            self.listening = False
-            dialog.destroy()
-
-        # Botão de cancelar
-        ttk.Button(dialog, text="Cancelar", command=close_dialog).pack(pady=10)
-
-        # Ao fechar pelo X ou ESC, também parar a thread
-        dialog.protocol("WM_DELETE_WINDOW", close_dialog)
-        dialog.bind("<Escape>", lambda e: close_dialog())
-
-        # Iniciar captura em thread separada
-        capture_thread = threading.Thread(target=self._listen_for_key, args=(lambda: self.listening, key_label, dialog))
-        capture_thread.daemon = True
-        capture_thread.start()
-
-        dialog.wait_window(dialog)
-        return self.result
-
-    def _listen_for_key(self, is_listening, label, dialog):
-        """Escuta por pressionamento de teclas"""
-        special_keys = {
-            'space': 'Espaço',
-            'return': 'Enter',
-            'escape': 'Esc',
-            'tab': 'Tab',
-            'right': 'Direita →',
-            'left': 'Esquerda ←',
-            'up': 'Cima ↑',
-            'down': 'Baixo ↓'
-        }
-
-        while is_listening():
-            try:
-                event = keyboard.read_event(suppress=True)
-                if not is_listening():
-                    break
-                if event.event_type == keyboard.KEY_DOWN:
-                    key_name = event.name
-                    display_name = special_keys.get(key_name, key_name.upper())
-                    # Só atualiza o label se o widget ainda existir
-                    if label.winfo_exists() and dialog.winfo_exists():
-                        dialog.after(0, lambda: label.config(text=display_name))
-                    self.result = key_name
-                    # Fechar o diálogo após um pequeno delay, se ainda existir
-                    if dialog.winfo_exists():
-                        dialog.after(500, dialog.destroy)
-                    self.listening = False
-                    break
-                time.sleep(0.1)
-            except Exception:
-                break
 
 class PresetConfigWindow:
     """Janela de configuração de presets para automação de capturas"""
@@ -218,6 +53,10 @@ class PresetConfigWindow:
         # Ação entre capturas
         self.action_type = tk.StringVar(value="none")
         self.action_key = None
+        
+        # Variáveis para armazenar configurações de janela e área
+        self.capture_area = None
+        self.selected_window = None
     
     def show(self):
         """Mostra a janela de configuração"""
@@ -314,7 +153,18 @@ class PresetConfigWindow:
         capture_frame.grid(row=4, column=1, columnspan=3, sticky=tk.W, padx=5, pady=5)
         
         ttk.Radiobutton(capture_frame, text="Tela inteira", variable=self.capture_type, value="fullscreen").pack(anchor=tk.W)
-        ttk.Radiobutton(capture_frame, text="Janela ativa", variable=self.capture_type, value="active_window").pack(anchor=tk.W)
+        
+        # Mudar de "Janela ativa" para apenas "Janela"
+        window_frame = ttk.Frame(capture_frame)
+        window_frame.pack(anchor=tk.W, fill=tk.X)
+        
+        ttk.Radiobutton(window_frame, text="Janela", variable=self.capture_type, value="window").pack(side=tk.LEFT)
+        self.window_btn = ttk.Button(window_frame, text="Selecionar Janela", command=self._select_window)
+        self.window_btn.pack(side=tk.LEFT, padx=5)
+        
+        # Feedback da janela selecionada
+        self.window_feedback_label = ttk.Label(window_frame, text="(Nenhuma janela selecionada)")
+        self.window_feedback_label.pack(side=tk.LEFT, padx=5)
         
         area_frame = ttk.Frame(capture_frame)
         area_frame.pack(anchor=tk.W, fill=tk.X)
@@ -326,10 +176,6 @@ class PresetConfigWindow:
         # Feedback da área selecionada
         self.area_feedback_label = ttk.Label(area_frame, text="(Nenhuma área selecionada)")
         self.area_feedback_label.pack(side=tk.LEFT, padx=5)
-        
-        # Usar mesma área
-        ttk.Checkbutton(grid, text="Usar mesma área para todas as capturas", variable=self.use_same_area).grid(
-            row=5, column=0, columnspan=4, sticky=tk.W, padx=5, pady=5)
         
         # Configurações avançadas
         advanced_frame = ttk.LabelFrame(main_frame, text="Comportamentos Inteligentes")
@@ -487,6 +333,69 @@ class PresetConfigWindow:
             self.window.deiconify()
             messagebox.showerror("Erro", f"Falha ao selecionar área: {str(e)}")
     
+    def _select_window(self):
+        """Abre a seleção de janela"""
+        # Guardar posição atual da janela
+        window_position = self.window.geometry().split("+")[1:]
+        x, y = int(window_position[0]), int(window_position[1])
+        
+        # Esconder a janela temporariamente e minimizar a principal
+        main_window = self.parent.winfo_toplevel() if self.parent else None
+        main_window_minimized = False
+        
+        if main_window:
+            main_window_minimized = main_window.state() == 'iconic'
+            if not main_window_minimized:
+                main_window.iconify()
+                
+        self.window.withdraw()
+        
+        try:
+            window_selector = WindowSelector()
+            print("Iniciando seleção de janela...")
+            selected_window = window_selector.select_window()
+            
+            # Verificar se uma janela foi selecionada
+            if selected_window:
+                print(f"Janela selecionada com sucesso: {selected_window['title']}")
+                print(f"Detalhes: {selected_window}")
+                
+                # Armazenar a janela selecionada
+                self.selected_window = selected_window
+                
+                # Selecionar o radiobutton de janela automaticamente
+                self.capture_type.set("window")
+                
+                # Preparar o texto truncado para mostrar na label
+                title = selected_window['title']
+                truncated_title = (title[:27] + "...") if len(title) > 30 else title
+                
+                # Atualizar a label com feedback visual
+                if hasattr(self, 'window_feedback_label') and self.window_feedback_label.winfo_exists():
+                    self.window_feedback_label.configure(text=f"Janela: {truncated_title}")
+                    # Forçar atualização do widget
+                    self.window_feedback_label.update()
+                
+                # Mostrar mensagem de sucesso
+                messagebox.showinfo("Sucesso", f"Janela '{truncated_title}' selecionada com sucesso!")
+            else:
+                print("Nenhuma janela foi selecionada pelo usuário.")
+                messagebox.showinfo("Aviso", "Nenhuma janela foi selecionada.")
+        
+        except Exception as e:
+            print(f"Erro detalhado ao selecionar janela: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            messagebox.showerror("Erro", f"Falha ao selecionar janela: {str(e)}")
+        finally:
+            # Restaurar a janela principal e de configuração
+            self.window.deiconify()
+            self.window.geometry(f"+{x}+{y}")
+            
+            # Restaurar a janela principal se não estava minimizada antes
+            if main_window and not main_window_minimized:
+                main_window.deiconify()
+    
     def _capture_stop_key(self):
         """Captura a tecla para interromper a automação"""
         # Guardar posição atual da janela
@@ -632,6 +541,10 @@ class PresetConfigWindow:
         if self.capture_area and self.capture_type.get() == "area":
             preset_data["capture_area"] = self.capture_area
             
+        # Adicionar janela selecionada se disponível
+        if self.selected_window and self.capture_type.get() == "window":
+            preset_data["selected_window"] = self.selected_window
+            
         return preset_data
     
     def _load_preset(self, silent=False):
@@ -685,6 +598,15 @@ class PresetConfigWindow:
             self.area_feedback_label.config(text=f"Área: {area[0]},{area[1]} até {area[2]},{area[3]}")
         else:
             self.area_feedback_label.config(text="(Nenhuma área selecionada)")
+        
+        # Recuperar janela selecionada
+        self.selected_window = preset_data.get("selected_window")
+        if self.selected_window and hasattr(self, 'window_feedback_label'):
+            # Atualiza o feedback visual da janela selecionada
+            window_title = self.selected_window.get('title', 'Janela sem título')
+            self.window_feedback_label.config(text=f"Janela: {window_title[:30]}...")
+        else:
+            self.window_feedback_label.config(text="(Nenhuma janela selecionada)")
         
         # Opções avançadas
         self.stop_on_key.set(preset_data.get("stop_on_key", False))

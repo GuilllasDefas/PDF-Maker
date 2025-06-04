@@ -5,14 +5,25 @@ import time
 import tkinter as tk
 from tkinter import filedialog
 from datetime import datetime
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, Any
 from src.config.config import IMAGES_DIR
+
+# Importar pygetwindow para capturar janelas específicas
+try:
+    import pygetwindow as gw
+except ImportError:
+    # Se não conseguir importar, instalar a biblioteca
+    import subprocess
+    import sys
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "pygetwindow"])
+    import pygetwindow as gw
 
 class ScreenshotManager:
     def __init__(self, images_dir: str = IMAGES_DIR):
         self.base_dir = None
         self.images_dir = None
         self.capture_area = None  # Para captura de área específica (x1, y1, x2, y2)
+        self.selected_window = None  # Para captura de janela específica
         
     def set_directory(self, base_dir: Optional[str] = None):
         """Define o diretório base para salvar arquivos."""
@@ -35,6 +46,10 @@ class ScreenshotManager:
     def set_capture_area(self, area: Optional[Tuple[int, int, int, int]]):
         """Define a área de captura (x1, y1, x2, y2)"""
         self.capture_area = area
+    
+    def set_window(self, window_info: Optional[Dict[str, Any]]):
+        """Define a janela a ser capturada"""
+        self.selected_window = window_info
     
     def _ask_user_for_directory(self) -> str:
         """Pergunta ao usuário onde salvar as capturas de tela."""
@@ -98,11 +113,40 @@ class ScreenshotManager:
             filename = f"screenshot_{timestamp}.png"
             path = os.path.join(self.images_dir, filename)
 
-            # Capturar tela completa ou área específica
+            # Capturar baseado no tipo de captura definido
             if self.capture_area:
+                # Capturar área específica
                 x1, y1, x2, y2 = self.capture_area
                 screenshot = pyautogui.screenshot(region=(x1, y1, x2-x1, y2-y1))
+            elif self.selected_window:
+                # Capturar janela específica
+                try:
+                    # Tentar localizar a janela pelo handle
+                    handle = self.selected_window.get('handle')
+                    window = gw.getWindowsWithTitle(self.selected_window.get('title', ''))[0]
+                    
+                    # Se a janela ainda existe e está visível
+                    if window.visible:
+                        # Trazer a janela para frente para garantir que está visível
+                        window.activate()
+                        time.sleep(0.2)  # Pequena pausa para garantir que a janela ativou
+                        
+                        # Capturar a região da janela
+                        left = window.left
+                        top = window.top
+                        width = window.width
+                        height = window.height
+                        screenshot = pyautogui.screenshot(region=(left, top, width, height))
+                    else:
+                        # Se a janela não estiver mais visível, usar tela inteira
+                        print("Janela não está mais visível, usando tela inteira")
+                        screenshot = pyautogui.screenshot()
+                except Exception as e:
+                    # Se houve erro ao capturar a janela, usar tela inteira
+                    print(f"Erro ao capturar janela: {e}. Usando tela inteira.")
+                    screenshot = pyautogui.screenshot()
             else:
+                # Capturar tela inteira (comportamento padrão)
                 screenshot = pyautogui.screenshot()
                 
             screenshot.save(path)

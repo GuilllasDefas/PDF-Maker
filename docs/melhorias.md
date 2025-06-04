@@ -6,10 +6,6 @@
   - Ao selecionar "Janela Ativa" em "O que Capturar", não é capturada apenas a Janela Ativa.  
     Verificar e otimizar esse comportamento.
 
-- **Aplicar Preset**
-  - Ao selecionar Outro Preset -> "Carregar" e "Aplicar", não é aplicado o preset. E ao voltar no menu, volta ao preset anterior.  
-    Verificar a aplicar o preset e manter suas configurações.
-
 - **Desempenho ao redimensionar**
   - Após tirar prints, redimensionar a janela fica lento e trava.  
     Verificar e otimizar esse comportamento.

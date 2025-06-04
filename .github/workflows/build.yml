@@ -175,12 +175,9 @@ jobs:
           body: |           
             ## Melhorias e Correções
 
-            - O aplicativo agora minimiza ao clicar em "Selecionar Área" nas configurações avançadas.
-            - Removidas as labels e entradas "Intervalos" e "Qtd. Capturas" da janela principal (esses campos estão disponíveis apenas nas configurações avançadas).
-            - Ícone adicionado ao registro do Windows.
-            - Menus "Arquivo", "Ferramentas" e "Ajuda" adicionados à barra de menu.
-            - Adicionado botão "Sobre" no menu "Ajuda".
-            - Agora é possível editar os atalhos no menu "Ferramentas" → "Configurar Atalhos".
+            - Corrigida aplicação de Presets
+            - Adicionada a seleção de Janelas para automação de captura de tela
+            - Removido o botão "Usar mesma área para todas as capturas".
 
           draft: false
           prerelease: true

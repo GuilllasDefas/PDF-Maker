@@ -384,17 +384,22 @@ class PDFMakerApp:
         
         # Armazenar o nome do preset aplicado
         self.last_applied_preset = preset_data.get('name')
-            
+        
         # Atualiza as configurações básicas
         self.interval_var.set(str(preset_data.get('interval', DEFAULT_INTERVAL)))
         self.num_captures_var.set(str(preset_data.get('num_captures', DEFAULT_NUM_CAPTURES)))
         
         # Configura o screenshot manager com as opções de captura
         capture_type = preset_data.get('capture_type', 'fullscreen')
+        
+        # Redefinir as configurações de captura
+        self.screenshot_manager.set_capture_area(None)
+        self.screenshot_manager.set_window(None)
+        
         if capture_type == 'area' and 'capture_area' in preset_data:
             self.screenshot_manager.set_capture_area(preset_data['capture_area'])
-        else:
-            self.screenshot_manager.set_capture_area(None)  # Usar padrão
+        elif capture_type == 'window' and 'selected_window' in preset_data:
+            self.screenshot_manager.set_window(preset_data['selected_window'])
         
         # Configura o automation manager com ações e condições
         self.automation_manager.set_action_between_captures(
