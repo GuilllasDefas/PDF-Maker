@@ -539,16 +539,22 @@ class PDFMakerApp:
         self._update_images()
     
     def _on_resize(self, event):
-        """Manipula redimensionamento da janela."""
+        """Manipula redimensionamento da janela com debounce."""
+        if hasattr(self, '_resize_after_id') and self._resize_after_id:
+            self.root.after_cancel(self._resize_after_id)
+        self._resize_after_id = self.root.after(200, self._do_resize)
+
+    def _do_resize(self):
+        """Executa o redimensionamento real das imagens."""
         frame_width = self.frame_images.winfo_width()
         frame_height = self.frame_images.winfo_height()
-        
         if frame_width > 100 and frame_height > 100:
             img_width = max(200, (frame_width // 2) - 20)
             img_height = max(150, frame_height - 40)
             self.img_display_size = (img_width, img_height)
             self._update_images()
-    
+        self._resize_after_id = None
+
     def _setup_resize_handling(self):
         """Configura o tratamento de redimensionamento."""
         self.root.bind("<Configure>", self._on_resize)
@@ -564,14 +570,16 @@ class PDFMakerApp:
             self._update_canvas_image(canvas, img_path)
     
     def _update_canvas_image(self, canvas, img_path):
-        """Atualiza uma imagem específica no canvas."""
+        """Atualiza uma imagem específica no canvas mantendo proporção."""
         if img_path and os.path.exists(img_path):
             try:
                 with open(img_path, 'rb') as f:
                     img = Image.open(f)
                     img.load()
-                    img = img.resize(self.img_display_size, Image.Resampling.LANCZOS)
-                    img_tk = ImageTk.PhotoImage(img)
+                    # Mantém proporção usando thumbnail
+                    img_copy = img.copy()
+                    img_copy.thumbnail(self.img_display_size, Image.Resampling.LANCZOS)
+                    img_tk = ImageTk.PhotoImage(img_copy)
                     canvas.img = img_tk
                     canvas.config(image=img_tk, text="")
             except Exception as e:

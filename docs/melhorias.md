@@ -2,10 +2,6 @@
 
 ## Correções Necessárias (Prioridade)
 
-- **Janela Ativa**
-  - Ao selecionar "Janela Ativa" em "O que Capturar", não é capturada apenas a Janela Ativa.  
-    Verificar e otimizar esse comportamento.
-
 - **Desempenho ao redimensionar**
   - Após tirar prints, redimensionar a janela fica lento e trava.  
     Verificar e otimizar esse comportamento.
