@@ -182,13 +182,14 @@ class KeyCaptureDialog:
 
 class PresetConfigWindow:
     """Janela de configuração de presets para automação de capturas"""
-    def __init__(self, parent, base_dir, callback=None):
+    def __init__(self, parent, base_dir, callback=None, initial_preset=None):
         self.parent = parent
         self.base_dir = base_dir
         self.callback = callback
         self.window = None
         self.capture_area = None
         self.area_feedback_label = None
+        self.initial_preset = initial_preset  # Armazena o preset inicial
         
          # Determinar o diretório apropriado para armazenar presets baseado no sistema operacional
         self.presets_dir = self._get_app_data_dir()
@@ -269,10 +270,13 @@ class PresetConfigWindow:
         self.preset_combobox = ttk.Combobox(preset_list_frame)
         self.preset_combobox.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
         
+        # Adicionar evento de binding para carregar automaticamente quando selecionar
+        self.preset_combobox.bind("<<ComboboxSelected>>", self._on_preset_selected)
+        
         preset_btn_frame = ttk.Frame(preset_list_frame)
         preset_btn_frame.pack(side=tk.RIGHT)
         
-        ttk.Button(preset_btn_frame, text="Carregar", command=self._load_preset).pack(side=tk.LEFT, padx=2)
+        # Botão de excluir (removido o botão "Recarregar")
         ttk.Button(preset_btn_frame, text="Excluir", command=self._delete_preset).pack(side=tk.LEFT, padx=2)
         
         # Configurações básicas
@@ -393,7 +397,7 @@ class PresetConfigWindow:
         y = (self.window.winfo_screenheight() // 2) - (height // 2)
         self.window.geometry(f'+{x}+{y}')
         
-        # Atualizar lista de presets e carregar o primeiro se disponível
+        # Atualizar lista de presets e selecionar o preset inicial
         self._update_preset_list()
     
     def _on_close(self):
@@ -401,8 +405,16 @@ class PresetConfigWindow:
         self.window.destroy()
         self.window = None
     
+    def _on_preset_selected(self, event):
+        """Callback chamado quando o usuário seleciona um preset na ComboBox"""
+        # Carregar automaticamente o preset selecionado
+        self._load_preset(silent=True)
+    
     def _update_preset_list(self):
-        """Atualiza a lista de presets disponíveis e carrega o primeiro automaticamente"""
+        """Atualiza a lista de presets disponíveis e seleciona o preset inicial ou anterior"""
+        # Preservar a seleção atual
+        current_selection = self.preset_combobox.get()
+        
         presets = []
         if os.path.exists(self.presets_dir):
             for filename in os.listdir(self.presets_dir):
@@ -410,13 +422,30 @@ class PresetConfigWindow:
                     presets.append(filename[:-5])  # Remove .json
         
         self.preset_combobox["values"] = presets
-        if presets:
-            self.preset_combobox.current(0)
-            # Carregar automaticamente o primeiro preset
+        
+        # Se não houver presets, não precisa tentar selecionar
+        if not presets:
+            return
+            
+        # Tentar manter a seleção atual, se possível
+        if current_selection and current_selection in presets:
+            self.preset_combobox.set(current_selection)
+        # Ou tentar selecionar o preset inicial, se fornecido
+        elif self.initial_preset and self.initial_preset in presets:
+            self.preset_combobox.set(self.initial_preset)
+            
+            # Carrega o preset selecionado sem mostrar mensagem
             try:
                 self._load_preset(silent=True)
             except Exception as e:
-                messagebox.showerror(f"Erro ao carregar preset inicial: {e}")
+                print(f"Erro ao carregar preset inicial: {e}")
+        # Caso contrário, carrega o primeiro preset
+        elif presets:
+            self.preset_combobox.current(0)
+            try:
+                self._load_preset(silent=True)
+            except Exception as e:
+                print(f"Erro ao carregar preset inicial: {e}")
     
     def _select_area(self):
         """Abre a seleção de área"""
@@ -552,8 +581,22 @@ class PresetConfigWindow:
             with open(filename, "w") as f:
                 json.dump(preset_data, f, indent=4)
             
-            messagebox.showinfo("Sucesso", f"Preset '{name}' salvo com sucesso!")
+            # Atualizar lista e selecionar explicitamente o preset atual
+            old_values = self.preset_combobox["values"]
             self._update_preset_list()
+            
+            # Garantir que o preset salvo seja selecionado
+            if name not in old_values:
+                # Se é um novo preset, selecionar na lista
+                values = list(self.preset_combobox["values"])
+                if name in values:
+                    index = values.index(name)
+                    self.preset_combobox.current(index)
+            else:
+                # Se é um preset existente, simplesmente definir
+                self.preset_combobox.set(name)
+            
+            messagebox.showinfo("Sucesso", f"Preset '{name}' salvo com sucesso!")
             
         except PermissionError:
             # Tratamento específico para erros de permissão
@@ -693,6 +736,18 @@ class PresetConfigWindow:
             preset_data = self._collect_preset_data()
             
             if self.callback:
+                # Antes de fechar a janela, armazenar o nome do preset que estamos aplicando
+                preset_name = preset_data.get('name')
+                
+                # Se o nome do preset não corresponder à seleção atual do ComboBox
+                # (isso pode acontecer se o usuário editou o nome), atualizar a ComboBox
+                if preset_name != self.preset_combobox.get():
+                    # Verificar se o nome está na lista
+                    values = list(self.preset_combobox['values'])
+                    if preset_name in values:
+                        self.preset_combobox.set(preset_name)
+                
+                # Passar os dados para o callback
                 self.callback(preset_data)
                 messagebox.showinfo("Aplicado", "Configurações aplicadas com sucesso!")
                 self._on_close()

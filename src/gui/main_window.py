@@ -78,7 +78,10 @@ class PDFMakerApp:
         
         # Desabilitar funcionalidades até que um diretório seja selecionado
         self._update_controls_state()
-    
+        
+        # Novo: variável para armazenar o último preset aplicado
+        self.last_applied_preset = None
+
     def _create_menu_bar(self):
         """Cria a barra de menus da aplicação."""
         self.menu_bar = tk.Menu(self.root)
@@ -368,14 +371,19 @@ class PDFMakerApp:
             messagebox.showerror("Erro", "Selecione um diretório válido antes de configurar presets.")
             return
         
-        # Criar e mostrar a janela de presets
-        preset_window = PresetConfigWindow(self.root, self.base_directory, callback=self._apply_preset)
+        # Criar e mostrar a janela de presets (agora passando o último preset usado)
+        preset_window = PresetConfigWindow(self.root, self.base_directory, 
+                                         callback=self._apply_preset,
+                                         initial_preset=self.last_applied_preset)
         preset_window.show()
     
     def _apply_preset(self, preset_data):
         """Aplica as configurações do preset selecionado."""
         if not preset_data:
             return
+        
+        # Armazenar o nome do preset aplicado
+        self.last_applied_preset = preset_data.get('name')
             
         # Atualiza as configurações básicas
         self.interval_var.set(str(preset_data.get('interval', DEFAULT_INTERVAL)))
