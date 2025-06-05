@@ -69,7 +69,7 @@ class PresetConfigWindow:
         self.window.geometry("630x600")  # Aumentado para melhor acomodar todos os elementos
         self.window.minsize(630, 520)    # Define tamanho mínimo para garantir visibilidade dos botões
         self.window.resizable(True, True)
-        self.window.transient(self.parent)
+        
         icon_path = ICON
         if getattr(sys, 'frozen', False):
             icon_path = os.path.join(sys._MEIPASS, ICON)
@@ -245,6 +245,8 @@ class PresetConfigWindow:
         
         # Atualizar lista de presets e selecionar o preset inicial
         self._update_preset_list()
+        self.window.grab_set()  # Modal, mas mantém os botões de controle
+        self.parent.wait_window(self.window)
     
     def _on_close(self):
         """Fecha a janela"""

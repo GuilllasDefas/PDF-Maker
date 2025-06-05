@@ -711,9 +711,15 @@ class ImageEditorWindow:
         # Criar uma janela de diálogo personalizada
         font_dialog = tk.Toplevel(self.window)
         font_dialog.title("Configurações de Fonte")
-        font_dialog.geometry("300x200")
+        font_dialog.geometry("250x150")
         font_dialog.transient(self.window)
         font_dialog.grab_set()
+
+        # Adicionar ícone
+        icon_path = ICON
+        if getattr(sys, 'frozen', False):
+            icon_path = os.path.join(sys._MEIPASS, ICON)
+        font_dialog.iconbitmap(icon_path)
         
         # Frame principal
         frame = ttk.Frame(font_dialog, padding=10)

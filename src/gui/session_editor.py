@@ -200,8 +200,8 @@ class SessionEditorWindow:
         # Calcular o tamanho apropriado para a janela (80% da tela)
         screen_width = self.window.winfo_screenwidth()
         screen_height = self.window.winfo_screenheight()
-        window_width = int(screen_width * 0.8)
-        window_height = int(screen_height * 0.8)
+        window_width = int(screen_width * 0.5)
+        window_height = int(screen_height * 0.5)
         
         # Aplicar o tamanho
         self.window.geometry(f"{window_width}x{window_height}")

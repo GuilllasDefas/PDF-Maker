@@ -1,15 +1,8 @@
 # Melhorias e Funcionalidades para PDF Maker
 
-## Correções:
-
-- **Janela Principal**
-  - "Configurar Atalhos" não é permitido redimensionar a janela.
-
-- **Editar Sessão de Imagens**
-  - A Janela abre muito maior em relação ao seu conteúdo.
+## Correções
 
 - **Editor de Imagem**
-  - A Janela de adicionar texto está pequena, e acaba cortando os botões
   - A Janela de adicionar "Configuração de Fonte" não possue ícone da janela
   - A Janela de adicionar "Configuração de Fonte" está maior do que o necessário.
 

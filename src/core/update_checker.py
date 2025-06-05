@@ -48,7 +48,7 @@ class UpdateChecker:
         
         # Adiciona um User-Agent para evitar bloqueios da API
         headers = {"User-Agent": "PDF-Maker-Update-Checker"}
-        response = requests.get(url, headers=headers, timeout=10)
+        response = requests.get(url, headers=headers, timeout=30)
         response.raise_for_status()
         
         releases = response.json()
