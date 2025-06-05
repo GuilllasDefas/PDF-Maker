@@ -18,6 +18,7 @@ from src.core.automation import AutomationManager
 from src.core.update_checker import UpdateChecker
 from src.gui.preset_window import PresetConfigWindow
 from src.gui.hotkey_config import HotkeyConfigWindow
+from src.gui.session_editor import SessionEditorWindow  # Nova importação para o editor de sessão
 
 
 # Permite carregar imagens truncadas
@@ -95,6 +96,7 @@ class PDFMakerApp:
         file_menu.add_separator()
 
         file_menu.add_command(label="Nova Sessão", command=self._reset_session)
+        file_menu.add_command(label="Editar Sessão", command=self._edit_session)  # Nova opção de menu
         file_menu.add_command(label="Gerar PDF", command=self._generate_pdf)
 
         file_menu.add_separator()
@@ -232,6 +234,10 @@ class PDFMakerApp:
         self.btn_pdf = ttk.Button(frame_actions, text="Gerar PDF", command=self._generate_pdf)
         self.btn_pdf.pack(side=tk.RIGHT, padx=5, pady=5)
         
+        # Novo botão para editar sessão (adicionado antes do botão Gerar PDF)
+        self.btn_edit_session = ttk.Button(frame_actions, text="Editar Sessão", command=self._edit_session)
+        self.btn_edit_session.pack(side=tk.RIGHT, padx=5, pady=5)
+        
         # Botão para nova sessão
         self.btn_reset_session = ttk.Button(frame_actions, text="Nova Sessão", 
                                          command=self._reset_session)
@@ -288,12 +294,14 @@ class PDFMakerApp:
         self.btn_pdf.config(state=state)
         self.btn_start.config(state=state)
         self.btn_reset_session.config(state=state)
+        self.btn_edit_session.config(state=state)  # Atualiza estado do botão de editar sessão
         
         # Também atualiza menus
         if hasattr(self, "menu_bar"):
             file_menu = self.menu_bar.winfo_children()[0]
             file_menu.entryconfig("Gerar PDF", state=state)
             file_menu.entryconfig("Nova Sessão", state=state)
+            file_menu.entryconfig("Editar Sessão", state=state)  # Atualiza estado do item de menu
             
             tools_menu = self.menu_bar.winfo_children()[1]
             tools_menu.entryconfig("Tirar Screenshot", state=state)
@@ -609,6 +617,52 @@ class PDFMakerApp:
         pdf_path = os.path.join(screenshots_dir, f"PDF Maker_{timestamp}.pdf")
         
         # Gerar o PDF
+        if self.pdf_generator.generate_pdf(paths, pdf_path):
+            messagebox.showinfo("PDF", f"PDF gerado: {pdf_path}")
+        else:
+            messagebox.showerror("Erro", "Falha ao gerar PDF.")
+    
+    def _edit_session(self):
+        """Abre o editor de sessão para organizar e editar as imagens capturadas."""
+        # Verificar se temos o diretório base configurado
+        if not self.base_directory or not os.path.isdir(self.base_directory):
+            messagebox.showerror("Erro", "Selecione um diretório válido antes de editar a sessão.")
+            return
+        
+        # Obter os caminhos das imagens da sessão atual
+        paths = self.screenshot_manager.get_image_paths()
+        if not paths:
+            messagebox.showwarning("Editar Sessão", "Nenhuma imagem encontrada para editar.")
+            return
+        
+        # Usar o diretório da sessão atual
+        screenshots_dir = self.session_screenshots_dir or self.screenshot_manager.get_images_dir()
+        
+        # Abrir a janela do editor de sessão com configuração modal
+        editor = SessionEditorWindow(self.root, paths, screenshots_dir)
+        
+        # Mostrar a janela do editor - ela já implementa comportamento modal
+        result = editor.show()
+        
+        # Se o usuário concluiu a edição e solicitou gerar o PDF
+        if result.get('generate_pdf', False):
+            # Usar os caminhos reordenados/editados para gerar o PDF
+            self._generate_pdf_with_edited_paths(result.get('image_paths', []))
+    
+    def _generate_pdf_with_edited_paths(self, paths):
+        """Gera o PDF usando os caminhos editados/reordenados."""
+        if not paths:
+            messagebox.showwarning("PDF", "Nenhuma imagem para gerar PDF.")
+            return
+        
+        # Usar o diretório da sessão para salvar o PDF
+        screenshots_dir = self.session_screenshots_dir or self.screenshot_manager.get_images_dir()
+        
+        # Definir caminho para o PDF com timestamp
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        pdf_path = os.path.join(screenshots_dir, f"PDF Maker_{timestamp}.pdf")
+        
+        # Gerar o PDF com os caminhos reordenados e possíveis anotações
         if self.pdf_generator.generate_pdf(paths, pdf_path):
             messagebox.showinfo("PDF", f"PDF gerado: {pdf_path}")
         else:

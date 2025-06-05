@@ -4,6 +4,7 @@ from reportlab.lib.units import mm
 from typing import List
 from src.config.config import DEFAULT_DPI
 from tkinter import messagebox
+import os
 
 # Permite carregar imagens truncadas
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -20,8 +21,28 @@ class PDFGenerator:
         try:
             c = canvas.Canvas(output_pdf)
             
+            # Verificar se temos um gerenciador de anotações disponível
+            from src.core.annotation_manager import AnnotationManager
+            
+            # Tentar criar um gerenciador de anotações para a pasta da sessão
+            annotation_manager = None
+            try:
+                session_dir = os.path.dirname(image_paths[0]) if image_paths else None
+                if session_dir:
+                    annotation_manager = AnnotationManager(session_dir)
+            except Exception as e:
+                print(f"Aviso: Não foi possível criar gerenciador de anotações: {e}")
+            
+            # Processar cada imagem
             for img_path in image_paths:
-                if self._add_image_to_pdf(c, img_path):
+                # Se temos um gerenciador de anotações, verificar se há versão anotada
+                path_to_use = img_path
+                if annotation_manager and annotation_manager.has_annotations(img_path):
+                    annotated_path = annotation_manager.get_image_for_pdf(img_path)
+                    if annotated_path and os.path.exists(annotated_path):
+                        path_to_use = annotated_path
+                
+                if self._add_image_to_pdf(c, path_to_use):
                     c.showPage()
                 else:
                     messagebox.showerror("Erro", f"Falha ao processar imagem: {img_path}")

@@ -170,9 +170,8 @@ jobs:
           body: |           
             ## Melhorias e Correções
 
-            - Corrigida proporção de imagens na vizualização canvas
-            - Houve melhoria na performance do canvas ao redimensionar o aplicativo
-            - Mudança de ícone do aplicativo
+            - Mudança de ícone do Aplicativo
+            - Adicionado editor de Sessão, que permite editar o conteúdo de uma sessão já criada
 
           draft: false
           prerelease: true
