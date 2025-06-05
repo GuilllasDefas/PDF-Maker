@@ -37,8 +37,8 @@ class TextInputDialog:
         # Criar uma janela de diálogo
         self.dialog = tk.Toplevel(parent)
         self.dialog.title(title)
-        self.dialog.geometry("400x200")  # Tamanho maior para a caixa de diálogo
-        self.dialog.minsize(400, 200)
+        self.dialog.geometry("400x250")
+        self.dialog.minsize(400, 250)
         
         # Permitir maximizar/minimizar a janela de diálogo
         self.dialog.resizable(True, True)
@@ -90,8 +90,8 @@ class TextInputDialog:
         btn_frame = ttk.Frame(frame)
         btn_frame.pack(fill=tk.X, pady=(10, 0))
         
-        ttk.Button(btn_frame, text="Cancelar", command=self.cancel).pack(side=tk.LEFT, padx=5)
-        ttk.Button(btn_frame, text="OK", command=self.ok).pack(side=tk.RIGHT, padx=5)
+        ttk.Button(btn_frame, text="Cancelar", width=10, command=self.cancel).pack(side=tk.LEFT, padx=5)
+        ttk.Button(btn_frame, text="OK", width=10, command=self.ok).pack(side=tk.RIGHT, padx=5)
         
         # Configurar pressionamento de Enter para enviar
         self.dialog.bind("<Return>", lambda e: self.ok())
@@ -106,6 +106,16 @@ class TextInputDialog:
                 for child in widget.winfo_children():
                     if isinstance(child, (ttk.Button, ttk.Entry, tk.Canvas, ttk.Combobox)):
                         child.configure(state='normal')
+    
+    def ok(self):
+        """Processa o texto inserido e fecha o diálogo."""
+        self.result = self.text_widget.get("1.0", "end-1c").strip()
+        self.dialog.destroy()
+    
+    def cancel(self):
+        """Cancela a operação e fecha o diálogo."""
+        self.result = None
+        self.dialog.destroy()
 
 class ImageEditorWindow:
     """Janela de edição de imagem para adicionar anotações."""
@@ -216,15 +226,15 @@ class ImageEditorWindow:
         shapes_frame = ttk.LabelFrame(tools_grid, text="Formas")
         shapes_frame.grid(row=0, column=1, padx=5, pady=5, sticky="w")
         
-        self.line_btn = ttk.Button(shapes_frame, text="Linha", width=8,
+        self.line_btn = ttk.Button(shapes_frame, text="Linha", width=7,
                                  command=lambda: self._set_tool("line"))
         self.line_btn.pack(side=tk.LEFT, padx=2, pady=2)
         
-        self.arrow_btn = ttk.Button(shapes_frame, text="Seta", width=8,
+        self.arrow_btn = ttk.Button(shapes_frame, text="Seta", width=7,
                                   command=lambda: self._set_tool("arrow"))
         self.arrow_btn.pack(side=tk.LEFT, padx=2, pady=2)
         
-        self.rect_btn = ttk.Button(shapes_frame, text="Retângulo", width=8,
+        self.rect_btn = ttk.Button(shapes_frame, text="Retângulo", width=11,
                                  command=lambda: self._set_tool("rect"))
         self.rect_btn.pack(side=tk.LEFT, padx=2, pady=2)
         
@@ -232,11 +242,11 @@ class ImageEditorWindow:
         text_frame = ttk.LabelFrame(tools_grid, text="Texto")
         text_frame.grid(row=0, column=2, padx=5, pady=5, sticky="w")
         
-        self.text_btn = ttk.Button(text_frame, text="Adicionar", width=8,
+        self.text_btn = ttk.Button(text_frame, text="Adicionar", width=11,
                                  command=lambda: self._set_tool("text"))
         self.text_btn.pack(side=tk.LEFT, padx=2, pady=2)
         
-        self.font_btn = ttk.Button(text_frame, text="Fonte", width=8,
+        self.font_btn = ttk.Button(text_frame, text="Fonte", width=7,
                                  command=self._choose_font)
         self.font_btn.pack(side=tk.LEFT, padx=2, pady=2)
         
@@ -676,11 +686,22 @@ class ImageEditorWindow:
     
     def _choose_color(self):
         """Abre o seletor de cor."""
-        color = colorchooser.askcolor(initialcolor=self.color)
-        if color[1]:
-            self.color = color[1]
-            # Atualizar a amostra de cor
-            self.color_sample.config(bg=self.color)
+        # Desabilitar temporariamente a janela do editor para manter a modalidade
+        self.window.attributes('-disabled', True)
+        
+        try:
+            color = colorchooser.askcolor(initialcolor=self.color)
+            if color[1]:
+                self.color = color[1]
+                # Atualizar a amostra de cor
+                self.color_sample.config(bg=self.color)
+        finally:
+            # Reabilitar a janela do editor após o seletor de cor ser fechado
+            self.window.attributes('-disabled', False)
+            # Trazer a janela do editor para a frente novamente
+            self.window.lift()
+            # Garantir que o foco retorne para a janela do editor
+            self.window.focus_force()
     
     def _choose_font(self):
         """Abre o diálogo de configuração de fonte."""

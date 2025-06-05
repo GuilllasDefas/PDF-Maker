@@ -91,12 +91,12 @@ Os testes abrangem todas as funcionalidades da aplicação, desde a instalação
 
 ### 11. TESTES DE COMPORTAMENTO MODAL DAS JANELAS
 
-- [ ] Abrir a janela principal e tentar interagir com ela enquanto a janela "Editar Sessão de Imagens" está aberta
-- [ ] Verificar se a janela "Editar Sessão de Imagens" bloqueia corretamente a interação com a janela principal
-- [ ] Abrir a janela "Editar Sessão de Imagens" e depois abrir o "Editor de Imagem", verificar se a janela "Editar Sessão" fica bloqueada
-- [ ] Verificar se os botões de maximizar, minimizar e fechar funcionam corretamente em cada janela
-- [ ] Testar a redimensionamento das janelas secundárias
-- [ ] No "Editor de Imagem", testar a caixa de diálogo "Adicionar Texto" e verificar se ela bloqueia a interação com o editor
+- [x] Abrir a janela principal e tentar interagir com ela enquanto a janela "Editar Sessão de Imagens" está aberta
+- [x] Verificar se a janela "Editar Sessão de Imagens" bloqueia corretamente a interação com a janela principal
+- [x] Abrir a janela "Editar Sessão de Imagens" e depois abrir o "Editor de Imagem", verificar se a janela "Editar Sessão" fica bloqueada
+- [x] Verificar se os botões de maximizar, minimizar e fechar funcionam corretamente em cada janela
+- [x] Testar a redimensionamento das janelas secundárias
+- [Errado] No "Editor de Imagem", testar a caixa de diálogo "Adicionar Texto" e verificar se ela bloqueia a interação com o editor
 - [ ] Verificar se a ordem de foco é restaurada corretamente quando janelas secundárias são fechadas
 
 ### 12. TESTES DE EDIÇÃO DE SESSÃO

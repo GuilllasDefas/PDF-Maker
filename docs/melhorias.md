@@ -1,24 +1,17 @@
 # Melhorias e Funcionalidades para PDF Maker
 
-## Correções Necessárias (Prioridade)
+## Correções:
 
-- **Bloquear Janelas**
-  - Na "Janela principal", ao entrar Clicar em "Editar Sessão", abrindo a Janela "Editar Sessão de Imagens" deveria bloquear a janela principal para evitar ações enquanto a edição está em andamento.
-  - Na Janela de "Editar Sessão de Imagens", ao clicar em "Editar" e/ou "Ver/Edição", abrindo a Janela "Editor de Imagem", deveria bloquear a janela ""Editar Sessão de Imagens" para evitar ações enquanto a edição está em andamento.
-  - Na Janela de "Editor de Imagem", ao clicar em "Adicionar Texto", abrindo a Janela "Adicionar Texto", deveria bloquear a janela "Editor de Imagem" para evitar ações enquanto a edição está em andamento.
-  - Sempre bloquear a Janela anterior para evitar ações enquanto a edição está em andamento.
+- **Janela Principal**
+  - "Configurar Atalhos" não é permitido redimensionar a janela.
 
 - **Editar Sessão de Imagens**
-- Permitir as opções de fechar, maximar e minimizar a janela atual, tal qual a janela principal.
+  - A Janela abre muito maior em relação ao seu conteúdo.
 
 - **Editor de Imagem**
-  - Em "Texto", o botão "Adicionar", está cortando a palavra por não ter o comprimento adequado.
-  - Em "Formas", o botão "Retângulo", está cortando a palavra por não ter o comprimento adequado.
-  - Em "Texto", o botão "Adicionar", Não está abrindo a janela de caixa de texto em primeiro plano.
-  
-- **Adicionar Texto**
-
-  - A Janela de adicionar texto está pequena, e acaba cortando os botões ao meio
+  - A Janela de adicionar texto está pequena, e acaba cortando os botões
+  - A Janela de adicionar "Configuração de Fonte" não possue ícone da janela
+  - A Janela de adicionar "Configuração de Fonte" está maior do que o necessário.
 
 ---
 
