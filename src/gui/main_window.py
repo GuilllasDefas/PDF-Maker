@@ -2,11 +2,12 @@ import os
 import sys
 import threading
 import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
+from tkinter import ttk, messagebox, filedialog, simpledialog
 from PIL import Image, ImageTk, ImageFile
 import keyboard
 import json
-from datetime import datetime  # Adicionar import para timestamp
+import platform
+from datetime import datetime
 from src.config.config import (
     DEFAULT_WINDOW_SIZE, DEFAULT_IMAGE_DISPLAY_SIZE, 
     DEFAULT_INTERVAL, DEFAULT_NUM_CAPTURES, ICON,
@@ -23,6 +24,70 @@ from src.gui.session_editor import SessionEditorWindow  # Nova importação para
 
 # Permite carregar imagens truncadas
 ImageFile.LOAD_TRUNCATED_IMAGES = True
+
+class CustomStringDialog:
+    """Diálogo personalizado para entrada de texto com tamanho adequado e ícone."""
+    def __init__(self, parent, title, prompt, initialvalue=None):
+        self.result = None
+        
+        # Criar janela de diálogo
+        self.dialog = tk.Toplevel(parent)
+        self.dialog.title(title)
+        self.dialog.geometry("400x150")  # Tamanho maior que o padrão
+        self.dialog.resizable(False, False)
+        
+        # Configurar ícone
+        icon_path = ICON
+        if getattr(sys, 'frozen', False):
+            icon_path = os.path.join(sys._MEIPASS, ICON)
+        self.dialog.iconbitmap(icon_path)
+        
+        # Tornar modal
+        self.dialog.transient(parent)
+        self.dialog.grab_set()
+        
+        # Centralizar na tela
+        self.dialog.update_idletasks()
+        w = self.dialog.winfo_width()
+        h = self.dialog.winfo_height()
+        x = (parent.winfo_width() - w) // 2 + parent.winfo_x()
+        y = (parent.winfo_height() - h) // 2 + parent.winfo_y()
+        self.dialog.geometry(f"+{x}+{y}")
+        
+        # Criar widgets
+        frame = ttk.Frame(self.dialog, padding=20)
+        frame.pack(fill=tk.BOTH, expand=True)
+        
+        ttk.Label(frame, text=prompt).pack(anchor=tk.W, pady=(0, 10))
+        
+        self.entry = ttk.Entry(frame, width=40)
+        self.entry.pack(fill=tk.X, pady=(0, 20))
+        if initialvalue:
+            self.entry.insert(0, initialvalue)
+        self.entry.focus_set()
+        
+        # Botões
+        btn_frame = ttk.Frame(frame)
+        btn_frame.pack(fill=tk.X)
+        
+        ttk.Button(btn_frame, text="Cancelar", command=self.cancel).pack(side=tk.RIGHT, padx=5)
+        ttk.Button(btn_frame, text="OK", command=self.ok).pack(side=tk.RIGHT, padx=5)
+        
+        # Binds para teclas
+        self.dialog.bind("<Return>", lambda e: self.ok())
+        self.dialog.bind("<Escape>", lambda e: self.cancel())
+        
+        # Esperar até que a janela seja fechada
+        parent.wait_window(self.dialog)
+    
+    def ok(self):
+        """Confirma e fecha o diálogo."""
+        self.result = self.entry.get()
+        self.dialog.destroy()
+    
+    def cancel(self):
+        """Cancela e fecha o diálogo."""
+        self.dialog.destroy()
 
 class PDFMakerApp:
     def __init__(self, root):
@@ -50,6 +115,7 @@ class PDFMakerApp:
         self.update_download_url = None
         self.base_directory = self._load_last_directory()  # Carrega a última pasta usada
         self.session_screenshots_dir = None  # Novo: diretório da sessão atual
+        self.session_name = None  # Nome da sessão atual
 
         # Variáveis para automação
         self.interval_var = tk.StringVar(value=str(DEFAULT_INTERVAL))
@@ -83,6 +149,9 @@ class PDFMakerApp:
         # Novo: variável para armazenar o último preset aplicado
         self.last_applied_preset = None
 
+        # Iniciar com a última sessão se disponível
+        self._try_load_last_session()
+    
     def _create_menu_bar(self):
         """Cria a barra de menus da aplicação."""
         self.menu_bar = tk.Menu(self.root)
@@ -95,13 +164,26 @@ class PDFMakerApp:
         
         file_menu.add_separator()
 
+        # Sessões
         file_menu.add_command(label="Nova Sessão", command=self._reset_session)
-        file_menu.add_command(label="Editar Sessão", command=self._edit_session)  # Nova opção de menu
+        
+        # Submenu para sessões salvas
+        self.sessions_menu = tk.Menu(file_menu, tearoff=0)
+        file_menu.add_cascade(label="Carregar Sessão", menu=self.sessions_menu)
+        self._update_sessions_menu()  # Preenche o menu com as sessões salvas
+        
+        file_menu.add_command(label="Salvar Sessão Atual", command=self._save_current_session)
+        file_menu.add_command(label="Renomear Sessão Atual", command=self._rename_current_session)
+        
+        file_menu.add_command(label="Editar Sessão", command=self._edit_session)
+
+        file_menu.add_separator()
+
         file_menu.add_command(label="Gerar PDF", command=self._generate_pdf)
 
         file_menu.add_separator()
 
-        file_menu.add_command(label="Sair", command=self.root.quit)
+        file_menu.add_command(label="Sair", command=self._on_exit)
         self.menu_bar.add_cascade(label="Arquivo", menu=file_menu)
         
         # Menu Ferramentas
@@ -268,8 +350,10 @@ class PDFMakerApp:
             self.counter = 0
             self.last_image = None
             self.current_image = None
+            self.session_name = None
             self._update_images()
             self._update_controls_state()
+            self.root.title(f"PDF Maker v{APP_VERSION} Beta")
             return
 
         # Cria apenas UMA pasta de sessão diretamente no diretório base
@@ -283,6 +367,12 @@ class PDFMakerApp:
         self.current_image = None
         self._update_images()
         self._update_controls_state()
+        
+        # Resetar o nome da sessão
+        self.session_name = None
+        
+        # Atualizar título da janela
+        self.root.title(f"PDF Maker v{APP_VERSION} Beta")
 
     def _update_controls_state(self):
         """Atualiza o estado dos controles com base na seleção de diretório."""
@@ -667,3 +757,322 @@ class PDFMakerApp:
             messagebox.showinfo("PDF", f"PDF gerado: {pdf_path}")
         else:
             messagebox.showerror("Erro", "Falha ao gerar PDF.")
+    
+    def _open_sessions_menu(self):
+        """Abre o menu de sessões salvas."""
+        # Atualizar o menu de sessões salvas
+        self._update_sessions_menu()
+        
+        # Exibir o menu
+        try:
+            x = self.root.winfo_x()
+            y = self.root.winfo_y() + self.root.winfo_height()
+            
+            self.saved_sessions_menu.post(x, y)
+        except Exception as e:
+            print(f"Erro ao exibir menu de sessões: {e}")
+
+    def _try_load_last_session(self):
+        """Tenta carregar a última sessão usada."""
+        try:
+            sessions_dir = self._get_sessions_directory()
+            last_session_file = os.path.join(sessions_dir, "last_session.json")
+            
+            if os.path.exists(last_session_file):
+                with open(last_session_file, 'r') as f:
+                    session_data = json.load(f)
+                    
+                # Verificar se o diretório ainda existe
+                if os.path.isdir(session_data.get('directory', '')):
+                    # Restaurar a sessão
+                    self._load_session_data(session_data)
+                    
+                    # Atualizar o título da janela
+                    session_name = session_data.get('name', 'Sessão sem nome')
+                    self.root.title(f"PDF Maker v{APP_VERSION} Beta - {session_name}")
+                    
+                    # Atualizar o diretório base se necessário
+                    directory = session_data.get('directory', '')
+                    parent_dir = os.path.dirname(directory)
+                    if parent_dir and os.path.isdir(parent_dir):
+                        self.base_directory = parent_dir
+                        self.dir_var.set(parent_dir)
+                        
+                    return True
+        except Exception as e:
+            print(f"Erro ao carregar última sessão: {e}")
+        
+        return False
+
+    def _save_current_session(self):
+        """Salva a sessão atual."""
+        if not self.session_screenshots_dir or not os.path.isdir(self.session_screenshots_dir):
+            messagebox.showwarning("Aviso", "Não há uma sessão ativa para salvar.")
+            return
+            
+        # Obter nome padrão da sessão (baseado no nome da pasta)
+        current_name = self.session_name or os.path.basename(self.session_screenshots_dir)
+        
+        # Usar nosso diálogo personalizado em vez do simpledialog
+        dialog = CustomStringDialog(
+            self.root,
+            "Salvar Sessão",
+            "Nome da sessão:",
+            initialvalue=current_name
+        )
+        new_name = dialog.result
+        
+        if not new_name:
+            return  # Usuário cancelou
+            
+        try:
+            # Salvar a sessão com o novo nome
+            self._save_session_to_file(new_name)
+            
+            # Atualizar o nome da sessão atual
+            self.session_name = new_name
+            
+            # Atualizar o título da janela
+            self.root.title(f"PDF Maker v{APP_VERSION} Beta - {new_name}")
+            
+            # Atualizar o menu de sessões
+            self._update_sessions_menu()
+            
+            messagebox.showinfo("Sucesso", f"Sessão '{new_name}' salva com sucesso!")
+        except Exception as e:
+            messagebox.showerror("Erro", f"Falha ao salvar sessão: {str(e)}")
+
+    def _save_session_to_file(self, session_name):
+        """Salva os dados da sessão em um arquivo."""
+        # Obter metadados da sessão
+        session_data = {
+            'name': session_name,
+            'directory': self.session_screenshots_dir,
+            'images': self.screenshot_manager.get_image_paths(),
+            'saved_date': datetime.now().isoformat(),
+            'image_count': self.counter
+        }
+        
+        # Obter diretório de sessões salvas
+        sessions_dir = self._get_sessions_directory()
+        
+        # Salvar em arquivo JSON
+        filename = os.path.join(sessions_dir, f"{session_name}.json")
+        with open(filename, 'w') as f:
+            json.dump(session_data, f, indent=4)
+            
+        # Também salvar como "last_session.json" para facilitar o carregamento automático
+        last_session_file = os.path.join(sessions_dir, "last_session.json")
+        with open(last_session_file, 'w') as f:
+            json.dump(session_data, f, indent=4)
+
+    def _get_sessions_directory(self):
+        """Retorna o diretório onde são armazenadas as sessões salvas."""
+        app_name = "PDF Maker"
+        
+        # Diretório principal da aplicação
+        if platform.system() == "Windows":
+            app_data = os.path.join(os.environ.get('APPDATA', os.path.expanduser("~")), app_name)
+        else:
+            app_data = os.path.join(os.path.expanduser("~"), f".{app_name.lower()}")
+        
+        # Diretório específico para sessões
+        sessions_dir = os.path.join(app_data, "sessions")
+        
+        # Garantir que o diretório existe
+        os.makedirs(sessions_dir, exist_ok=True)
+        
+        return sessions_dir
+
+    def _update_sessions_menu(self):
+        """Atualiza o menu de sessões salvas."""
+        # Limpar menu existente
+        if hasattr(self, 'sessions_menu'):
+            self.sessions_menu.delete(0, tk.END)
+        else:
+            return
+        
+        try:
+            sessions_dir = self._get_sessions_directory()
+            
+            if not os.path.exists(sessions_dir):
+                self.sessions_menu.add_command(label="Nenhuma sessão salva", state=tk.DISABLED)
+                return
+            
+            # Coletar sessões
+            sessions = []
+            for filename in os.listdir(sessions_dir):
+                if filename.endswith(".json") and filename != "last_session.json":
+                    try:
+                        with open(os.path.join(sessions_dir, filename), 'r') as f:
+                            session_data = json.load(f)
+                        
+                        # Verificar se o diretório ainda existe
+                        if os.path.isdir(session_data.get('directory', '')):
+                            sessions.append(session_data)
+                    except:
+                        continue
+        
+            # Ordenar por data (mais recente primeiro)
+            sessions.sort(key=lambda x: x.get('saved_date', ''), reverse=True)
+            
+            # Adicionar ao menu
+            if not sessions:
+                self.sessions_menu.add_command(label="Nenhuma sessão salva", state=tk.DISABLED)
+            else:
+                for session in sessions:
+                    name = session.get('name', 'Sem nome')
+                    date_str = self._format_date(session.get('saved_date', ''))
+                    
+                    # Criar uma função de callback com closure para este item específico
+                    callback = lambda s=session: self._load_session_data(s)
+                    
+                    # Adicionar ao menu (mostrar nome e data)
+                    self.sessions_menu.add_command(
+                        label=f"{name} ({date_str})",
+                        command=callback
+                    )
+        except Exception as e:
+            print(f"Erro ao atualizar menu de sessões: {str(e)}")
+            if hasattr(self, 'sessions_menu'):
+                self.sessions_menu.add_command(label="Erro ao carregar sessões", state=tk.DISABLED)
+
+    def _format_date(self, date_string):
+        """Formata a string de data para exibição amigável."""
+        if not date_string:
+            return "-"
+            
+        try:
+            # Converter ISO format para objeto datetime
+            dt = datetime.fromisoformat(date_string)
+            # Formatar para exibição
+            return dt.strftime("%d/%m/%Y %H:%M")
+        except:
+            return date_string
+
+    def _load_session_data(self, session_data):
+        """Carrega uma sessão a partir dos dados."""
+        if not session_data:
+            return False
+            
+        directory = session_data.get('directory')
+        if not directory or not os.path.isdir(directory):
+            messagebox.showerror("Erro", f"Diretório da sessão não encontrado: {directory}")
+            return False
+            
+        try:
+            # Configurar o gerenciador de screenshots para usar o diretório da sessão
+            self.session_screenshots_dir = directory
+            self.session_name = session_data.get('name')
+            self.screenshot_manager.set_directory(directory)
+            
+            # Carregar contagem de imagens
+            self.counter = session_data.get('image_count', 0)
+            
+            # Atualizar referências de imagens
+            paths = self.screenshot_manager.get_image_paths()
+            if paths:
+                self.current_image = paths[-1]  # Última imagem
+                self.last_image = paths[-2] if len(paths) > 1 else None
+                
+            # Atualizar interface
+            self._update_images()
+            self._update_controls_state()
+            
+            # Atualizar título da janela
+            if self.session_name:
+                self.root.title(f"PDF Maker v{APP_VERSION} Beta - {self.session_name}")
+            
+            # Verificar se é preciso atualizar diretório base
+            if self.base_directory != os.path.dirname(directory):
+                self.base_directory = os.path.dirname(directory)
+                self.dir_var.set(self.base_directory)
+            
+            return True
+        except Exception as e:
+            messagebox.showerror("Erro", f"Falha ao carregar sessão: {str(e)}")
+            return False
+
+    def _rename_current_session(self):
+        """Renomeia a sessão atual."""
+        if not self.session_screenshots_dir or not os.path.isdir(self.session_screenshots_dir):
+            messagebox.showwarning("Aviso", "Não há uma sessão ativa para renomear.")
+            return
+            
+        # Obter nome atual da sessão
+        current_name = self.session_name or os.path.basename(self.session_screenshots_dir)
+        
+        # Usar nosso diálogo personalizado em vez do simpledialog
+        dialog = CustomStringDialog(
+            self.root,
+            "Renomear Sessão",
+            "Novo nome para a sessão:",
+            initialvalue=current_name
+        )
+        new_name = dialog.result
+        
+        if not new_name or new_name == current_name:
+            return  # Usuário cancelou ou não alterou
+            
+        try:
+            # Salvar a sessão com o novo nome
+            self._save_session_to_file(new_name)
+            
+            # Atualizar o nome da sessão atual
+            self.session_name = new_name
+            
+            # Atualizar o título da janela
+            self.root.title(f"PDF Maker v{APP_VERSION} Beta - {new_name}")
+            
+            # Atualizar o menu de sessões
+            self._update_sessions_menu()
+            
+            messagebox.showinfo("Sucesso", f"Sessão renomeada para '{new_name}'.")
+        except Exception as e:
+            messagebox.showerror("Erro", f"Falha ao renomear sessão: {str(e)}")
+
+    def _on_exit(self):
+        """Manipula o evento de saída do programa."""
+        # Salvar automaticamente a sessão atual antes de sair
+        if self.session_screenshots_dir and os.path.exists(self.session_screenshots_dir):
+            try:
+                # Usar o nome da pasta como nome da sessão se não tiver um nome personalizado
+                session_name = self.session_name or os.path.basename(self.session_screenshots_dir)
+                self._save_session_to_file(session_name)
+            except Exception as e:
+                print(f"Erro ao salvar sessão automaticamente: {e}")
+    
+        self.root.quit()
+
+    # Substituir o método existente
+    def _reset_session(self):
+        """Reseta a sessão de screenshots, criando uma nova pasta para a próxima leva."""
+        if not self.base_directory or not os.path.isdir(self.base_directory):
+            self.session_screenshots_dir = None
+            self.screenshot_manager.set_directory(None)
+            self.counter = 0
+            self.last_image = None
+            self.current_image = None
+            self.session_name = None
+            self._update_images()
+            self._update_controls_state()
+            self.root.title(f"PDF Maker v{APP_VERSION} Beta")
+            return
+
+        # Cria apenas UMA pasta de sessão diretamente no diretório base
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        session_dir = os.path.join(self.base_directory, f"sessao_prints_{timestamp}")
+        os.makedirs(session_dir, exist_ok=True)
+        self.session_screenshots_dir = session_dir
+        self.screenshot_manager.set_directory(session_dir)
+        self.counter = 0
+        self.last_image = None
+        self.current_image = None
+        self._update_images()
+        self._update_controls_state()
+        
+        # Resetar o nome da sessão
+        self.session_name = None
+        
+        # Atualizar título da janela
+        self.root.title(f"PDF Maker v{APP_VERSION} Beta")

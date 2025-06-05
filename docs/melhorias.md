@@ -2,17 +2,9 @@
 
 ## Correções
 
-- **Editor de Imagem**
-  - A Janela de adicionar "Configuração de Fonte" não possue ícone da janela
-  - A Janela de adicionar "Configuração de Fonte" está maior do que o necessário.
-
 ---
 
 ## Funcionalidades a Adicionar (Prioridade)
-
-- **Salvar e retornar a ultima sessão de prints**
-  - Permitir salvar a sessão atual de prints e retornar a ela posteriormente.
-  - Adicionar opção de renomear a sessão salva.
 
 - **Capturas de Tela**
   - Permitir capturas básicas de tela: opção para capturar tela inteira ou janela específica.
