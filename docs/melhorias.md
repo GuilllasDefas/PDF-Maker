@@ -9,6 +9,16 @@
 - **Capturas de Tela**
   - Permitir capturas básicas de tela: opção para capturar tela inteira ou janela específica.
 
+- **Organização de Imagens para PDF**
+  - Adicionar Vizualização daquela sessão de imagens.
+  - Permitir organização de imagens daquela sessão (Mudar ordem, Deletar Imagens).
+  - Possibilidade de Adicionar Texto e Anotações nas imagens (ex: adicionar legendas, setas, etc.).
+
+- **Adicionar modo de Criação de Manuais**
+  - Permitir capturar telas e adicionar anotações diretamente nas imagens.
+  - Revisar instruções em cada uma das imagens capturadas.
+  - Adicionar opção de exportar manual como PDF.
+
 - **Indicador de Tempo**
   - Incluir indicador de tempo (para eventos com duração).
 
