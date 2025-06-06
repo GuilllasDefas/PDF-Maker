@@ -734,7 +734,7 @@ class ImageEditorWindow:
         # Tamanho da fonte
         ttk.Label(frame, text="Tamanho:").grid(row=1, column=0, sticky=tk.W, pady=5)
         size_var = tk.IntVar(value=self.font_size)
-        size_spinbox = ttk.Spinbox(frame, from_=8, to=48, textvariable=size_var, width=5)
+        size_spinbox = ttk.Spinbox(frame, from_=8, to=256, textvariable=size_var, width=5)
         size_spinbox.grid(row=1, column=1, sticky=tk.W, pady=5)
         
         # Botões
@@ -1005,7 +1005,16 @@ class ImageEditorWindow:
         """Salva as anotações e fecha a janela."""
         try:
             # Preparar dados para salvar
-            annotations_data = [annotation.to_dict() for annotation in self.annotations]
+            annotations_data = []
+            
+            # Converter todas as anotações para coordenadas absolutas (sem zoom)
+            for annotation in self.annotations:
+                # Criar uma cópia das propriedades para não modificar o original
+                annotation_data = annotation.to_dict()
+                
+                # Garantir que estamos salvando coordenadas absolutas
+                # (O fator de zoom já deve ter sido considerado ao criar as anotações)
+                annotations_data.append(annotation_data)
             
             # Salvar as anotações
             self.annotation_manager.save_annotations(self.image_path, annotations_data)

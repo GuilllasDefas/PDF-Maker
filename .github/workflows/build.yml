@@ -173,6 +173,7 @@ jobs:
             - Mudança de ícone do Aplicativo
             - Adicionado Editor de Sessão, que permite editar o conteúdo de uma sessão já criada
             - Adicionado sistema de Salvar e Carregar Sessões
+            - Corrigido problema que ao salvar muitos prints em intervalos menores que 1 segundo, o print anterior era subscrito
 
           draft: false
           prerelease: true

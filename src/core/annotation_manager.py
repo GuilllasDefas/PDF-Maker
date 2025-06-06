@@ -91,12 +91,15 @@ class AnnotationManager:
                 # Criar uma cópia para não modificar a original
                 annotated_img = img.copy().convert("RGBA")
                 
+                # Obter dimensões originais da imagem para escala
+                img_width, img_height = annotated_img.size
+                
                 # Criar uma camada para as anotações
                 draw = ImageDraw.Draw(annotated_img)
                 
                 # Desenhar cada anotação
                 for annotation in annotations:
-                    self._draw_annotation(draw, annotation, annotated_img.size)
+                    self._draw_annotation(draw, annotation, (img_width, img_height))
                 
                 # Salvar a imagem renderizada
                 output_path = self.get_rendered_image_path(image_path)
@@ -112,6 +115,9 @@ class AnnotationManager:
         annotation_type = annotation.get('type')
         props = annotation.get('properties', {})
         
+        # Obter dimensões da imagem para possíveis ajustes de escala
+        img_width, img_height = image_size
+        
         if annotation_type == "text":
             try:
                 # Carregar a fonte
@@ -120,12 +126,26 @@ class AnnotationManager:
                 
                 # Tentar carregar a fonte
                 try:
-                    font = ImageFont.truetype(font_family, font_size)
-                except:
-                    # Fallback para a fonte padrão
+                    # Usar uma lista de fontes confiáveis para fallback
+                    for font_try in [font_family, 'Arial', 'DejaVuSans.ttf', 'FreeSans.ttf', 'LiberationSans-Regular.ttf']:
+                        try:
+                            font = ImageFont.truetype(font_try, int(font_size))
+                            break
+                        except:
+                            continue
+                    else:
+                        # Se nenhuma fonte específica funcionar, usar a fonte padrão com tamanho ajustado
+                        default_font = ImageFont.load_default()
+                        # Ajustar o tamanho para aproximar da fonte truetype solicitada
+                        # Aplicar um fator de escala para aproximar do tamanho desejado
+                        scale_factor = int(font_size) / 12  # Assumindo que a fonte padrão é ~12pt
+                        font = default_font.font_variant(size=int(10 * scale_factor))
+                except Exception as font_error:
+                    print(f"Erro ao carregar fontes: {font_error}")
+                    # Último recurso - fonte padrão sem ajuste
                     font = ImageFont.load_default()
                 
-                # Desenhar o texto
+                # Desenhar o texto usando as coordenadas armazenadas
                 draw.text(
                     (props.get('x', 0), props.get('y', 0)),
                     props.get('text', ''),
@@ -136,7 +156,7 @@ class AnnotationManager:
                 print(f"Erro ao desenhar texto: {e}")
                 
         elif annotation_type == "arrow":
-            # Desenhar uma linha com seta
+            # Desenhar uma linha com seta usando coordenadas absolutas
             draw.line(
                 [
                     props.get('x1', 0), props.get('y1', 0),
@@ -156,7 +176,7 @@ class AnnotationManager:
             )
             
         elif annotation_type == "rect":
-            # Desenhar um retângulo
+            # Desenhar um retângulo usando coordenadas absolutas
             draw.rectangle(
                 [
                     props.get('x1', 0), props.get('y1', 0),
@@ -167,7 +187,7 @@ class AnnotationManager:
             )
             
         elif annotation_type == "line":
-            # Desenhar uma linha
+            # Desenhar uma linha usando coordenadas absolutas
             draw.line(
                 [
                     props.get('x1', 0), props.get('y1', 0),

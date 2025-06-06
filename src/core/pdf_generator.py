@@ -1,7 +1,7 @@
 from PIL import Image, ImageFile
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
-from typing import List
+from typing import List, Dict, Any
 from src.config.config import DEFAULT_DPI
 from tkinter import messagebox
 import os
@@ -84,3 +84,39 @@ class PDFGenerator:
         except Exception as e:
             messagebox.showerror("Erro", f"Erro ao processar imagem {img_path}: {e}")
             return False
+    
+    def render_annotated_image(self, image_path: str, annotations: List[Dict[str, Any]]) -> str:
+        """Renderiza uma imagem com suas anotações."""
+        try:
+            # Carregar a imagem original
+            with Image.open(image_path) as img:
+                # Criar uma cópia para não modificar a original
+                annotated_img = img.copy().convert("RGBA")
+                
+                # Obter dimensões originais da imagem para escala
+                img_width, img_height = annotated_img.size
+                
+                # Criar uma camada para as anotações (completamente transparente inicialmente)
+                annotation_layer = Image.new('RGBA', (img_width, img_height), (0, 0, 0, 0))
+                draw = ImageDraw.Draw(annotation_layer)
+                
+                # Desenhar cada anotação na camada transparente
+                for annotation in annotations:
+                    self._draw_annotation(draw, annotation, (img_width, img_height))
+                
+                # Combinar a imagem original com a camada de anotações
+                annotated_img = Image.alpha_composite(annotated_img, annotation_layer)
+                
+                # Converter para RGB para salvar como PNG/JPG
+                annotated_img = annotated_img.convert("RGB")
+                
+                # Salvar a imagem renderizada
+                output_path = self.get_rendered_image_path(image_path)
+                annotated_img.save(output_path, quality=100)  # Alta qualidade para preservar detalhes
+                
+                return output_path
+        except Exception as e:
+            print(f"Erro ao renderizar imagem anotada: {e}")
+            import traceback
+            traceback.print_exc()
+            return ""

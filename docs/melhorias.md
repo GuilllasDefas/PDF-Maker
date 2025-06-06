@@ -11,7 +11,6 @@
 
 - **Editor de Imagem**
   - Destacar o botão apertado para feedback visual.
-  - Ao adicionar texto, o texto não está sendo posicionado e redimensionado corretamente na imagem.
 
 ---
 
@@ -23,11 +22,6 @@
 - **Editor de Imagem**
   - Ferramenta de Seleção, ao selecionar, deve fazer um retângulo ao redor da área selecionada para feedback visual.
   - Em "Texto" adicionar opção de cabeçalho e rodapé a marge da imagem na edição.
-  
-- **Adicionar modo de Criação de Manuais**
-  - Permitir capturar telas e adicionar anotações diretamente nas imagens.
-  - Revisar instruções em cada uma das imagens capturadas.
-  - Adicionar opção de exportar manual como PDF.
 
 - **Indicador de Tempo**
   - Incluir indicador de tempo (para eventos com duração).
