@@ -79,7 +79,7 @@ jobs:
           pip uninstall -y pathlib
           
           # Executar PyInstaller
-          pyinstaller "main.spec"
+          pyinstaller --clean "main.spec"
 
       # 8) Instala Inno Setup
       - name: Install Inno Setup

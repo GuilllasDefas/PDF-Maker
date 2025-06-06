@@ -17,6 +17,10 @@
 - **Capturas de Tela**
   - Permitir capturas básicas de tela: opção para capturar tela inteira ou janela específica.
 
+- **Editor de Sessão**
+  - Ao redimensionar a janela, as miniaturas continuam mostrando apenas 4 imagens por coluna, mesmo que haja espaço para mais.
+    Deve ajustar o número de colunas dinamicamente com base no tamanho da janela.
+
 - **Editor de Imagem**
   - Destacar o botão apertado para feedback visual.
   - Em "Texto" adicionar opção de cabeçalho e rodapé a marge da imagem na edição.
