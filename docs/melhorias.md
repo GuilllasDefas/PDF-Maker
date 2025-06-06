@@ -10,9 +10,6 @@
 - **Capturas de Tela**
   - Em "Editar Sessão de Imagens" a reordenação de imagens por arrastar e soltar não está funcionando corretamente.
 
-- **Editor de Sessão**
-  - Ao clicar em "Excluir" está excluindo a imagem naquele momento, mas não exclui a imagem da pasta, tão pouco da sessão atual .
-
 ---
 
 ## Funcionalidades a Adicionar (Prioridade)

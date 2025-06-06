@@ -352,11 +352,14 @@ class SessionEditorWindow:
         path = self.image_paths[idx]
         
         try:
-            # Remover do sistema de arquivos (opcional - pode ser substituído por uma "exclusão lógica")
-            # Opção 1: mover para uma pasta de "lixeira" dentro da sessão
-            # Opção 2: apenas remover da lista sem excluir fisicamente
+            # Remover do sistema de arquivos (exclusão física)
+            if os.path.exists(path):
+                try:
+                    os.remove(path)
+                except Exception as e:
+                    print(f"Erro ao remover arquivo físico: {e}")
             
-            # Neste caso, vamos apenas remover da lista
+            # Remover da lista
             self.image_paths.pop(idx)
             
             # Remover quaisquer anotações associadas

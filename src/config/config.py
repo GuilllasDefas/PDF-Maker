@@ -1,5 +1,5 @@
 # Versão da aplicação
-APP_VERSION = "0.3.0"
+APP_VERSION = "0.3.1"
 
 # Diretórios
 IMAGES_DIR = "images"
