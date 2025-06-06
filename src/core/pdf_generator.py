@@ -1,4 +1,4 @@
-from PIL import Image, ImageFile
+from PIL import Image, ImageFile, ImageDraw
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
 from typing import List, Dict, Any
