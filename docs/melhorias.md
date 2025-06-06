@@ -2,6 +2,17 @@
 
 ## Correções
 
+- **Geral**
+  - Ao salvar uma sessão pela primeira vez, a próxima vez que tenta salvar, ele pede novamente o nome da sessão, mesmo que já tenha sido salvo anteriormente.
+  - Ao tirar prints, salvar sessão, tirar mais prints e fechar sem salvar, o programa não pergunta se deseja salvar as alterações. E ao abrir novemente ele reconhece os prints anteriores mas mostra a quantidade de prints antes de salvar a sessão.
+
+- **Capturas de Tela**
+  - Em "Editar Sessão de Imagens" a reordenação de imagens por arrastar e soltar não está funcionando corretamente.
+
+- **Editor de Imagem**
+  - Destacar o botão apertado para feedback visual.
+  - Ao adicionar texto, o texto não está sendo posicionado e redimensionado corretamente na imagem.
+
 ---
 
 ## Funcionalidades a Adicionar (Prioridade)
@@ -10,7 +21,6 @@
   - Permitir capturas básicas de tela: opção para capturar tela inteira ou janela específica.
 
 - **Editor de Imagem**
-  - Abrir Imagem com zoom em 48% (default).
   - Ferramenta de Seleção, ao selecionar, deve fazer um retângulo ao redor da área selecionada para feedback visual.
   - Em "Texto" adicionar opção de cabeçalho e rodapé a marge da imagem na edição.
   

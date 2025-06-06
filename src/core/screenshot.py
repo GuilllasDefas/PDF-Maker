@@ -93,8 +93,8 @@ class ScreenshotManager:
     def take_screenshot(self) -> Optional[str]:
         """Captura uma screenshot e salva no diretório de imagens."""
         try:
-            # Gerar timestamp para o nome do arquivo
-            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            # Gerar timestamp para o nome do arquivo com milissegundos
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S-%f")[:-3]  # Inclui milissegundos
 
             # Verificar se o diretório ainda existe antes de salvar
             if not self.images_dir or not os.path.exists(self.images_dir):

@@ -171,7 +171,8 @@ jobs:
             ## Melhorias e Correções
 
             - Mudança de ícone do Aplicativo
-            - Adicionado editor de Sessão, que permite editar o conteúdo de uma sessão já criada
+            - Adicionado Editor de Sessão, que permite editar o conteúdo de uma sessão já criada
+            - Adicionado sistema de Salvar e Carregar Sessões
 
           draft: false
           prerelease: true

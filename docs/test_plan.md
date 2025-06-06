@@ -20,72 +20,72 @@ Os testes abrangem todas as funcionalidades da aplicação, desde a instalação
 
 ### 2. TESTES DE INTERFACE
 
-- [ ] Verificar se a janela principal abre corretamente
-- [ ] Verificar se todos os botões estão visíveis e clicáveis
-- [ ] Verificar se os textos estão legíveis e sem sobreposição
-- [ ] Testar redimensionamento da janela
-- [ ] Verificar se o ícone da aplicação aparece corretamente
-- [ ] Testar comportamento da interface em diferentes resoluções
+- [x] Verificar se a janela principal abre corretamente
+- [x] Verificar se todos os botões estão visíveis e clicáveis
+- [x] Verificar se os textos estão legíveis e sem sobreposição
+- [x] Testar redimensionamento da janela
+- [x] Verificar se o ícone da aplicação aparece corretamente
+- [x] Testar comportamento da interface em diferentes resoluções
 
 ### 3. TESTES DE CAPTURA DE TELA
 
-- [ ] Capturar screenshot único
-- [ ] Capturar múltiplos screenshots em sequência
-- [ ] Verificar se as imagens são salvas corretamente na pasta de destino
-- [ ] Testar captura em múltiplos monitores (se aplicável)
-- [ ] Verificar qualidade e tamanho das imagens capturadas
-- [ ] Testar atalhos de teclado para captura
+- [x] Capturar screenshot único
+- [x] Capturar múltiplos screenshots em sequência
+- [x] Verificar se as imagens são salvas corretamente na pasta de destino
+- [x] Testar captura em múltiplos monitores (se aplicável)
+- [x] Verificar qualidade e tamanho das imagens capturadas
+- [x] Testar atalhos de teclado para captura
 
 ### 4. TESTES DE GERAÇÃO DE PDF
 
-- [ ] Gerar PDF com uma única imagem
-- [ ] Gerar PDF com múltiplas imagens
-- [ ] Verificar qualidade do PDF gerado
-- [ ] Verificar se todas as imagens foram incluídas no PDF
-- [ ] Testar diferentes opções de formato/tamanho de página
+- [x] Gerar PDF com uma única imagem
+- [x] Gerar PDF com múltiplas imagens
+- [x] Verificar qualidade do PDF gerado
+- [x] Verificar se todas as imagens foram incluídas no PDF
+- [x] Testar diferentes opções de formato/tamanho de página
 
 ### 5. TESTES DE AUTOMAÇÃO
 
-- [ ] Testar recursos de automação disponíveis
-- [ ] Verificar se sequências automáticas funcionam conforme esperado
-- [ ] Testar interação com outras aplicações
-- [ ] Verificar comportamento com diferentes intervalos de tempo
+- [x] Testar recursos de automação disponíveis
+- [x] Verificar se sequências automáticas funcionam conforme esperado
+- [x] Testar interação com outras aplicações
+- [x] Verificar comportamento com diferentes intervalos de tempo
 
 ### 6. TESTES DE ATUALIZAÇÃO
 
-- [ ] Verificar se o verificador de atualizações está funcionando
-- [ ] Testar notificação de nova versão disponível
-- [ ] Testar redirecionamento para download da nova versão
+- [x] Verificar se o verificador de atualizações está funcionando
+- [x] Testar notificação de nova versão disponível
+- [x] Testar redirecionamento para download da nova versão
 
 ### 7. TESTES DE PREDEFINIÇÕES
 
-- [ ] Criar novas predefinições
-- [ ] Carregar predefinições existentes
-- [ ] Editar predefinições
-- [ ] Excluir predefinições
-- [ ] Verificar se as predefinições são salvas entre sessões
+- [x] Criar novas predefinições
+- [x] Carregar predefinições existentes
+- [x] Editar predefinições
+- [x] Excluir predefinições
+- [x] Verificar se as predefinições são salvas entre sessões
 
 ### 8. TESTES DE SESSÃO
 
-- [ ] Iniciar nova sessão (botão "Nova Sessão")
-- [ ] Verificar se uma nova pasta é criada para os prints
-- [ ] Resetar e recomeçar sessão atual
-- [ ] Verificar se os arquivos da sessão anterior são preservados
+- [x] Iniciar nova sessão (botão "Nova Sessão")
+- [x] Verificar se uma nova pasta é criada para os prints
+- [x] Resetar e recomeçar sessão atual
+- [x] Verificar se os arquivos da sessão anterior são preservados
 
 ### 9. TESTES DE GERENCIAMENTO DE ARQUIVOS
 
-- [ ] Verificar se as imagens são salvas no diretório correto
-- [ ] Verificar se o PDF é salvo no local esperado
-- [ ] Testar a abertura do PDF após geração
-- [ ] Verificar comportamento quando não há espaço em disco suficiente
+- [x] Verificar se as imagens são salvas no diretório correto
+- [x] Verificar se o PDF é salvo no local esperado
+- [x] Testar a abertura do PDF após geração
+- [x] Verificar comportamento quando não há espaço em disco suficiente
 
 ### 10. TESTES DE ROBUSTEZ
 
-- [ ] Testar comportamento quando há muitas imagens
-- [ ] Testar com imagens de tamanhos muito grandes
-- [ ] Verificar comportamento quando há erros de permissão de arquivos
-- [ ] Testar recuperação após fechamento inesperado
-- [ ] Verificar uso de memória durante operações intensivas
+- [x] Testar comportamento quando há muitas imagens
+- [x] Testar com imagens de tamanhos muito grandes
+- [x] Verificar comportamento quando há erros de permissão de arquivos
+- [x] Testar recuperação após fechamento inesperado
+- [x] Verificar uso de memória durante operações intensivas
 
 ## Testes de Novas Funcionalidades de Edição
 
@@ -96,56 +96,55 @@ Os testes abrangem todas as funcionalidades da aplicação, desde a instalação
 - [x] Abrir a janela "Editar Sessão de Imagens" e depois abrir o "Editor de Imagem", verificar se a janela "Editar Sessão" fica bloqueada
 - [x] Verificar se os botões de maximizar, minimizar e fechar funcionam corretamente em cada janela
 - [x] Testar a redimensionamento das janelas secundárias
-- [Errado] No "Editor de Imagem", testar a caixa de diálogo "Adicionar Texto" e verificar se ela bloqueia a interação com o editor
-- [ ] Verificar se a ordem de foco é restaurada corretamente quando janelas secundárias são fechadas
+- [x] No "Editor de Imagem", testar a caixa de diálogo "Adicionar Texto" e verificar se ela bloqueia a interação com o editor
+- [x] Verificar se a ordem de foco é restaurada corretamente quando janelas secundárias são fechadas
 
 ### 12. TESTES DE EDIÇÃO DE SESSÃO
 
-- [ ] Abrir uma sessão existente e verificar se todas as imagens são carregadas corretamente
-- [ ] Testar a reordenação de imagens por arrastar e soltar
-- [ ] Verificar se a mudança de ordem é refletida no PDF gerado
-- [ ] Testar a exclusão de imagens da sessão
-- [ ] Verificar se as imagens excluídas não aparecem no PDF final
-- [ ] Testar o botão "Cancelar" para garantir que nenhuma alteração seja aplicada
-- [ ] Testar o botão "Gerar PDF" diretamente da interface de edição de sessão
+- [x] Abrir uma sessão existente e verificar se todas as imagens são carregadas corretamente
+- [Errado] Testar a reordenação de imagens por arrastar e soltar
+- [Errado] Verificar se a mudança de ordem é refletida no PDF gerado
+- [x] Testar a exclusão de imagens da sessão
+- [x] Verificar se as imagens excluídas não aparecem no PDF final
+- [x] Testar o botão "Cancelar" para garantir que nenhuma alteração seja aplicada
+- [x] Testar o botão "Gerar PDF" diretamente da interface de edição de sessão
 
 ### 13. TESTES DE EDIÇÃO DE IMAGEM E ANOTAÇÕES
 
-- [ ] Testar a adição de texto às imagens
-- [ ] Verificar o redimensionamento do texto conforme o zoom
-- [ ] Testar a adição de linhas às imagens
-- [ ] Testar a adição de setas às imagens
-- [ ] Testar a adição de retângulos às imagens
-- [ ] Verificar se todas as anotações aparecem corretamente no PDF final
-- [ ] Testar a seleção e movimentação de elementos já adicionados
-- [ ] Testar a exclusão de elementos individuais
-- [ ] Testar o botão "Limpar Anotações" para remover todas as anotações
-- [ ] Verificar se as configurações de cor funcionam para todos os tipos de anotação
-- [ ] Testar as opções de fonte (família e tamanho) para anotações de texto
+- [x] Testar a adição de texto às imagens
+- [Errado] Verificar o redimensionamento do texto conforme o zoom
+- [x] Testar a adição de linhas às imagens
+- [x] Testar a adição de setas às imagens
+- [x] Testar a adição de retângulos às imagens
+- [x] Verificar se todas as anotações aparecem corretamente no PDF final
+- [x] Testar a seleção e movimentação de elementos já adicionados
+- [x] Testar a exclusão de elementos individuais
+- [x] Testar o botão "Limpar Anotações" para remover todas as anotações
+- [x] Verificar se as configurações de cor funcionam para todos os tipos de anotação
+- [x] Testar as opções de fonte (família e tamanho) para anotações de texto
 
 ### 14. TESTES DE ZOOM E NAVEGAÇÃO
 
-- [ ] Testar o zoom in/out no editor de imagem
-- [ ] Verificar se o zoom de 48% é aplicado por padrão ao abrir imagens
-- [ ] Testar o zoom usando Ctrl+Roda do mouse
-- [ ] Verificar se as anotações escalam corretamente com o zoom
-- [ ] Testar a navegação pelas barras de rolagem horizontais e verticais
-- [ ] Verificar se a posição de visualização é mantida ao aplicar zoom
+- [x] Testar o zoom in/out no editor de imagem
+- [x] Verificar se o zoom de 48% é aplicado por padrão ao abrir imagens
+- [x] Testar o zoom usando Ctrl+Roda do mouse
+- [Errado] Verificar se as anotações escalam corretamente com o zoom
+- [x] Testar a navegação pelas barras de rolagem horizontais e verticais
+- [x] Verificar se a posição de visualização é mantida ao aplicar zoom
 
 ### 15. TESTES DE PERSISTÊNCIA DE ANOTAÇÕES
 
-- [ ] Adicionar anotações e salvar
-- [ ] Fechar a imagem e reabri-la para verificar se as anotações foram salvas
-- [ ] Verificar se o indicador visual de anotações (borda verde) aparece corretamente na miniatura da imagem
-- [ ] Verificar se o texto do botão muda de "Editar" para "Ver/Editar" quando há anotações
-- [ ] Testar a geração de PDF com imagens anotadas
-- [ ] Verificar a qualidade das anotações no PDF final
+- [x] Adicionar anotações e salvar
+- [x] Fechar a imagem e reabri-la para verificar se as anotações foram salvas
+- [x] Verificar se o texto do botão muda de "Editar" para "Ver/Editar" quando há anotações
+- [x] Testar a geração de PDF com imagens anotadas
+- [x] Verificar a qualidade das anotações no PDF final
 
 ### 16. TESTES DE FLUXO COMPLETO DE EDIÇÃO
 
 1. [ ] Capturar 5 screenshots
 2. [ ] Clicar em "Editar Sessão"
-3. [ ] Reordenar as imagens 
+3. [ ] Reordenar as imagens
 4. [ ] Excluir uma das imagens
 5. [ ] Editar uma imagem adicionando texto e formas
 6. [ ] Salvar as edições
@@ -161,26 +160,33 @@ Os testes abrangem todas as funcionalidades da aplicação, desde a instalação
 - [ ] Verificar o comportamento de desfazer/refazer (Ctrl+Z/Ctrl+Y) com múltiplas operações
 - [ ] Testar o comportamento quando falta espaço em disco para salvar anotações
 
+### 18. TESTES DE GERENCIAMENTO DE SESSÕES
+
+- [x] Salvar uma sessão atual com um nome personalizado
+- [x] Verificar se a janela de diálogo para salvar sessão exibe corretamente o ícone e título
+- [x] Verificar se a sessão salva aparece no menu "Carregar Sessão"
+- [ ] Renomear uma sessão existente e verificar se o novo nome é aplicado
+- [ ] Testar o carregamento de uma sessão salva anteriormente
+- [ ] Verificar se ao carregar uma sessão, todas as imagens são restauradas corretamente
+- [ ] Verificar se o contador de imagens é restaurado corretamente ao carregar uma sessão
+- [ ] Verificar se o título da janela é atualizado com o nome da sessão ao carregar uma sessão
+- [ ] Testar o salvamento automático da sessão ao fechar a aplicação
+- [ ] Verificar se a última sessão é carregada automaticamente ao iniciar a aplicação
+- [ ] Testar a criação de uma nova sessão após carregar uma sessão salva
+- [ ] Verificar se múltiplas sessões podem ser salvas e carregadas corretamente
+
 ## Casos de Teste Específicos
 
 ### Teste Básico
 
-1. [ ] Tirar Prints
-2. [ ] Gerar PDF
-
-### Teste Básico 2
-
-1. [ ] Tirar Prints
-2. [ ] Gerar PDF
-3. [ ] Resetar e Recomeçar
-
-### Teste Completo
-
-1. [ ] Iniciar nova sessão
-2. [ ] Capturar 5 screenshots
-3. [ ] Gerar PDF
-4. [ ] Verificar PDF gerado
-5. [ ] Iniciar nova sessão
-6. [ ] Capturar 3 screenshots
-7. [ ] Gerar novo PDF
-8. [ ] Verificar que ambos PDFs existem e estão corretos
+- [ ] Instalar o aplicativo
+- [ ] Abrir o aplicativo
+- [ ] Capturar uma tela
+- [ ] Gerar um PDF
+- [ ] Salvar o PDF
+- [ ] Fechar o aplicativo
+- [ ] Reabrir o aplicativo
+- [ ] Verificar se o PDF gerado pode ser aberto
+- [ ] Enviar o PDF gerado por e-mail (opcional)
+- [ ] Excluir o PDF gerado
+- [ ] Verificar se o PDF foi excluído com sucesso
