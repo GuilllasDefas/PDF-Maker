@@ -4,13 +4,14 @@
 
 - **Geral**
   - Ao salvar uma sessão pela primeira vez, a próxima vez que tenta salvar, ele pede novamente o nome da sessão, mesmo que já tenha sido salvo anteriormente.
+  
   - Ao tirar prints, salvar sessão, tirar mais prints e fechar sem salvar, o programa não pergunta se deseja salvar as alterações. E ao abrir novemente ele reconhece os prints anteriores mas mostra a quantidade de prints antes de salvar a sessão.
 
 - **Capturas de Tela**
   - Em "Editar Sessão de Imagens" a reordenação de imagens por arrastar e soltar não está funcionando corretamente.
 
-- **Editor de Imagem**
-  - Destacar o botão apertado para feedback visual.
+- **Editor de Sessão**
+  - Ao clicar em "Excluir" está excluindo a imagem naquele momento, mas não exclui a imagem da pasta, tão pouco da sessão atual .
 
 ---
 
@@ -20,8 +21,11 @@
   - Permitir capturas básicas de tela: opção para capturar tela inteira ou janela específica.
 
 - **Editor de Imagem**
-  - Ferramenta de Seleção, ao selecionar, deve fazer um retângulo ao redor da área selecionada para feedback visual.
+  - Destacar o botão apertado para feedback visual.
   - Em "Texto" adicionar opção de cabeçalho e rodapé a marge da imagem na edição.
+  - Adicionar opção de Recortar Imagem (ex: cortar para manter apenas a área selecionada).
+  - Ferramenta de Seleção, ao selecionar, deve fazer um retângulo ao redor da área selecionada para feedback visual.
+  - Aumentar espessura das Formas
 
 - **Indicador de Tempo**
   - Incluir indicador de tempo (para eventos com duração).
