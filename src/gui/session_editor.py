@@ -10,8 +10,8 @@ from src.config.config import ICON
 from src.gui.image_editor import ImageEditorWindow
 from src.core.annotation_manager import AnnotationManager
 
-class DraggableFrame(ttk.Frame):
-    """Frame com funcionalidade de arrastar e soltar para reordenação."""
+class ThumbnailFrame(ttk.Frame):
+    """Frame para exibir e gerenciar miniaturas de imagens na sessão."""
     def __init__(self, parent, index, image_path, on_reorder, on_delete, on_edit, annotation_manager, **kwargs):
         super().__init__(parent, **kwargs)
         
@@ -22,13 +22,6 @@ class DraggableFrame(ttk.Frame):
         self.on_delete = on_delete
         self.on_edit = on_edit
         self.annotation_manager = annotation_manager
-        self.selected = False
-        
-        # Configurar eventos para arrastar e soltar
-        self.bind("<ButtonPress-1>", self._start_drag)
-        self.bind("<ButtonRelease-1>", self._stop_drag)
-        self.bind("<B1-Motion>", self._on_drag)
-        self.bind("<Double-Button-1>", self._on_double_click)
         
         # Carrega a imagem como thumbnail
         self._load_thumbnail()
@@ -37,13 +30,28 @@ class DraggableFrame(ttk.Frame):
         content_frame = ttk.Frame(self)
         content_frame.pack(fill=tk.BOTH, expand=True, padx=3, pady=3)
         
-        # Número/índice da imagem
-        self.index_label = ttk.Label(content_frame, text=f"{index+1}", anchor="center")
-        self.index_label.pack(side=tk.TOP, fill=tk.X)
+        # Campo de entrada para o número/ordem da imagem
+        order_frame = ttk.Frame(content_frame)
+        order_frame.pack(side=tk.TOP, fill=tk.X, pady=(0, 5))
+        
+        ttk.Label(order_frame, text="Ordem:").pack(side=tk.LEFT, padx=(0, 5))
+        
+        vcmd = (self.register(self._validate_order), '%P')
+        self.order_entry = ttk.Entry(order_frame, width=5, validate="key", validatecommand=vcmd)
+        self.order_entry.pack(side=tk.LEFT)
+        self.order_entry.insert(0, str(index + 1))
+        
+        # Botão aplicar ordem
+        self.apply_btn = ttk.Button(order_frame, text="✓", width=2, 
+                                    command=self._apply_order_change)
+        self.apply_btn.pack(side=tk.LEFT, padx=(5, 0))
         
         # Imagem em miniatura
         self.image_label = ttk.Label(content_frame, image=self.thumbnail)
         self.image_label.pack(side=tk.TOP, padx=5, pady=5)
+        
+        # Vincular duplo clique na imagem para abrir o editor
+        self.image_label.bind("<Double-Button-1>", lambda e: self._on_edit_click())
         
         # Botões de ações
         actions_frame = ttk.Frame(content_frame)
@@ -61,6 +69,27 @@ class DraggableFrame(ttk.Frame):
         
         # Verificar se a imagem tem anotações e atualizar a aparência
         self._update_annotation_indicator()
+    
+    def _validate_order(self, value):
+        """Valida a entrada para garantir que seja um número válido."""
+        if value == "":
+            return True
+        try:
+            # Verificar se é um número inteiro positivo
+            num = int(value)
+            return num > 0
+        except ValueError:
+            return False
+    
+    def _apply_order_change(self):
+        """Aplica a mudança de ordem/posição da imagem."""
+        try:
+            new_order = int(self.order_entry.get())
+            if new_order != self.index + 1:  # Se a ordem realmente mudou
+                # A posição no array é 0-based, mas a visualização para o usuário é 1-based
+                self.on_reorder(self.index, new_order - 1)
+        except ValueError:
+            messagebox.showerror("Erro", "Por favor, insira um número válido para a ordem.")
     
     def _load_thumbnail(self, size=(120, 90)):
         """Carrega a imagem como thumbnail."""
@@ -89,61 +118,6 @@ class DraggableFrame(ttk.Frame):
             # Restaurar o texto do botão de editar
             self.edit_btn.configure(text="Editar")
     
-    def _start_drag(self, event):
-        """Inicia a operação de arrastar."""
-        self.selected = True
-        self.config(style="Selected.TFrame")
-        # Salvar posição inicial
-        self._drag_start_x = event.x
-        self._drag_start_y = event.y
-        
-    def _stop_drag(self, event):
-        """Para a operação de arrastar."""
-        if self.selected:
-            self.selected = False
-            self.config(style="TFrame")
-            self._update_annotation_indicator()  # Restaurar estilo com base em anotações
-    
-    def _on_drag(self, event):
-        """Manipula o evento de arrastar."""
-        if not self.selected:
-            return
-            
-        # Calcular a nova posição
-        x = self.winfo_x() + event.x - self._drag_start_x
-        y = self.winfo_y() + event.y - self._drag_start_y
-        
-        # Mover o frame
-        self.place(x=x, y=y)
-        
-        # Verificar sobreposição com outros frames para reordenar
-        self._check_overlap()
-    
-    def _check_overlap(self):
-        """Verifica sobreposição com outros frames para reordenar."""
-        x1, y1 = self.winfo_x(), self.winfo_y()
-        w1, h1 = self.winfo_width(), self.winfo_height()
-        
-        # Encontrar o centro deste frame
-        center_x = x1 + w1 / 2
-        center_y = y1 + h1 / 2
-        
-        # Verificar todos os outros frames
-        for child in self.parent.winfo_children():
-            if isinstance(child, DraggableFrame) and child != self:
-                x2, y2 = child.winfo_x(), child.winfo_y()
-                w2, h2 = child.winfo_width(), child.winfo_height()
-                
-                # Verificar se o centro deste frame está dentro do outro frame
-                if (x2 <= center_x <= x2 + w2) and (y2 <= center_y <= y2 + h2):
-                    # Trocar posições
-                    self.on_reorder(self.index, child.index)
-                    return
-    
-    def _on_double_click(self, event):
-        """Manipula o evento de duplo clique para editar."""
-        self._on_edit_click()
-    
     def _on_edit_click(self):
         """Manipula o clique no botão de editar."""
         self.on_edit(self.index)
@@ -158,7 +132,8 @@ class DraggableFrame(ttk.Frame):
     def update_index(self, new_index):
         """Atualiza o índice do frame."""
         self.index = new_index
-        self.index_label.config(text=f"{new_index+1}")
+        self.order_entry.delete(0, tk.END)
+        self.order_entry.insert(0, str(new_index + 1))
     
     def update_image(self, image_path):
         """Atualiza a imagem do frame."""
@@ -204,7 +179,7 @@ class SessionEditorWindow:
         window_height = int(screen_height * 0.5)
         
         # Aplicar o tamanho
-        self.window.geometry(f"{window_width}x{window_height}")
+        self.window.geometry("800x500")
         self.window.minsize(800, 500)
         
         # Posicionar a janela centralizada na tela
@@ -226,7 +201,6 @@ class SessionEditorWindow:
     
         # Configurar estilos para frames
         style = ttk.Style()
-        style.configure("Selected.TFrame", borderwidth=2, relief="solid", bordercolor="blue")
         style.configure("Annotated.TFrame", borderwidth=2, relief="solid", bordercolor="green")
         
         # Layout principal
@@ -237,8 +211,8 @@ class SessionEditorWindow:
         instruction_frame = ttk.Frame(main_frame)
         instruction_frame.pack(fill=tk.X, pady=(0, 10))
         
-        ttk.Label(instruction_frame, text="Organize as imagens arrastando-as para reordenar. "
-                                        "Clique duas vezes para editar uma imagem.").pack(anchor=tk.W)
+        ttk.Label(instruction_frame, text="Altere o número de ordem e clique no botão ✓ para reordenar. "
+                                        "Clique duas vezes na imagem para editá-la.").pack(anchor=tk.W)
         
         # Frame para informações e contagem
         info_frame = ttk.Frame(main_frame)
@@ -313,7 +287,7 @@ class SessionEditorWindow:
             row = i // max_per_row
             col = i % max_per_row
             
-            frame = DraggableFrame(
+            frame = ThumbnailFrame(
                 self.thumbnails_frame, 
                 i, 
                 path, 
@@ -336,8 +310,17 @@ class SessionEditorWindow:
 
     def _on_reorder(self, from_idx, to_idx):
         """Manipula a reordenação de imagens."""
-        # Reordenar a lista de caminhos
-        path = self.image_paths.pop(from_idx)
+        # Garantir que os índices são válidos
+        if from_idx == to_idx or from_idx < 0 or to_idx < 0 or from_idx >= len(self.image_paths) or to_idx >= len(self.image_paths):
+            return
+        
+        # Pegar o caminho da imagem a ser movida
+        path = self.image_paths[from_idx]
+        
+        # Remover da posição atual
+        self.image_paths.pop(from_idx)
+        
+        # Inserir na nova posição
         self.image_paths.insert(to_idx, path)
         
         # Atualizar todos os frames

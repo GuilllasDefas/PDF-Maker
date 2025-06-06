@@ -170,7 +170,8 @@ jobs:
           body: |           
             ## Melhorias e Correções
 
-            - Em "Editor de Sessão" foi corrigida o botão "Excluir" que não estava funcionando corretamente. 
+            - Em "Editor de Sessão" foi corrigida o botão "Excluir" que não estava funcionando corretamente.
+            - Em "Editor de Sessão" é possível editar ordem das imagens.
 
           draft: false
           prerelease: true
