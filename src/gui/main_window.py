@@ -1,6 +1,7 @@
 import os
 import sys
 import threading
+import shutil
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, simpledialog
 from PIL import Image, ImageTk, ImageFile
@@ -100,6 +101,10 @@ class PDFMakerApp:
         self.root.iconbitmap(icon_path)
         width, height = map(int, DEFAULT_WINDOW_SIZE.split('x'))
         self.root.minsize(width, height)
+        
+        # Definir o protocolo de fechamento da janela para usar nosso método _on_exit
+        # Garantir que isso seja chamado corretamente quando o usuário clica no X da janela
+        self.root.protocol("WM_DELETE_WINDOW", self._on_exit)
         
         # Managers
         self.screenshot_manager = ScreenshotManager()
@@ -479,7 +484,7 @@ class PDFMakerApp:
         """Aplica as configurações do preset selecionado."""
         if not preset_data:
             return
-        
+
         # Armazenar o nome do preset aplicado
         self.last_applied_preset = preset_data.get('name')
         
@@ -487,6 +492,9 @@ class PDFMakerApp:
         self.interval_var.set(str(preset_data.get('interval', DEFAULT_INTERVAL)))
         self.num_captures_var.set(str(preset_data.get('num_captures', DEFAULT_NUM_CAPTURES)))
         
+        # Novo: armazenar o start_delay do preset
+        self.start_delay = float(preset_data.get('start_delay', 0))
+
         # Configura o screenshot manager com as opções de captura
         capture_type = preset_data.get('capture_type', 'fullscreen')
         
@@ -588,21 +596,33 @@ class PDFMakerApp:
         try:
             interval = float(self.interval_var.get())
             num_captures = int(self.num_captures_var.get())
-            
+            # Usar start_delay se definido, senão 0
+            start_delay = getattr(self, 'start_delay', 0)
+            if hasattr(self, 'start_delay'):
+                del self.start_delay  # Limpar para não afetar próximas execuções
+
             if interval <= 0 or num_captures <= 0:
                 messagebox.showerror("Erro", "Valores devem ser positivos.")
                 return
             
-            # Desabilitar controles
             self._set_automation_controls_state(False)
-            
-            # Iniciar automação
-            if not self.automation_manager.start(interval, num_captures):
-                messagebox.showerror("Erro", "Falha ao iniciar automação.")
-                self._set_automation_controls_state(True)
-            
+
+            # Se houver start_delay, aguardar antes de iniciar
+            if start_delay > 0:
+                self.automation_status.config(text=f"Aguardando {start_delay:.0f} segundos para iniciar...")
+                self.root.update()
+                self.root.after(int(start_delay * 1000), lambda: self._do_start_automation(interval, num_captures))
+            else:
+                self._do_start_automation(interval, num_captures)
+
         except ValueError:
             messagebox.showerror("Erro", "Valores numéricos inválidos.")
+
+    def _do_start_automation(self, interval, num_captures):
+        """Inicia a automação após o delay (ou imediatamente)."""
+        if not self.automation_manager.start(interval, num_captures):
+            messagebox.showerror("Erro", "Falha ao iniciar automação.")
+            self._set_automation_controls_state(True)
     
     def _stop_automation(self):
         """Para a automação."""
@@ -661,10 +681,13 @@ class PDFMakerApp:
     
     def _update_images(self):
         """Atualiza as imagens exibidas."""
+        # Corrigir: contar o número real de imagens na pasta da sessão
+        paths = self.screenshot_manager.get_image_paths()
+        self.counter = len(paths)
         self.label_counter.config(text=f"Prints tirados: {self.counter}")
-        
-        for canvas, img_path in [(self.canvas_last, self.last_image), 
-                                (self.canvas_current, self.current_image)]:
+
+        for canvas, img_path in [(self.canvas_last, self.last_image),
+                                 (self.canvas_current, self.current_image)]:
             self._update_canvas_image(canvas, img_path)
     
     def _update_canvas_image(self, canvas, img_path):
@@ -1030,49 +1053,156 @@ class PDFMakerApp:
             messagebox.showinfo("Sucesso", f"Sessão renomeada para '{new_name}'.")
         except Exception as e:
             messagebox.showerror("Erro", f"Falha ao renomear sessão: {str(e)}")
-
+    
     def _on_exit(self):
         """Manipula o evento de saída do programa."""
-        # Salvar automaticamente a sessão atual antes de sair
-        if self.session_screenshots_dir and os.path.exists(self.session_screenshots_dir):
-            try:
-                # Usar o nome da pasta como nome da sessão se não tiver um nome personalizado
-                session_name = self.session_name or os.path.basename(self.session_screenshots_dir)
-                self._save_session_to_file(session_name)
-            except Exception as e:
-                print(f"Erro ao salvar sessão automaticamente: {e}")
-    
-        self.root.quit()
-
-    # Substituir o método existente
-    def _reset_session(self):
-        """Reseta a sessão de screenshots, criando uma nova pasta para a próxima leva."""
-        if not self.base_directory or not os.path.isdir(self.base_directory):
-            self.session_screenshots_dir = None
-            self.screenshot_manager.set_directory(None)
-            self.counter = 0
-            self.last_image = None
-            self.current_image = None
-            self.session_name = None
-            self._update_images()
-            self._update_controls_state()
-            self.root.title(f"PDF Maker v{APP_VERSION} Beta")
+        # Verificar se a janela ainda existe antes de prosseguir
+        if not self.root.winfo_exists():
             return
+            
+        # Exibir mensagem com detalhes mais explícitos
+        print("Método _on_exit chamado, exibindo diálogo de confirmação...")
+        
+        # Pedir confirmação ao usuário antes de sair
+        confirm = messagebox.askyesno(
+            "Confirmar Saída", 
+            "Deseja realmente sair do PDF Maker?\n\n"
+            "Pastas vazias serão automaticamente removidas para evitar acúmulo de arquivos desnecessários.",
+            icon="question"
+        )
+        
+        if not confirm:
+            print("Usuário cancelou a saída")
+            return  # Usuário cancelou, não sai do programa
+        
+        print("Usuário confirmou a saída, limpando sessões vazias...")
+        
+        # Verificar se a sessão atual está vazia
+        if self.session_screenshots_dir and os.path.exists(self.session_screenshots_dir):
+            # Verificar se tem arquivos reais (não ocultos/temporários)
+            files = [f for f in os.listdir(self.session_screenshots_dir) 
+                     if not f.startswith('.') and os.path.isfile(os.path.join(self.session_screenshots_dir, f)) and
+                     any(f.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.pdf'])]
+            
+            if not files:
+                # Sessão vazia: deletar a pasta
+                print(f"Sessão atual vazia, removendo: {self.session_screenshots_dir}")
+                try:
+                    shutil.rmtree(self.session_screenshots_dir)
+                    print(f"Sessão vazia removida: {self.session_screenshots_dir}")
+                except Exception as e:
+                    print(f"Erro ao tentar remover sessão vazia: {e}")
+            else:
+                # Sessão não está vazia: salvar normalmente
+                try:
+                    # Usar o nome da pasta como nome da sessão se não tiver um nome personalizado
+                    session_name = self.session_name or os.path.basename(self.session_screenshots_dir)
+                    self._save_session_to_file(session_name)
+                except Exception as e:
+                    print(f"Erro ao salvar sessão automaticamente: {e}")
+        
+        # Limpar outras pastas vazias (sem usar o método que está ausente)
+        try:
+            self._remove_empty_session_folders()
+        except Exception as e:
+            print(f"Erro ao limpar pastas vazias: {e}")
+        
+        # Finalizar a aplicação
+        try:
+            if self.root.winfo_exists():
+                self.root.destroy()  # Usar destroy() em vez de quit() para encerrar completamente
+        except Exception as e:
+            print(f"Erro ao destruir janela: {e}")
+            # Se não conseguir destruir a janela, tentar encerrar de outra forma
+            self.root.quit()
+    
+    def _remove_empty_session_folders(self):
+        """Remove pastas de sessão vazias no diretório base."""
+        if not self.base_directory or not os.path.isdir(self.base_directory):
+            return
+            
+        print(f"Procurando sessões vazias em: {self.base_directory}")
+        try:
+            # Procurar diretórios que parecem ser sessões
+            for item in os.listdir(self.base_directory):
+                session_path = os.path.join(self.base_directory, item)
+                
+                # Verificar se é uma pasta de sessão
+                if os.path.isdir(session_path) and item.startswith("sessao_prints_"):
+                    # Pular a sessão atual que está em uso
+                    if session_path == self.session_screenshots_dir:
+                        continue
+                        
+                    # Verificar se contém arquivos reais (excluindo arquivos temporários/ocultos)
+                    has_content = False
+                    if os.path.exists(session_path):
+                        files = [f for f in os.listdir(session_path) 
+                                if not f.startswith('.') and 
+                                os.path.isfile(os.path.join(session_path, f)) and
+                                any(f.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.pdf'])]
+                        has_content = len(files) > 0
+                    
+                    # Se não tiver conteúdo, deletar
+                    if not has_content:
+                        print(f"Removendo sessão vazia: {session_path}")
+                        try:
+                            shutil.rmtree(session_path)
+                            print(f"Sessão vazia removida: {session_path}")
+                        except Exception as e:
+                            print(f"Erro ao remover sessão vazia {session_path}: {e}")
+        except Exception as e:
+            print(f"Erro durante limpeza de sessões vazias: {e}")
 
-        # Cria apenas UMA pasta de sessão diretamente no diretório base
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        session_dir = os.path.join(self.base_directory, f"sessao_prints_{timestamp}")
-        os.makedirs(session_dir, exist_ok=True)
-        self.session_screenshots_dir = session_dir
-        self.screenshot_manager.set_directory(session_dir)
-        self.counter = 0
-        self.last_image = None
-        self.current_image = None
-        self._update_images()
-        self._update_controls_state()
+    # Remova ou comente esta função se estiver duplicada ou não for usada
+    def _cleanup_all_screenshot_folders(self):
+        """Procura e remove todas as pastas de screenshots vazias em todos os diretórios conhecidos."""
+        # Listar todos os diretórios que podem conter pastas de screenshots
+        directories_to_check = []
         
-        # Resetar o nome da sessão
-        self.session_name = None
+        # Adicionar o diretório base atual
+        if self.base_directory and os.path.isdir(self.base_directory):
+            directories_to_check.append(self.base_directory)
+            
+        # Adicionar outros diretórios de sessões antigas (carregando dos arquivos de sessão)
+        try:
+            sessions_dir = self._get_sessions_directory()
+            if os.path.exists(sessions_dir):
+                for filename in os.listdir(sessions_dir):
+                    if filename.endswith(".json") and filename != "last_session.json":
+                        try:
+                            with open(os.path.join(sessions_dir, filename), 'r') as f:
+                                session_data = json.load(f)
+                                
+                            directory = session_data.get('directory', '')
+                            if directory and os.path.isdir(directory):
+                                parent_dir = os.path.dirname(directory)
+                                if parent_dir and os.path.isdir(parent_dir) and parent_dir not in directories_to_check:
+                                    directories_to_check.append(parent_dir)
+                        except:
+                            continue
+        except Exception as e:
+            print(f"Erro ao procurar diretórios de sessões antigas: {e}")
         
-        # Atualizar título da janela
-        self.root.title(f"PDF Maker v{APP_VERSION} Beta")
+        # Para cada diretório encontrado, limpar pastas vazias
+        for directory in directories_to_check:
+            try:
+                print(f"Verificando pastas em: {directory}")
+                for item in os.listdir(directory):
+                    if item.startswith("sessao_prints_"):
+                        folder_path = os.path.join(directory, item)
+                        if os.path.isdir(folder_path):
+                            # Verificar se a pasta está vazia ou contém apenas arquivos temporários/ocultos
+                            files = [f for f in os.listdir(folder_path) 
+                                     if not f.startswith('.') and 
+                                     os.path.isfile(os.path.join(folder_path, f)) and
+                                     any(f.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.pdf'])]
+                            
+                            if not files:
+                                print(f"Removendo pasta vazia: {folder_path}")
+                                try:
+                                    shutil.rmtree(folder_path)
+                                    print(f"Pasta vazia removida: {folder_path}")
+                                except Exception as e:
+                                    print(f"Erro ao remover pasta vazia: {e}")
+            except Exception as e:
+                print(f"Erro ao verificar pastas em {directory}: {e}")

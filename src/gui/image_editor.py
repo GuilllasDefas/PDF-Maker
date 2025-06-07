@@ -135,7 +135,7 @@ class ImageEditorWindow:
         
         # Configurações de fonte
         self.font_family = "Arial"
-        self.font_size = 12
+        self.font_size = 36
         
         # Fator de zoom - definir para 48% por padrão
         self.zoom_factor = 0.48

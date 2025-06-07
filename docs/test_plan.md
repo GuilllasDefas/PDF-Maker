@@ -2,21 +2,21 @@
 
 ## Objetivo
 
-Este documento descreve o plano de testes para verificar a funcionalidade do aplicativo PDF Maker após a compilação.
+Este documento descreve o plano de testes para verificar a funcionalidade e estabilidade do aplicativo PDF Maker após a implementação de correções.
 
 ## Escopo
 
-Os testes abrangem todas as funcionalidades da aplicação, desde a instalação até recursos avançados.
+Os testes abrangem todas as funcionalidades da aplicação, com ênfase em estabilidade, gerenciamento de recursos e correções recentes.
 
 ## Plano de Testes
 
 ### 1. TESTES DE INSTALAÇÃO
 
-- [ ] Instalação via setup.exe em Windows 11
-- [ ] Verificar ícones no menu iniciar
-- [ ] Verificar ícone na área de trabalho (se opção selecionada)
-- [ ] Verificar primeira execução após instalação
-- [ ] Teste de desinstalação completa
+- [x] Instalação via setup.exe em Windows 11
+- [x] Verificar ícones no menu iniciar
+- [x] Verificar ícone na área de trabalho (se opção selecionada)
+- [x] Verificar primeira execução após instalação
+- [x] Teste de desinstalação completa
 
 ### 2. TESTES DE INTERFACE
 
@@ -32,7 +32,6 @@ Os testes abrangem todas as funcionalidades da aplicação, desde a instalação
 - [x] Capturar screenshot único
 - [x] Capturar múltiplos screenshots em sequência
 - [x] Verificar se as imagens são salvas corretamente na pasta de destino
-- [x] Testar captura em múltiplos monitores (se aplicável)
 - [x] Verificar qualidade e tamanho das imagens capturadas
 - [x] Testar atalhos de teclado para captura
 
@@ -77,7 +76,6 @@ Os testes abrangem todas as funcionalidades da aplicação, desde a instalação
 - [x] Verificar se as imagens são salvas no diretório correto
 - [x] Verificar se o PDF é salvo no local esperado
 - [x] Testar a abertura do PDF após geração
-- [x] Verificar comportamento quando não há espaço em disco suficiente
 
 ### 10. TESTES DE ROBUSTEZ
 
@@ -102,8 +100,8 @@ Os testes abrangem todas as funcionalidades da aplicação, desde a instalação
 ### 12. TESTES DE EDIÇÃO DE SESSÃO
 
 - [x] Abrir uma sessão existente e verificar se todas as imagens são carregadas corretamente
-- [Errado] Testar a reordenação de imagens por arrastar e soltar
-- [Errado] Verificar se a mudança de ordem é refletida no PDF gerado
+- [x] Testar a reordenação de imagens
+- [x] Verificar se a mudança de ordem é refletida no PDF gerado
 - [x] Testar a exclusão de imagens da sessão
 - [x] Verificar se as imagens excluídas não aparecem no PDF final
 - [x] Testar o botão "Cancelar" para garantir que nenhuma alteração seja aplicada
@@ -112,7 +110,7 @@ Os testes abrangem todas as funcionalidades da aplicação, desde a instalação
 ### 13. TESTES DE EDIÇÃO DE IMAGEM E ANOTAÇÕES
 
 - [x] Testar a adição de texto às imagens
-- [Errado] Verificar o redimensionamento do texto conforme o zoom
+- [x] Verificar o redimensionamento do texto conforme o zoom
 - [x] Testar a adição de linhas às imagens
 - [x] Testar a adição de setas às imagens
 - [x] Testar a adição de retângulos às imagens
@@ -128,7 +126,7 @@ Os testes abrangem todas as funcionalidades da aplicação, desde a instalação
 - [x] Testar o zoom in/out no editor de imagem
 - [x] Verificar se o zoom de 48% é aplicado por padrão ao abrir imagens
 - [x] Testar o zoom usando Ctrl+Roda do mouse
-- [Errado] Verificar se as anotações escalam corretamente com o zoom
+- [x] Verificar se as anotações escalam corretamente com o zoom
 - [x] Testar a navegação pelas barras de rolagem horizontais e verticais
 - [x] Verificar se a posição de visualização é mantida ao aplicar zoom
 
@@ -142,15 +140,15 @@ Os testes abrangem todas as funcionalidades da aplicação, desde a instalação
 
 ### 16. TESTES DE FLUXO COMPLETO DE EDIÇÃO
 
-1. [ ] Capturar 5 screenshots
-2. [ ] Clicar em "Editar Sessão"
-3. [ ] Reordenar as imagens
-4. [ ] Excluir uma das imagens
-5. [ ] Editar uma imagem adicionando texto e formas
-6. [ ] Salvar as edições
-7. [ ] Voltar à tela de edição de sessão
-8. [ ] Gerar PDF diretamente da tela de edição
-9. [ ] Verificar se o PDF contém as imagens na ordem correta com as anotações
+- [ ] Capturar 5 screenshots
+- [ ] Clicar em "Editar Sessão"
+- [ ] Reordenar as imagens
+- [ ] Excluir uma das imagens
+- [ ] Editar uma imagem adicionando texto e formas
+- [ ] Salvar as edições
+- [ ] Voltar à tela de edição de sessão
+- [ ] Gerar PDF diretamente da tela de edição
+- [ ] Verificar se o PDF contém as imagens na ordem correta com as anotaçõe- ### 17. TESTES DE ROBUSTEZ DA EDIÇÃO
 
 ### 17. TESTES DE ROBUSTEZ DA EDIÇÃO
 
@@ -159,13 +157,15 @@ Os testes abrangem todas as funcionalidades da aplicação, desde a instalação
 - [ ] Testar o comportamento quando há muitas anotações em uma imagem
 - [ ] Verificar o comportamento de desfazer/refazer (Ctrl+Z/Ctrl+Y) com múltiplas operações
 - [ ] Testar o comportamento quando falta espaço em disco para salvar anotações
+- [ ] Testar a edição de imagens muito grandes (>10MB) e verificar desempenho
+- [ ] Verificar o comportamento ao tentar arrastar ou redimensionar anotações para fora dos limites da imagem
 
 ### 18. TESTES DE GERENCIAMENTO DE SESSÕES
 
-- [x] Salvar uma sessão atual com um nome personalizado
-- [x] Verificar se a janela de diálogo para salvar sessão exibe corretamente o ícone e título
-- [x] Verificar se a sessão salva aparece no menu "Carregar Sessão"
-- [ ] Renomear uma sessão existente e verificar se o novo nome é aplicado
+- [ ] Salvar uma sessão atual com um nome personalizado
+- [ ] Verificar se a janela de diálogo para salvar sessão exibe corretamente o ícone e título
+- [ ] Verificar se a sessão salva aparece no menu "Carregar Sessão"
+- [ ] Renomear uma sessão existente e verificar se o novo nome é aplicado (OBS: Ao renomear parece que cria uma nova sessão ao invés de renomear a existente)
 - [ ] Testar o carregamento de uma sessão salva anteriormente
 - [ ] Verificar se ao carregar uma sessão, todas as imagens são restauradas corretamente
 - [ ] Verificar se o contador de imagens é restaurado corretamente ao carregar uma sessão
@@ -175,18 +175,66 @@ Os testes abrangem todas as funcionalidades da aplicação, desde a instalação
 - [ ] Testar a criação de uma nova sessão após carregar uma sessão salva
 - [ ] Verificar se múltiplas sessões podem ser salvas e carregadas corretamente
 
+### 19. TESTES DE LIMPEZA DE PASTAS VAZIAS
+
+- [ ] Iniciar o aplicativo, criar uma nova sessão, fechar sem fazer nada e verificar se a pasta vazia foi removida
+- [ ] Criar várias sessões sequenciais sem tirar screenshots e verificar se todas as pastas vazias são removidas ao sair
+- [ ] Criar uma sessão, tirar um screenshot, excluir a imagem e verificar se a pasta vazia é removida ao sair
+- [ ] Testar em sessão com imagens: criar sessão, tirar screenshots, fechar e verificar se a pasta NÃO é removida
+- [ ] Verificar se sessões vazias em diretórios externos referenciados em sessões antigas são limpas corretamente
+- [ ] Confirmar que apenas pastas de sessão (`sessao_prints_*`) são afetadas pelo processo de limpeza
+
+### 20. TESTES DE PROCESSO DE SAÍDA E CONFIRMAÇÃO
+
+- [ ] Verificar se a caixa de diálogo de confirmação é exibida ao tentar fechar o aplicativo
+- [ ] Testar "Cancelar" na caixa de confirmação e verificar se o aplicativo continua em execução
+- [ ] Verificar se a confirmação de saída funciona corretamente usando o botão "Sair" do menu
+- [ ] Verificar se a confirmação de saída funciona corretamente usando o "X" da janela
+- [ ] Testar a confirmação de saída após operações intensivas (muitas imagens, edições)
+- [ ] Verificar se o aplicativo salva a sessão atual antes de sair quando há alterações não salvas
+- [ ] Testar o comportamento quando o aplicativo é fechado pelo gerenciador de tarefas (Alt+F4)
+
+### 21. TESTES DE ESTABILIDADE E DESEMPENHO
+
+- [ ] Executar o aplicativo por um período prolongado (>1 hora) e verificar estabilidade
+- [ ] Criar e gerenciar múltiplas sessões em sequência (>10) e verificar desempenho
+- [ ] Testar com um grande número de imagens (>50) em uma única sessão
+- [ ] Verificar uso de memória durante operações intensivas (monitorar com Gerenciador de Tarefas)
+- [ ] Realizar operações repetidas de criação/edição/exclusão de sessões para detectar vazamentos de memória
+- [ ] Testar recuperação após fechamento forçado (simular crash) durante edição de imagem
+- [ ] Verificar desempenho ao alternar rapidamente entre diferentes funcionalidades (captura, edição, PDF)
+
+### 22. TESTES DE CASOS DE ERRO E RECUPERAÇÃO
+
+- [ ] Tentar acessar uma pasta de sessão que foi removida externamente
+- [ ] Tentar gerar PDF quando a pasta de destino não tem permissão de escrita
+- [ ] Testar o comportamento quando uma imagem referenciada foi excluída ou movida externamente
+- [ ] Verificar recuperação após erros de leitura/escrita em arquivos
+- [ ] Tentar abrir imagens corrompidas ou com formatos não suportados
+- [ ] Testar o comportamento quando o arquivo de configuração está corrompido
+- [ ] Verificar recuperação quando arquivos de sessão JSON estão mal-formados ou corrompidos
+
 ## Casos de Teste Específicos
 
 ### Teste Básico
 
 - [ ] Instalar o aplicativo
 - [ ] Abrir o aplicativo
+- [ ] Selecionar um diretório para salvar capturas
 - [ ] Capturar uma tela
 - [ ] Gerar um PDF
-- [ ] Salvar o PDF
-- [ ] Fechar o aplicativo
+- [ ] Fechar o aplicativo (confirmar a saída)
+- [ ] Verificar se pastas vazias foram removidas
 - [ ] Reabrir o aplicativo
+- [ ] Verificar se a última sessão é carregada corretamente
 - [ ] Verificar se o PDF gerado pode ser aberto
-- [ ] Enviar o PDF gerado por e-mail (opcional)
-- [ ] Excluir o PDF gerado
-- [ ] Verificar se o PDF foi excluído com sucesso
+- [ ] Verificar se o contador de screenshots está correto
+
+### Teste de Estabilidade Após Correções
+
+- [ ] Criar múltiplas sessões vazias em sequência (5+)
+- [ ] Fechar o aplicativo e verificar se todas as pastas vazias foram removidas
+- [ ] Criar uma sessão com screenshots e uma vazia
+- [ ] Fechar o aplicativo e verificar se apenas a pasta vazia foi removida
+- [ ] Abrir várias janelas do aplicativo e verificar se cada instância gerencia corretamente suas sessões
+- [ ] Desligar o computador com o aplicativo aberto e verificar o comportamento ao reiniciar

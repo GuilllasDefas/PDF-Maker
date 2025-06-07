@@ -297,43 +297,35 @@ class PresetConfigWindow:
     
     def _select_area(self):
         """Abre a seleção de área"""
-        # Minimizar a janela principal
+        # Minimizar a janela principal antes de abrir o seletor
         main_win = self.parent.winfo_toplevel() if self.parent else None
+        main_win_minimized = False
         if main_win:
-            main_win.iconify()
-        # Esconder a janela de configuração (evita erro de transient)
-        self.window.withdraw()
-
-        # Guardar posição atual da janela
-        window_position = self.window.geometry().split("+")[1:]
-        x, y = int(window_position[0]), int(window_position[1])
-
-        # Pequeno delay antes de mostrar o seletor
-        self.window.after(100, lambda: self._show_area_selector(x, y, main_win))
-
-    def _show_area_selector(self, x, y, main_win):
-        """Mostra o seletor de área após delay"""
+            main_win_minimized = main_win.state() == 'iconic'
+            if not main_win_minimized:
+                main_win.iconify()
+        # Minimizar a janela de configuração também
+        config_win_minimized = False
+        if self.window:
+            config_win_minimized = self.window.state() == 'iconic'
+            if not config_win_minimized:
+                self.window.iconify()
         try:
-            selector = AreaSelector()  # Sem parent para evitar problemas de transient
+            selector = AreaSelector()
             area = selector.select_area()
-
             if area:
                 self.capture_area = area
-                self.capture_type.set("area")  # Seleciona o radiobutton de área automaticamente
-                # Atualiza o feedback visual
+                self.capture_type.set("area")
                 self.area_feedback_label.config(text=f"Área: {area[0]},{area[1]} até {area[2]},{area[3]}")
-
-            # Restaurar as janelas minimizadas/escondidas
-            if main_win:
-                main_win.deiconify()
-            self.window.deiconify()
-            self.window.geometry(f"+{x}+{y}")
-
         except Exception as e:
-            if main_win:
-                main_win.deiconify()
-            self.window.deiconify()
             messagebox.showerror("Erro", f"Falha ao selecionar área: {str(e)}")
+        finally:
+            # Restaurar a janela principal após a seleção
+            if main_win and not main_win_minimized:
+                main_win.deiconify()
+            # Restaurar a janela de configuração após a seleção
+            if self.window and not config_win_minimized:
+                self.window.deiconify()
     
     def _select_window(self):
         """Abre a seleção de janela"""

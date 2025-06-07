@@ -3,12 +3,12 @@
 ## Correções
 
 - **Geral**
+
   - Ao salvar uma sessão pela primeira vez, a próxima vez que tenta salvar, ele pede novamente o nome da sessão, mesmo que já tenha sido salvo anteriormente.
   
   - Ao tirar prints, salvar sessão, tirar mais prints e fechar sem salvar, o programa não pergunta se deseja salvar as alterações. E ao abrir novemente ele reconhece os prints anteriores mas mostra a quantidade de prints antes de salvar a sessão.
 
-- **Capturas de Tela**
-  - Em "Editar Sessão de Imagens" a reordenação de imagens por arrastar e soltar não está funcionando corretamente.
+  - Está sendo possível abrir mais de uma instância da janela Editar Sessão, o que não deveria ser possível, pois deveria ser uma janela única.
 
 ---
 
@@ -20,8 +20,11 @@
 - **Editor de Sessão**
   - Ao redimensionar a janela, as miniaturas continuam mostrando apenas 4 imagens por coluna, mesmo que haja espaço para mais.
     Deve ajustar o número de colunas dinamicamente com base no tamanho da janela.
+  - Ao renomear uma sessão aparecem duas sessões pra carregar, a anterior e a renomeada, mas a anterior não deveria existir mais, apenas a renomeada.
 
 - **Editor de Imagem**
+  - Ao editar ordem, não há opção de Salvar a ordem, apenas de Gerar PDF, dessa forma se sair e voltar, a versão original volta.
+  - Ao editar uma imagem e tentar fechar sem salvar, o programa deve perguntar se deseja salvar as alterações.
   - Destacar o botão apertado para feedback visual.
   - Em "Texto" adicionar opção de cabeçalho e rodapé a marge da imagem na edição.
   - Adicionar opção de Recortar Imagem (ex: cortar para manter apenas a área selecionada).

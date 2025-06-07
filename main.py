@@ -4,4 +4,6 @@ from src.gui.main_window import PDFMakerApp
 if __name__ == "__main__":
     root = tk.Tk()
     app = PDFMakerApp(root)
+    
+    # Iniciar loop principal
     root.mainloop()

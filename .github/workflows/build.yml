@@ -170,8 +170,12 @@ jobs:
           body: |           
             ## Melhorias e Correções
 
-            - Em "Editor de Sessão" foi corrigida o botão "Excluir" que não estava funcionando corretamente.
-            - Em "Editor de Sessão" é possível editar ordem das imagens.
+            - Melhoria: Editor de Sessão permite reordenar imagens por arrastar e soltar.
+            - Melhoria: Editor de Imagens inicia com fonte padrão em tamanho 36.
+            - Correção: Contador de "Prints tirados" agora reflete corretamente o número de imagens na pasta da sessão.
+            - Correção: Seleção de área específica na configuração automática não trava mais a aplicação.
+            - Correção: O campo "Começar após" agora aplica corretamente o atraso antes do início da automação.
+            - Correção: Botão "Excluir" no Editor de Sessão funcionando corretamente.
 
           draft: false
           prerelease: true
