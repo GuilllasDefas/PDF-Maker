@@ -160,6 +160,17 @@ class SessionEditorWindow:
             'generate_pdf': False,
             'image_paths': []
         }
+        
+        # Variável para armazenar o último número de miniaturas por linha
+        self.last_thumbnails_per_row = 5
+        
+        # Flag para controlar o redimensionamento
+        self.resizing = False
+        
+        # Largura e padding de cada miniatura para cálculos de layout
+        self.thumbnail_width = 150  # Largura total de cada miniatura incluindo padding
+        self.min_thumbnails_per_row = 1
+        self.max_thumbnails_per_row = 30  # Limite máximo razoável de miniaturas por linha
     
     def show(self):
         """Mostra a janela de edição de sessão."""
@@ -195,9 +206,6 @@ class SessionEditorWindow:
         # Configuração modal que mantém os botões de controle da janela
         # Isso faz com que a janela pai não possa ser interagida até que esta janela seja fechada
         self.window.grab_set()  # Captura todos os eventos, impedindo interação com a janela pai
-        
-        # Não usar transient() para manter os botões de controle de janela
-        # self.window.transient(self.parent)  # Define a janela pai
     
         # Configurar estilos para frames
         style = ttk.Style()
@@ -235,24 +243,24 @@ class SessionEditorWindow:
         v_scrollbar = ttk.Scrollbar(canvas_frame, orient="vertical")
         v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         
-        canvas = tk.Canvas(canvas_frame)
-        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.canvas = tk.Canvas(canvas_frame)  # Store reference to canvas
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         
-        canvas.configure(xscrollcommand=h_scrollbar.set, yscrollcommand=v_scrollbar.set)
-        h_scrollbar.config(command=canvas.xview)
-        v_scrollbar.config(command=canvas.yview)
+        self.canvas.configure(xscrollcommand=h_scrollbar.set, yscrollcommand=v_scrollbar.set)
+        h_scrollbar.config(command=self.canvas.xview)
+        v_scrollbar.config(command=self.canvas.yview)
         
         # Frame dentro do canvas para as miniaturas (com layout em grid para melhor organização)
-        self.thumbnails_frame = ttk.Frame(canvas)
-        canvas.create_window((0, 0), window=self.thumbnails_frame, anchor=tk.NW)
+        self.thumbnails_frame = ttk.Frame(self.canvas)
+        self.canvas.create_window((0, 0), window=self.thumbnails_frame, anchor=tk.NW)
         
         # Configurar o scroll
         self.thumbnails_frame.bind("<Configure>", 
-                                 lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+                                 lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
         
         # Habilitar rolagem com a roda do mouse
-        canvas.bind("<MouseWheel>", lambda e: canvas.yview_scroll(int(-1*(e.delta/120)), "units"))
-        canvas.bind("<Shift-MouseWheel>", lambda e: canvas.xview_scroll(int(-1*(e.delta/120)), "units"))
+        self.canvas.bind("<MouseWheel>", lambda e: self.canvas.yview_scroll(int(-1*(e.delta/120)), "units"))
+        self.canvas.bind("<Shift-MouseWheel>", lambda e: self.canvas.xview_scroll(int(-1*(e.delta/120)), "units"))
         
         # Carregar as miniaturas
         self._load_thumbnails()
@@ -267,10 +275,91 @@ class SessionEditorWindow:
         ttk.Button(action_frame, text="Gerar PDF", 
                  command=self._on_generate_pdf).pack(side=tk.RIGHT, padx=5)
         
+        # Adicionar handler para redimensionamento da janela
+        self.window.bind("<Configure>", self._on_window_resize)
+        
+        # Forçar um cálculo inicial após a janela ser renderizada
+        self.window.after(100, self._initial_thumbnail_layout)
+        
         # Esperar que a janela seja fechada
         self.parent.wait_window(self.window)
         
         return self.result
+    
+    def _initial_thumbnail_layout(self):
+        """Configura o layout inicial das miniaturas após a janela ser renderizada."""
+        # Calcular quantas miniaturas por linha baseado na largura inicial real
+        self.last_thumbnails_per_row = self._calculate_thumbnails_per_row()
+        self._load_thumbnails()
+    
+    def _calculate_thumbnails_per_row(self):
+        """Calcula o número de miniaturas por linha com base na largura disponível."""
+        if not self.window or not hasattr(self, 'canvas') or not self.canvas:
+            return 5  # Valor padrão
+        
+        try:
+            # Obter a largura disponível diretamente do canvas visível
+            available_width = self.canvas.winfo_width()
+            
+            # Verificar se a largura é válida
+            if available_width < 100:
+                # Se ainda não temos um tamanho válido do canvas,
+                # usar a largura da janela com ajuste para bordas e scrollbar
+                window_width = self.window.winfo_width()
+                available_width = max(150, window_width - 100)  # Ajuste mais conservador
+            
+            # Padding entre miniaturas - 10px total (5px de cada lado)
+            padding_per_thumbnail = 10
+            
+            # Largura efetiva considerando o padding
+            effective_thumbnail_width = self.thumbnail_width + padding_per_thumbnail
+            
+            # Calcular quantas miniaturas cabem por linha
+            thumbnails_per_row = max(self.min_thumbnails_per_row, 
+                                    min(self.max_thumbnails_per_row, 
+                                        int(available_width / effective_thumbnail_width)))
+            
+            print(f"Largura disponível: {available_width}px, Largura efetiva: {effective_thumbnail_width}px, " +
+                  f"Miniaturas por linha: {thumbnails_per_row}")
+            
+            return thumbnails_per_row
+        except Exception as e:
+            print(f"Erro ao calcular miniaturas por linha: {e}")
+            return 5  # Valor padrão em caso de erro
+    
+    def _on_window_resize(self, event):
+        """Handler para o evento de redimensionamento da janela."""
+        # Verificar se o evento veio da janela principal e não de algum widget interno
+        if event.widget != self.window:
+            return
+            
+        # Implementar um debounce para evitar recarga excessiva durante o redimensionamento
+        if hasattr(self, '_resize_timer') and self._resize_timer:
+            self.window.after_cancel(self._resize_timer)
+            
+        # Agendar a recarga das miniaturas após um pequeno atraso
+        self._resize_timer = self.window.after(200, self._reload_thumbnails_after_resize)
+    
+    def _reload_thumbnails_after_resize(self):
+        """Recarrega as miniaturas após o redimensionamento da janela."""
+        if self.resizing:
+            return
+            
+        # Armazenar o valor atual para comparação
+        old_thumbnails_per_row = self.last_thumbnails_per_row
+        
+        # Calcular o novo valor baseado nas dimensões atuais
+        new_thumbnails_per_row = self._calculate_thumbnails_per_row()
+        
+        # Só recarregar se o número de miniaturas por linha realmente mudar
+        if new_thumbnails_per_row != old_thumbnails_per_row:
+            print(f"Atualizando layout: {old_thumbnails_per_row} -> {new_thumbnails_per_row} miniaturas por linha")
+            self.last_thumbnails_per_row = new_thumbnails_per_row
+            self.resizing = True
+            self._load_thumbnails()
+            self.resizing = False
+        else:
+            print(f"Layout mantido: {new_thumbnails_per_row} miniaturas por linha")
     
     def _load_thumbnails(self):
         """Carrega as miniaturas das imagens."""
@@ -279,8 +368,10 @@ class SessionEditorWindow:
             widget.destroy()
         self.frames = []
         
-        # Organizar as miniaturas em uma grade em vez de uma única linha
-        max_per_row = 5  # Número máximo de miniaturas por linha
+        # Usar o número de miniaturas por linha já calculado
+        max_per_row = self.last_thumbnails_per_row
+        
+        print(f"Renderizando miniaturas com {max_per_row} por linha")
         
         # Criar frames para cada imagem
         for i, path in enumerate(self.image_paths):

@@ -4,11 +4,8 @@
 
 - **Geral**
 
-  - Ao salvar uma sessão pela primeira vez, a próxima vez que tenta salvar, ele pede novamente o nome da sessão, mesmo que já tenha sido salvo anteriormente.
-  
-  - Ao tirar prints, salvar sessão, tirar mais prints e fechar sem salvar, o programa não pergunta se deseja salvar as alterações. E ao abrir novemente ele reconhece os prints anteriores mas mostra a quantidade de prints antes de salvar a sessão.
-
   - Está sendo possível abrir mais de uma instância da janela Editar Sessão, o que não deveria ser possível, pois deveria ser uma janela única.
+  - Em diferentes resoluções, janelas auxiliares não sabem ajustar seu tamanho.
 
 ---
 
@@ -48,6 +45,9 @@
 - **Automação**
   - Permitir múltiplas ações entre capturas (ex: pressionar sequência de teclas).
   - Adicionar logs detalhados das automações realizadas.
+
+- **Sobre**
+  - Integrar Melhorias e correções no botão sobre
 
 ---
 

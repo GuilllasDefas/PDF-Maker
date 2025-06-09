@@ -170,12 +170,15 @@ jobs:
           body: |           
             ## Melhorias e Correções
 
-            - Melhoria: Editor de Sessão permite reordenar imagens por arrastar e soltar.
-            - Melhoria: Editor de Imagens inicia com fonte padrão em tamanho 36.
-            - Correção: Contador de "Prints tirados" agora reflete corretamente o número de imagens na pasta da sessão.
-            - Correção: Seleção de área específica na configuração automática não trava mais a aplicação.
-            - Correção: O campo "Começar após" agora aplica corretamente o atraso antes do início da automação.
-            - Correção: Botão "Excluir" no Editor de Sessão funcionando corretamente.
+            - Melhoria: Em "Editor de Sessão", as miniaturas agora mostram mais miniaturas por coluna de acordo com o tamanho da tela.
+
+            ---
+
+            ## Problemas Conhecidos
+
+            - Em diferentes resoluções, janelas auxiliares não sabem ajustar seu tamanho.
+            - Está sendo possível abrir mais de uma instância da janela Editar Sessão, o que não deveria ser possível, pois deveria ser uma janela única.
+            
 
           draft: false
           prerelease: true

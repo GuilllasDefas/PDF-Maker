@@ -29,7 +29,6 @@ a = Analysis(
     hooksconfig={},
     runtime_hooks=[],
     excludes=[
-        # Excluir bibliotecas científicas desnecessárias
         'numpy',
         'scipy',
         'pandas',
