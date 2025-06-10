@@ -170,9 +170,7 @@ jobs:
           body: |           
             ## Melhorias e Correções
 
-            - Melhoria: Em "Editor de Sessão", as miniaturas agora mostram mais miniaturas por coluna de acordo com o tamanho da tela.
-            - Correção: Bug que ao fechar a janela "Editor de Imagem", era possível acessar a Janela principal sem terminar de "Editar a Sessão".
-            
+            - Melhoria: 
             ---
 
             ## Problemas Conhecidos

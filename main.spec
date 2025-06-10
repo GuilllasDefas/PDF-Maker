@@ -23,7 +23,8 @@ a = Analysis(
         'src.core.automation',
         'src.core.update_checker',
         'src.gui.main_window',
-        'src.gui.preset_window'
+        'src.gui.preset_window',
+        'src.components.automation_overlay'  # Add the new component
     ],
     hookspath=[],
     hooksconfig={},
@@ -77,8 +78,8 @@ exe = EXE(
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
-    upx=True,
-    console=False,
+    upx=False,
+    console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
