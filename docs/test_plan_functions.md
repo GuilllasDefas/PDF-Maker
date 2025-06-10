@@ -238,3 +238,44 @@ Os testes abrangem todas as funcionalidades da aplicação, com ênfase em estab
 - [ ] Fechar o aplicativo e verificar se apenas a pasta vazia foi removida
 - [ ] Abrir várias janelas do aplicativo e verificar se cada instância gerencia corretamente suas sessões
 - [ ] Desligar o computador com o aplicativo aberto e verificar o comportamento ao reiniciar
+
+### 23. TESTES DAS CORREÇÕES RECENTES
+
+- [ ] **Teste de Redimensionamento Dinâmico de Miniaturas**
+  - [ ] Abrir a janela "Editar Sessão de Imagens" com múltiplas imagens
+  - [ ] Verificar se inicialmente o número de miniaturas por linha é adequado ao tamanho da janela
+  - [ ] Aumentar a largura da janela e verificar se o número de miniaturas por linha aumenta
+  - [ ] Diminuir a largura da janela e verificar se o número de miniaturas por linha diminui
+  - [ ] Testar com diferentes quantidades de imagens (poucas e muitas)
+  - [ ] Verificar se o layout permanece consistente durante o redimensionamento
+  - [ ] Maximizar a janela e verificar se as miniaturas se distribuem adequadamente
+
+- [ ] **Teste de Comportamento Modal após Edição de Imagem**
+  - [ ] Abrir a janela "Editar Sessão de Imagens"
+  - [ ] Selecionar uma imagem para editar (duplo clique ou botão "Editar")
+  - [ ] Fazer alguma anotação na imagem e salvar
+  - [ ] Verificar se, após fechar o Editor de Imagem, a janela de Sessão permanece modal
+  - [ ] Tentar interagir com a janela principal enquanto a janela de Sessão está aberta
+  - [ ] Repetir este processo várias vezes para garantir que a modalidade é mantida consistentemente
+  - [ ] Testar o mesmo processo, mas cancelando a edição de imagem em vez de salvar
+
+- [ ] **Teste de Estabilidade do Redimensionamento de Miniaturas**
+  - [ ] Realizar redimensionamentos rápidos e repetidos da janela de Sessão
+  - [ ] Verificar se não ocorrem problemas visuais ou travamentos durante redimensionamentos
+  - [ ] Alternar entre tamanho máximo e mínimo várias vezes
+  - [ ] Testar em diferentes resoluções de tela
+  - [ ] Verificar se o desempenho permanece bom mesmo com muitas imagens na sessão
+
+### Teste Completo de Fluxo com Correções
+
+- [ ] Iniciar o aplicativo e criar uma nova sessão
+- [ ] Capturar pelo menos 15 imagens para testar bem o layout de miniaturas
+- [ ] Abrir a janela "Editar Sessão de Imagens"
+- [ ] Redimensionar a janela várias vezes e verificar o comportamento das miniaturas
+- [ ] Editar uma imagem, adicionar anotações e salvar
+- [ ] Verificar se a janela de Sessão ainda está bloqueando a janela principal
+- [ ] Reordenar algumas imagens e excluir outras
+- [ ] Testar novamente o redimensionamento após as alterações
+- [ ] Gerar um PDF a partir da janela de Sessão
+- [ ] Verificar se o PDF contém as imagens na ordem correta com as anotações
+- [ ] Fechar o aplicativo e verificar se tudo foi salvo corretamente

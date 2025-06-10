@@ -171,14 +171,15 @@ jobs:
             ## Melhorias e Correções
 
             - Melhoria: Em "Editor de Sessão", as miniaturas agora mostram mais miniaturas por coluna de acordo com o tamanho da tela.
-
+            - Correção: Bug que ao fechar a janela "Editor de Imagem", era possível acessar a Janela principal sem terminar de "Editar a Sessão".
+            
             ---
 
             ## Problemas Conhecidos
 
             - Em diferentes resoluções, janelas auxiliares não sabem ajustar seu tamanho.
-            - Está sendo possível abrir mais de uma instância da janela Editar Sessão, o que não deveria ser possível, pois deveria ser uma janela única.
-            
+
+            OBS: Por se tratar de uma versão de pre-release, é possível que existam bugs ou problemas não resolvidos. E seu anti-vírus pode acusar falsos positivos.
 
           draft: false
           prerelease: true

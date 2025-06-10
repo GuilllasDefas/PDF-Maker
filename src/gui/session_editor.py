@@ -459,12 +459,17 @@ class SessionEditorWindow:
             # Mostrar o editor - ele já tem comportamento modal implementado
             editor.show()
             
+            # Restaurar a modalidade da janela de sessão após o fechamento do editor
+            self.window.grab_set()
+            
             # Atualizar o frame para refletir anotações
             if idx < len(self.frames):
                 self.frames[idx].update_image(path)
                 
         except Exception as e:
             messagebox.showerror("Erro", f"Falha ao editar imagem: {str(e)}")
+            # Garantir que a modalidade seja restaurada mesmo em caso de erro
+            self.window.grab_set()
     
     def _on_cancel(self):
         """Cancela a edição e fecha a janela."""

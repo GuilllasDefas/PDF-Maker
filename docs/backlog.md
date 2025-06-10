@@ -4,8 +4,8 @@
 
 - **Geral**
 
-  - Está sendo possível abrir mais de uma instância da janela Editar Sessão, o que não deveria ser possível, pois deveria ser uma janela única.
   - Em diferentes resoluções, janelas auxiliares não sabem ajustar seu tamanho.
+  - Label "Prints tirados" não é atualizado corretamente em trocas de sessões.
 
 ---
 
@@ -13,11 +13,15 @@
 
 - **Capturas de Tela**
   - Permitir capturas básicas de tela: opção para capturar tela inteira ou janela específica.
+  - Em automações, deveria haver uma label (invisível para a captura) que mostra:
+    - Tempo para iniciar a captura
+    - Quantidade de capturas restantes
+    - Tempo para começar a automação (Se for maior que 0)
+    - Tempo total para concluir a automação (Se houver, e for maior que 0)
+    - Qual Ação entre as capturas (Se houver alguma ação)
 
 - **Editor de Sessão**
-  - Ao redimensionar a janela, as miniaturas continuam mostrando apenas 4 imagens por coluna, mesmo que haja espaço para mais.
-    Deve ajustar o número de colunas dinamicamente com base no tamanho da janela.
-  - Ao renomear uma sessão aparecem duas sessões pra carregar, a anterior e a renomeada, mas a anterior não deveria existir mais, apenas a renomeada.
+  - No Teste do Redimensionamento Dinâmico de Miniaturas, ocorre um delay de 1 segundo para atualizar o número de miniaturas por linha.
 
 - **Editor de Imagem**
   - Ao editar ordem, não há opção de Salvar a ordem, apenas de Gerar PDF, dessa forma se sair e voltar, a versão original volta.
@@ -27,6 +31,7 @@
   - Adicionar opção de Recortar Imagem (ex: cortar para manter apenas a área selecionada).
   - Ferramenta de Seleção, ao selecionar, deve fazer um retângulo ao redor da área selecionada para feedback visual.
   - Aumentar espessura das Formas
+  - Ao Fechar o editor de imagem, deve voltar para o Editor da Sessão, ao invés da Janela Principal.
 
 - **Indicador de Tempo**
   - Incluir indicador de tempo (para eventos com duração).
