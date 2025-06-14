@@ -11,7 +11,7 @@ Os seguintes fluxos de trabalho combinam múltiplos casos de teste em sequência
 - [x] Instalar o aplicativo e verificar ícones no menu iniciar/desktop
 - [x] Abrir o aplicativo e confirmar que a interface carrega corretamente
 - [x] Selecionar um diretório para salvar capturas
-- [x] Capturar 3 screenshots usando o atalho padrão (Ctrl+Shift+S)
+- [x] Capturar 3 screenshots usando o atalho padrão
 - [x] Verificar se as imagens aparecem corretamente na interface
 - [x] Gerar um PDF usando o botão "Gerar PDF"
 - [x] Verificar se o PDF é gerado corretamente com todas as imagens
@@ -35,57 +35,73 @@ Os seguintes fluxos de trabalho combinam múltiplos casos de teste em sequência
 - [x] Salvar as edições e verificar se retorna ao editor de sessão
 - [x] Verificar se a imagem editada mostra indicador verde de anotações
 - [x] Gerar PDF e confirmar se as anotações aparecem corretamente
+- [x] Testar desfazer/refazer durante edição de imagem
+- [x] Editar uma imagem com conteúdo complexo (textos e gráficos)
+- [x] Testar mudança de cor para diferentes tipos de anotação
 
 ### 3. FLUXO DE AUTOMAÇÃO E PRESETS
 
 **Objetivo:** Verificar a criação e uso de presets de automação.
 
-- [x] Abrir as configurações de automação
-- [x] Criar um novo preset configurando:
+- [ ] Abrir as configurações de automação
+- [ ] Criar um novo preset configurando:
   - Nome personalizado
   - 5 capturas
   - Intervalo de 2 segundos
   - Começar após 3 segundos
   - Capturar área específica (selecionar área da tela)
   - Parar após pressionar uma tecla específica
-- [x] Salvar o preset e verificar se aparece na lista
-- [x] Aplicar o preset e iniciar a automação
-- [x] Verificar se a contagem regressiva funciona
-- [x] Verificar se as capturas ocorrem no intervalo configurado
-- [x] Interromper usando a tecla configurada
-- [x] Verificar se todas as imagens foram capturadas corretamente
-- [x] Reabrir configurações e editar o preset existente
-- [x] Aplicar as mudanças e testar novamente
-- [x] Excluir o preset e confirmar que foi removido da lista
+- [ ] Salvar o preset e verificar se aparece na lista
+- [ ] Aplicar o preset e iniciar a automação
+- [ ] Verificar se a contagem regressiva funciona
+- [ ] Verificar se as capturas ocorrem no intervalo configurado
+- [ ] Interromper usando a tecla configurada
+- [ ] Verificar se todas as imagens foram capturadas corretamente
+- [ ] Fechar completamente o aplicativo e reabri-lo
+- [ ] Verificar se o último preset aplicado é carregado automaticamente
+- [ ] Iniciar a automação sem fazer nenhuma configuração adicional
+- [ ] Confirmar que as configurações do preset persistiram corretamente
+- [ ] Reabrir configurações e editar o preset existente
+- [ ] Aplicar as mudanças e testar novamente
+- [ ] Excluir o preset e confirmar que foi removido da lista
+- [ ] Testar preset com captura de janela específica em vez de área
+- [ ] Testar automação com diferentes condições de parada
 
 ### 4. FLUXO DE SESSÕES E PERSISTÊNCIA
 
 **Objetivo:** Testar o gerenciamento de sessões e recuperação entre execuções.
 
-- [x] Iniciar nova sessão
-- [x] Capturar 3 screenshots
-- [x] Salvar a sessão com nome personalizado
-- [x] Criar nova sessão e capturar 2 screenshots diferentes
-- [x] Verificar se a nova sessão tem imagens diferentes
-- [x] Usar o menu para carregar a sessão salva anteriormente
-- [x] Verificar se as imagens originais foram restauradas
-- [x] Editar uma imagem e adicionar anotações
-- [x] Fechar o aplicativo sem salvar explicitamente
-- [x] Reabrir o aplicativo e verificar se a última sessão é carregada
-- [x] Confirmar que as anotações foram preservadas
+- [ ] Iniciar nova sessão
+- [ ] Capturar 3 screenshots
+- [ ] Salvar a sessão com nome personalizado
+- [ ] Criar nova sessão e capturar 2 screenshots diferentes
+- [ ] Verificar se a nova sessão tem imagens diferentes
+- [ ] Usar o menu para carregar a sessão salva anteriormente
+- [ ] Verificar se as imagens originais foram restauradas
+- [ ] Editar uma imagem e adicionar anotações
+- [ ] Fechar o aplicativo sem salvar explicitamente
+- [ ] Reabrir o aplicativo e verificar se a última sessão é carregada
+- [ ] Confirmar que as anotações foram preservadas
+- [ ] Renomear uma sessão existente e verificar mudança no título da janela
+- [ ] Gerenciar múltiplas sessões simultaneamente
+- [ ] Verificar carregamento de sessão com caminhos absolutos e relativos
 
 ### 5. FLUXO DE TESTES DE ROBUSTEZ
 
 **Objetivo:** Verificar o comportamento em condições adversas.
 
-- [x] Tentar salvar em um diretório sem permissões de escrita
-- [x] Capturar e editar uma imagem muito grande (>10MB)
-- [x] Adicionar muitas anotações a uma única imagem (>20)
-- [x] Tentar criar um PDF com 30+ imagens
-- [x] Realizar operações rápidas em sequência (alternar entre sessões rapidamente)
-- [x] Simular falta de espaço em disco durante salvamento
-- [x] Tentar abrir uma sessão com imagens que foram excluídas externamente
-- [x] Testar atalhos personalizados após alterá-los nas configurações
+- [ ] Tentar salvar em um diretório sem permissões de escrita
+- [ ] Capturar e editar uma imagem muito grande (>10MB)
+- [ ] Adicionar muitas anotações a uma única imagem (>20)
+- [ ] Tentar criar um PDF com 30+ imagens
+- [ ] Realizar operações rápidas em sequência (alternar entre sessões rapidamente)
+- [ ] Simular falta de espaço em disco durante salvamento
+- [ ] Tentar abrir uma sessão com imagens que foram excluídas externamente
+- [ ] Testar atalhos personalizados após alterá-los nas configurações
+- [ ] Testar edição de imagem corrompida
+- [ ] Verificar recuperação após travamento durante edição
+- [ ] Simular interrupção de energia durante operação
+- [ ] Testar comportamento com caracteres especiais em nomes de arquivo/pasta
 
 ### 6. FLUXO DE TESTES DAS CORREÇÕES RECENTES
 
@@ -93,31 +109,41 @@ Os seguintes fluxos de trabalho combinam múltiplos casos de teste em sequência
 
 #### Teste do Redimensionamento Dinâmico de Miniaturas
 
-- [x] Abrir o editor de sessão com 15+ imagens
-- [x] Redimensionar a janela horizontalmente (aumentar largura)
-- [x] Verificar se o número de miniaturas por linha aumenta
-- [x] Redimensionar para uma janela estreita
-- [x] Verificar se o número de miniaturas diminui adequadamente
-- [x] Maximizar a janela e confirmar distribuição adequada
-- [x] Realizar redimensionamentos rápidos e repetidos para testar estabilidade
+- [ ] Abrir o editor de sessão com 15+ imagens
+- [ ] Redimensionar a janela horizontalmente (aumentar largura)
+- [ ] Verificar se o número de miniaturas por linha aumenta
+- [ ] Redimensionar para uma janela estreita
+- [ ] Verificar se o número de miniaturas diminui adequadamente
+- [ ] Maximizar a janela e confirmar distribuição adequada
+- [ ] Realizar redimensionamentos rápidos e repetidos para testar estabilidade
 
 #### Teste do Comportamento Modal
 
-- [x] Abrir o editor de sessão
-- [x] Tentar interagir com a janela principal (deve estar bloqueada)
-- [x] Abrir o editor de imagem a partir do editor de sessão
-- [x] Fazer alguma anotação e salvar
-- [x] Verificar se, ao fechar o editor de imagem, o editor de sessão ainda bloqueia a janela principal
-- [x] Repetir o processo várias vezes, alternando entre salvar e cancelar no editor de imagem
+- [ ] Abrir o editor de sessão
+- [ ] Tentar interagir com a janela principal (deve estar bloqueada)
+- [ ] Abrir o editor de imagem a partir do editor de sessão
+- [ ] Fazer alguma anotação e salvar
+- [ ] Verificar se, ao fechar o editor de imagem, o editor de sessão ainda bloqueia a janela principal
+- [ ] Repetir o processo várias vezes, alternando entre salvar e cancelar no editor de imagem
+- [ ] Testar comportamento modal durante diálogos de configuração aninhados
+- [ ] Verificar foco de janela após fechar diálogos modais
+
+#### Teste de Visibilidade do Overlay
+
+- [ ] Iniciar automação com overlay visível
+- [ ] Verificar se o overlay está sempre visível para o usuário
+- [ ] Confirmar que o overlay não aparece nas capturas de tela
+- [ ] Testar visibilidade do overlay em diferentes monitores
+- [ ] Verificar interação do overlay com outras janelas durante automação
 
 ## Testes de Integração Rápida
 
 ### Teste de Integridade Básica
 
-- [x] Iniciar aplicativo, capturar screenshot, gerar PDF, fechar aplicativo (deve levar <1 minuto)
-- [x] Verificar redimensionamento dinâmico das miniaturas no editor de sessão (aumentar/diminuir janela)
-- [x] Testar comportamento modal após editar uma imagem (deve manter bloqueio da janela principal)
-- [x] Verificar remoção automática de pastas vazias ao sair
+- [ ] Iniciar aplicativo, capturar screenshot, gerar PDF, fechar aplicativo (deve levar <1 minuto)
+- [ ] Verificar redimensionamento dinâmico das miniaturas no editor de sessão (aumentar/diminuir janela)
+- [ ] Testar comportamento modal após editar uma imagem (deve manter bloqueio da janela principal)
+- [ ] Verificar remoção automática de pastas vazias ao sair
 
 ### Teste de Regressão Visual
 
@@ -125,6 +151,8 @@ Os seguintes fluxos de trabalho combinam múltiplos casos de teste em sequência
 - [ ] Confirmar que miniaturas são exibidas adequadamente no editor de sessão
 - [ ] Verificar se anotações são exibidas corretamente no editor de imagem
 - [ ] Confirmar que a barra de ferramentas do editor de imagem está completa e funcional
+- [ ] Testar a aparência do overlay de automação em diferentes resoluções
+- [ ] Verificar adaptação da interface em monitores de alta resolução
 
 ## Automatização de Testes
 
@@ -134,5 +162,22 @@ Para testes futuros, recomenda-se criar scripts de automação para os seguintes
 2. Captura básica e geração de PDF
 3. Teste de comportamento modal entre janelas
 4. Verificação de redimensionamento adaptativo de miniaturas
+5. Testes de fluxo completo (captura, edição, anotação, PDF)
+6. Validação de visibilidade correta do overlay durante automação
 
 Estes scripts podem economizar tempo significativo em testes de regressão e garantir consistência entre as execuções de teste.
+
+### 7. FLUXO DE PERSISTÊNCIA DE CONFIGURAÇÕES
+
+**Objetivo:** Verificar se o aplicativo salva e restaura corretamente as configurações do usuário.
+
+- [ ] Configurar um preset personalizado com características específicas
+- [ ] Aplicar o preset (sem salvar explicitamente) e verificar se funciona
+- [ ] Fechar o aplicativo completamente
+- [ ] Reabrir o aplicativo e verificar se o último preset aplicado é carregado automaticamente
+- [ ] Iniciar a automação para confirmar que as configurações persistiram
+- [ ] Aplicar um preset diferente e repetir o processo de fechamento/abertura
+- [ ] Verificar se o segundo preset agora é carregado automaticamente
+- [ ] Excluir o preset que estava sendo usado e fechar o aplicativo
+- [ ] Reabrir o aplicativo e verificar o comportamento quando o último preset não existe mais
+- [ ] Testar a persistência após uma atualização de versão

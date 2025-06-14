@@ -23,7 +23,8 @@ a = Analysis(
         'src.core.automation',
         'src.core.update_checker',
         'src.gui.main_window',
-        'src.gui.preset_window'
+        'src.gui.preset_window',
+        'src.components.automation_overlay'  # Add the new component
     ],
     hookspath=[],
     hooksconfig={},

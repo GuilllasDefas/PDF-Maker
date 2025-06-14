@@ -3,7 +3,7 @@ import sys
 import threading
 import shutil
 import tkinter as tk
-from tkinter import ttk, messagebox, filedialog, simpledialog
+from tkinter import ttk, messagebox, filedialog
 from PIL import Image, ImageTk, ImageFile
 import keyboard
 import json
@@ -152,10 +152,13 @@ class PDFMakerApp:
         self._update_controls_state()
         
         # Novo: variável para armazenar o último preset aplicado
-        self.last_applied_preset = None
+        self.last_applied_preset = self._load_last_preset()
 
         # Iniciar com a última sessão se disponível
         self._try_load_last_session()
+        
+        # Aplicar o último preset usado, se existir
+        self._apply_last_preset()
     
     def _create_menu_bar(self):
         """Cria a barra de menus da aplicação."""
@@ -480,6 +483,56 @@ class PDFMakerApp:
                                          initial_preset=self.last_applied_preset)
         preset_window.show()
     
+    def _load_last_preset(self):
+        """Carrega o nome do último preset aplicado."""
+        try:
+            preset_file = os.path.join(os.path.expanduser("~"), ".pdf_maker_last_preset")
+            if os.path.exists(preset_file):
+                with open(preset_file, 'r') as f:
+                    return f.read().strip()
+        except Exception as e:
+            print(f"Erro ao carregar o último preset: {e}")
+        return None
+
+    def _save_last_preset(self, preset_name):
+        """Salva o nome do último preset aplicado."""
+        try:
+            preset_file = os.path.join(os.path.expanduser("~"), ".pdf_maker_last_preset")
+            with open(preset_file, 'w') as f:
+                f.write(preset_name)
+        except Exception as e:
+            print(f"Erro ao salvar o último preset: {e}")
+
+    def _apply_last_preset(self):
+        """Aplica o último preset usado, se existir."""
+        if not self.last_applied_preset:
+            return
+            
+        try:
+            # Obter o diretório de presets
+            app_name = "PDF Maker"
+            if platform.system() == "Windows":
+                app_data = os.path.join(os.environ.get('APPDATA', os.path.expanduser("~")), app_name)
+            else:
+                app_data = os.path.join(os.path.expanduser("~"), f".{app_name.lower()}")
+            
+            presets_dir = os.path.join(app_data, "presets")
+            
+            # Verificar se o arquivo do preset existe
+            preset_file = os.path.join(presets_dir, f"{self.last_applied_preset}.json")
+            if os.path.exists(preset_file):
+                # Carregar o preset
+                with open(preset_file, 'r') as f:
+                    preset_data = json.load(f)
+                
+                # Aplicar o preset
+                self._apply_preset(preset_data)
+                print(f"Preset '{self.last_applied_preset}' carregado automaticamente.")
+            else:
+                print(f"Arquivo de preset '{preset_file}' não encontrado.")
+        except Exception as e:
+            print(f"Erro ao aplicar o último preset: {e}")
+    
     def _apply_preset(self, preset_data):
         """Aplica as configurações do preset selecionado."""
         if not preset_data:
@@ -487,6 +540,10 @@ class PDFMakerApp:
 
         # Armazenar o nome do preset aplicado
         self.last_applied_preset = preset_data.get('name')
+        
+        # Salvar o nome do preset para uso posterior
+        if self.last_applied_preset:
+            self._save_last_preset(self.last_applied_preset)
         
         # Atualiza as configurações básicas
         self.interval_var.set(str(preset_data.get('interval', DEFAULT_INTERVAL)))
@@ -520,7 +577,7 @@ class PDFMakerApp:
             preset_data.get('stop_time_value')
         )
         
-        messagebox.showinfo("Preset", "Preset aplicado com sucesso! Pronto para iniciar automação.")
+        print("Preset aplicado com sucesso! Pronto para iniciar automação.")
     
     def _open_hotkey_config(self):
         """Abre a janela de configuração de atalhos."""
@@ -681,10 +738,18 @@ class PDFMakerApp:
     
     def _update_images(self):
         """Atualiza as imagens exibidas."""
-        # Corrigir: contar o número real de imagens na pasta da sessão
+        # Obter a contagem real de imagens na pasta da sessão
         paths = self.screenshot_manager.get_image_paths()
-        self.counter = len(paths)
+        real_count = len(paths)
+        
+        # Verificar se a contagem interna corresponde à contagem real
+        if self.counter != real_count:
+            print(f"Atualizando contagem de prints: {self.counter} -> {real_count}")
+            self.counter = real_count
+        
+        # Atualizar a label e forçar atualização visual
         self.label_counter.config(text=f"Prints tirados: {self.counter}")
+        self.label_counter.update()
 
         for canvas, img_path in [(self.canvas_last, self.last_image),
                                  (self.canvas_current, self.current_image)]:
@@ -989,17 +1054,29 @@ class PDFMakerApp:
             self.session_name = session_data.get('name')
             self.screenshot_manager.set_directory(directory)
             
-            # Carregar contagem de imagens
-            self.counter = session_data.get('image_count', 0)
+            # Carregar contagem de imagens do arquivo de sessão
+            saved_count = session_data.get('image_count', 0)
             
-            # Atualizar referências de imagens
+            # Atualizar referências de imagens e obter contagem real
             paths = self.screenshot_manager.get_image_paths()
+            # Usar a contagem real de arquivos para garantir precisão
+            self.counter = len(paths)
+            
+            # Verificar se há discrepância e avisar no console
+            if saved_count != self.counter:
+                print(f"Aviso: Contagem salva ({saved_count}) difere da contagem real ({self.counter})")
+            
             if paths:
                 self.current_image = paths[-1]  # Última imagem
                 self.last_image = paths[-2] if len(paths) > 1 else None
                 
-            # Atualizar interface
+            # Atualizar interface explicitamente
             self._update_images()
+            
+            # Forçar atualização imediata da label
+            self.label_counter.config(text=f"Prints tirados: {self.counter}")
+            self.label_counter.update()
+            
             self._update_controls_state()
             
             # Atualizar título da janela
