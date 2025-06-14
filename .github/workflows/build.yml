@@ -171,6 +171,7 @@ jobs:
             ## Melhorias e Correções
 
             - Correção: Aplicação de presets de automação ao fechar e reabrir o PDF Maker.
+            - Correção: Atualização da Label de Prints tirados ao trocar de Sessão.
 
             
             

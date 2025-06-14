@@ -738,10 +738,18 @@ class PDFMakerApp:
     
     def _update_images(self):
         """Atualiza as imagens exibidas."""
-        # Corrigir: contar o número real de imagens na pasta da sessão
+        # Obter a contagem real de imagens na pasta da sessão
         paths = self.screenshot_manager.get_image_paths()
-        self.counter = len(paths)
+        real_count = len(paths)
+        
+        # Verificar se a contagem interna corresponde à contagem real
+        if self.counter != real_count:
+            print(f"Atualizando contagem de prints: {self.counter} -> {real_count}")
+            self.counter = real_count
+        
+        # Atualizar a label e forçar atualização visual
         self.label_counter.config(text=f"Prints tirados: {self.counter}")
+        self.label_counter.update()
 
         for canvas, img_path in [(self.canvas_last, self.last_image),
                                  (self.canvas_current, self.current_image)]:
@@ -1046,17 +1054,29 @@ class PDFMakerApp:
             self.session_name = session_data.get('name')
             self.screenshot_manager.set_directory(directory)
             
-            # Carregar contagem de imagens
-            self.counter = session_data.get('image_count', 0)
+            # Carregar contagem de imagens do arquivo de sessão
+            saved_count = session_data.get('image_count', 0)
             
-            # Atualizar referências de imagens
+            # Atualizar referências de imagens e obter contagem real
             paths = self.screenshot_manager.get_image_paths()
+            # Usar a contagem real de arquivos para garantir precisão
+            self.counter = len(paths)
+            
+            # Verificar se há discrepância e avisar no console
+            if saved_count != self.counter:
+                print(f"Aviso: Contagem salva ({saved_count}) difere da contagem real ({self.counter})")
+            
             if paths:
                 self.current_image = paths[-1]  # Última imagem
                 self.last_image = paths[-2] if len(paths) > 1 else None
                 
-            # Atualizar interface
+            # Atualizar interface explicitamente
             self._update_images()
+            
+            # Forçar atualização imediata da label
+            self.label_counter.config(text=f"Prints tirados: {self.counter}")
+            self.label_counter.update()
+            
             self._update_controls_state()
             
             # Atualizar título da janela

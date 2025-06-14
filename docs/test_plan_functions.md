@@ -212,3 +212,24 @@ Os testes abrangem todas as funcionalidades da aplicação, com ênfase em estab
 - [ ] Testar o comportamento quando uma imagem referenciada foi excluída ou movida externamente
 - [ ] Verificar recuperação após erros de leitura/escrita em arquivos
 - [ ] Tentar abrir imagens corrompidas ou com formatos não suportados
+
+### 23. TESTES DE PERSISTÊNCIA DO ÚLTIMO PRESET
+
+- [ ] Aplicar um preset de automação com configurações específicas (área, intervalo, etc.)
+- [ ] Fechar o aplicativo completamente
+- [ ] Reabrir o aplicativo e verificar se o preset foi automaticamente carregado
+- [ ] Verificar se o campo de área/janela de captura manteve as configurações corretas
+- [ ] Verificar se o intervalo entre capturas foi preservado
+- [ ] Verificar se o número de capturas foi mantido
+- [ ] Verificar se as teclas de ação e interrupção foram mantidas
+- [ ] Iniciar a automação sem nenhuma configuração adicional e confirmar que funciona como esperado
+- [ ] Aplicar um preset diferente e repetir os testes de persistência
+- [ ] Testar a persistência em diferentes condições:
+  - Após uma atualização do aplicativo
+  - Após limpar caches temporários
+  - Em uma instalação nova usando dados de usuário migrados
+- [ ] Verificar a localização do arquivo que armazena o último preset aplicado
+- [ ] Testar a robustez da funcionalidade editando manualmente o arquivo de configuração
+- [ ] Verificar o comportamento quando o arquivo de configuração está corrompido
+- [ ] Testar a persistência quando múltiplos presets têm nomes semelhantes
+- [ ] Verificar se o preset carregado automaticamente aparece selecionado na interface de configuração de automação

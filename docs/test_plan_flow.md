@@ -43,27 +43,28 @@ Os seguintes fluxos de trabalho combinam múltiplos casos de teste em sequência
 
 **Objetivo:** Verificar a criação e uso de presets de automação.
 
-- [x] Abrir as configurações de automação
-- [x] Criar um novo preset configurando:
+- [ ] Abrir as configurações de automação
+- [ ] Criar um novo preset configurando:
   - Nome personalizado
   - 5 capturas
   - Intervalo de 2 segundos
   - Começar após 3 segundos
   - Capturar área específica (selecionar área da tela)
   - Parar após pressionar uma tecla específica
-- [x] Salvar o preset e verificar se aparece na lista
-- [x] Aplicar o preset e iniciar a automação
-- [x] Verificar se as capturas ocorrem no intervalo configurado
-- [x] Interromper usando a tecla configurada
-- [x] Verificar se todas as imagens foram capturadas corretamente
-- [x] Fechar completamente o aplicativo e reabri-lo
-- [x] Verificar se o último preset aplicado é carregado automaticamente
-- [x] Iniciar a automação sem fazer nenhuma configuração adicional
-- [x] Confirmar que as configurações do preset persistiram corretamente
-- [x] Reabrir configurações e editar o preset existente
-- [x] Aplicar as mudanças e testar novamente
-- [x] Excluir o preset e confirmar que foi removido da lista
-- [x] Testar preset com captura de janela específica em vez de área
+- [ ] Salvar o preset e verificar se aparece na lista
+- [ ] Aplicar o preset e iniciar a automação
+- [ ] Verificar se a contagem regressiva funciona
+- [ ] Verificar se as capturas ocorrem no intervalo configurado
+- [ ] Interromper usando a tecla configurada
+- [ ] Verificar se todas as imagens foram capturadas corretamente
+- [ ] Fechar completamente o aplicativo e reabri-lo
+- [ ] Verificar se o último preset aplicado é carregado automaticamente
+- [ ] Iniciar a automação sem fazer nenhuma configuração adicional
+- [ ] Confirmar que as configurações do preset persistiram corretamente
+- [ ] Reabrir configurações e editar o preset existente
+- [ ] Aplicar as mudanças e testar novamente
+- [ ] Excluir o preset e confirmar que foi removido da lista
+- [ ] Testar preset com captura de janela específica em vez de área
 - [ ] Testar automação com diferentes condições de parada
 
 ### 4. FLUXO DE SESSÕES E PERSISTÊNCIA
@@ -165,3 +166,18 @@ Para testes futuros, recomenda-se criar scripts de automação para os seguintes
 6. Validação de visibilidade correta do overlay durante automação
 
 Estes scripts podem economizar tempo significativo em testes de regressão e garantir consistência entre as execuções de teste.
+
+### 7. FLUXO DE PERSISTÊNCIA DE CONFIGURAÇÕES
+
+**Objetivo:** Verificar se o aplicativo salva e restaura corretamente as configurações do usuário.
+
+- [ ] Configurar um preset personalizado com características específicas
+- [ ] Aplicar o preset (sem salvar explicitamente) e verificar se funciona
+- [ ] Fechar o aplicativo completamente
+- [ ] Reabrir o aplicativo e verificar se o último preset aplicado é carregado automaticamente
+- [ ] Iniciar a automação para confirmar que as configurações persistiram
+- [ ] Aplicar um preset diferente e repetir o processo de fechamento/abertura
+- [ ] Verificar se o segundo preset agora é carregado automaticamente
+- [ ] Excluir o preset que estava sendo usado e fechar o aplicativo
+- [ ] Reabrir o aplicativo e verificar o comportamento quando o último preset não existe mais
+- [ ] Testar a persistência após uma atualização de versão

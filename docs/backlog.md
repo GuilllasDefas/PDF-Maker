@@ -5,7 +5,6 @@
 - **Geral**
 
   - Em diferentes resoluções, janelas auxiliares não sabem ajustar seu tamanho.
-  - Label "Prints tirados" não é atualizado corretamente em trocas de sessões.
 
 ---
 
