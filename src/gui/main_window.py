@@ -3,7 +3,7 @@ import sys
 import threading
 import shutil
 import tkinter as tk
-from tkinter import ttk, messagebox, filedialog, simpledialog
+from tkinter import ttk, messagebox, filedialog
 from PIL import Image, ImageTk, ImageFile
 import keyboard
 import json

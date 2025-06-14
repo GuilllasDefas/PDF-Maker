@@ -11,7 +11,7 @@ Os seguintes fluxos de trabalho combinam múltiplos casos de teste em sequência
 - [x] Instalar o aplicativo e verificar ícones no menu iniciar/desktop
 - [x] Abrir o aplicativo e confirmar que a interface carrega corretamente
 - [x] Selecionar um diretório para salvar capturas
-- [x] Capturar 3 screenshots usando o atalho padrão (Ctrl+Shift+S)
+- [x] Capturar 3 screenshots usando o atalho padrão
 - [x] Verificar se as imagens aparecem corretamente na interface
 - [x] Gerar um PDF usando o botão "Gerar PDF"
 - [x] Verificar se o PDF é gerado corretamente com todas as imagens
@@ -34,10 +34,10 @@ Os seguintes fluxos de trabalho combinam múltiplos casos de teste em sequência
 - [x] Excluir uma anotação
 - [x] Salvar as edições e verificar se retorna ao editor de sessão
 - [x] Verificar se a imagem editada mostra indicador verde de anotações
-- [ ] Gerar PDF e confirmar se as anotações aparecem corretamente
-- [ ] Testar desfazer/refazer (Ctrl+Z/Ctrl+Y) durante edição de imagem
-- [ ] Editar uma imagem com conteúdo complexo (textos e gráficos)
-- [ ] Testar mudança de cor para diferentes tipos de anotação
+- [x] Gerar PDF e confirmar se as anotações aparecem corretamente
+- [x] Testar desfazer/refazer durante edição de imagem
+- [x] Editar uma imagem com conteúdo complexo (textos e gráficos)
+- [x] Testar mudança de cor para diferentes tipos de anotação
 
 ### 3. FLUXO DE AUTOMAÇÃO E PRESETS
 
