@@ -43,25 +43,27 @@ Os seguintes fluxos de trabalho combinam múltiplos casos de teste em sequência
 
 **Objetivo:** Verificar a criação e uso de presets de automação.
 
-- [ ] Abrir as configurações de automação
-- [ ] Criar um novo preset configurando:
+- [x] Abrir as configurações de automação
+- [x] Criar um novo preset configurando:
   - Nome personalizado
   - 5 capturas
   - Intervalo de 2 segundos
   - Começar após 3 segundos
   - Capturar área específica (selecionar área da tela)
   - Parar após pressionar uma tecla específica
-- [ ] Salvar o preset e verificar se aparece na lista
-- [ ] Aplicar o preset e iniciar a automação
-- [ ] Verificar se a contagem regressiva funciona
-- [ ] Verificar se as capturas ocorrem no intervalo configurado
-- [ ] Interromper usando a tecla configurada
-- [ ] Verificar se todas as imagens foram capturadas corretamente
-- [ ] Reabrir configurações e editar o preset existente
-- [ ] Aplicar as mudanças e testar novamente
-- [ ] Excluir o preset e confirmar que foi removido da lista
-- [ ] Testar preset com captura de janela específica em vez de área
-- [ ] Verificar visibilidade do overlay durante automação
+- [x] Salvar o preset e verificar se aparece na lista
+- [x] Aplicar o preset e iniciar a automação
+- [x] Verificar se as capturas ocorrem no intervalo configurado
+- [x] Interromper usando a tecla configurada
+- [x] Verificar se todas as imagens foram capturadas corretamente
+- [x] Fechar completamente o aplicativo e reabri-lo
+- [x] Verificar se o último preset aplicado é carregado automaticamente
+- [x] Iniciar a automação sem fazer nenhuma configuração adicional
+- [x] Confirmar que as configurações do preset persistiram corretamente
+- [x] Reabrir configurações e editar o preset existente
+- [x] Aplicar as mudanças e testar novamente
+- [x] Excluir o preset e confirmar que foi removido da lista
+- [x] Testar preset com captura de janela específica em vez de área
 - [ ] Testar automação com diferentes condições de parada
 
 ### 4. FLUXO DE SESSÕES E PERSISTÊNCIA

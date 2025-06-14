@@ -170,8 +170,11 @@ jobs:
           body: |           
             ## Melhorias e Correções
 
-            - Melhoria: 
-            ---
+            - Correção: Aplicação de presets de automação ao fechar e reabrir o PDF Maker.
+
+            
+            
+              ---
 
             ## Problemas Conhecidos
 

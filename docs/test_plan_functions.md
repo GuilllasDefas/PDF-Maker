@@ -63,6 +63,12 @@ Os testes abrangem todas as funcionalidades da aplicação, com ênfase em estab
 - [ ] Editar predefinições
 - [ ] Excluir predefinições
 - [ ] Verificar se as predefinições são salvas entre sessões
+- [ ] Aplicar um preset específico e fechar o aplicativo
+- [ ] Reabrir o aplicativo e verificar se o último preset aplicado é carregado automaticamente
+- [ ] Verificar se todas as configurações do preset (intervalo, número de capturas, áreas, etc.) foram restauradas corretamente
+- [ ] Iniciar a automação sem realizar configuração adicional e confirmar funcionamento
+- [ ] Aplicar um preset diferente e verificar se ao reabrir, o novo preset é carregado
+- [ ] Testar o comportamento quando o último preset aplicado foi excluído (deve abrir sem preset ou com configurações padrão)
 
 ### 8. TESTES DE SESSÃO
 
