@@ -4,11 +4,9 @@
 
 - **Geral**
 
-  - Em diferentes resoluções, janelas auxiliares não sabem ajustar seu tamanho.
-
 ---
 
-## Funcionalidades a Adicionar (Prioridade)
+## Funcionalidades a Adicionar
 
 - **Capturas de Tela**
   - Permitir capturas básicas de tela: opção para capturar tela inteira ou janela específica.

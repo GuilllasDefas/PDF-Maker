@@ -3,10 +3,9 @@ import sys
 import tkinter as tk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
-import shutil
-from typing import List, Dict, Any, Optional
-import json
-from src.config.config import ICON
+from src.config.config import (ICON, SESSION_WINDOW_SIZE, MIN_SESSION_WINDOW_SIZE, 
+                               THUMBNAIL_SIZE
+                               )
 from src.gui.image_editor import ImageEditorWindow
 from src.core.annotation_manager import AnnotationManager
 
@@ -168,7 +167,9 @@ class SessionEditorWindow:
         self.resizing = False
         
         # Largura e padding de cada miniatura para cálculos de layout
-        self.thumbnail_width = 150  # Largura total de cada miniatura incluindo padding
+        screen_width = self.parent.winfo_screenwidth() if hasattr(self.parent, 'winfo_screenwidth') else 1920
+        self.thumbnail_width = int(screen_width * THUMBNAIL_SIZE[0] / 100)  # Largura total de cada miniatura incluindo padding
+        self.thumbnail_height = int(screen_width * THUMBNAIL_SIZE[1] / 100)
         self.min_thumbnails_per_row = 1
         self.max_thumbnails_per_row = 30  # Limite máximo razoável de miniaturas por linha
     
@@ -183,19 +184,24 @@ class SessionEditorWindow:
         # Permitir fechar, maximizar e minimizar - configurar como janela independente
         self.window.resizable(True, True)
         
-        # Calcular o tamanho apropriado para a janela (80% da tela)
+        # Calcular o tamanho apropriado para a janela usando porcentagem da tela
         screen_width = self.window.winfo_screenwidth()
         screen_height = self.window.winfo_screenheight()
-        window_width = int(screen_width * 0.5)
-        window_height = int(screen_height * 0.5)
-        
+
+        width = int(screen_width * SESSION_WINDOW_SIZE[0] / 100)
+        height = int(screen_height * SESSION_WINDOW_SIZE[1] / 100)
+        window_size = f"{width}x{height}"
+
+        min_width = int(screen_width * MIN_SESSION_WINDOW_SIZE[0] / 100)
+        min_height = int(screen_height * MIN_SESSION_WINDOW_SIZE[1] / 100)
+
         # Aplicar o tamanho
-        self.window.geometry("800x500")
-        self.window.minsize(800, 500)
-        
+        self.window.geometry(window_size)
+        self.window.minsize(min_width, min_height)
+
         # Posicionar a janela centralizada na tela
-        x = (screen_width - window_width) // 2
-        y = (screen_height - window_height) // 2
+        x = (screen_width - width) // 2
+        y = (screen_height - height) // 2
         self.window.geometry(f"+{x}+{y}")
         
         icon_path = ICON
@@ -386,8 +392,8 @@ class SessionEditorWindow:
                 self._on_delete, 
                 self._on_edit,
                 self.annotation_manager,
-                width=140, 
-                height=170
+                width=self.thumbnail_width, 
+                height=self.thumbnail_height
             )
             frame.grid(row=row, column=col, padx=5, pady=5)
             self.frames.append(frame)

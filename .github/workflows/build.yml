@@ -170,16 +170,12 @@ jobs:
           body: |           
             ## Melhorias e Correções
 
-            - Correção: Aplicação de presets de automação ao fechar e reabrir o PDF Maker.
-            - Correção: Atualização da Label de Prints tirados ao trocar de Sessão.
-
+            - Correção: Em diferentes resoluções, a resolução se ajusta e também é possível o usuário redimensionar.
+            - Melhoria: Adicionado txt de informações da sessão atual na pasta salva.
             
             
               ---
 
-            ## Problemas Conhecidos
-
-            - Em diferentes resoluções, janelas auxiliares não sabem ajustar seu tamanho.
 
             OBS: Por se tratar de uma versão de pre-release, é possível que existam bugs ou problemas não resolvidos. E seu anti-vírus pode acusar falsos positivos.
 

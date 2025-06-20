@@ -5,7 +5,7 @@ from tkinter import ttk, colorchooser, messagebox, simpledialog
 from PIL import Image, ImageTk, ImageDraw, ImageFont
 import json
 from typing import Dict, List, Tuple, Any, Optional
-from src.config.config import ICON
+from src.config.config import ICON, IMAGE_EDITOR_DIALOG_WINDOW_SIZE
 from src.core.annotation_manager import AnnotationManager
 
 class AnnotationElement:
@@ -34,11 +34,19 @@ class TextInputDialog:
         self.result = None
         self.parent = parent
         
+        # Calcular o tamanho apropriado para a janela usando porcentagem da tela
+        screen_width = self.window.winfo_screenwidth()
+        screen_height = self.window.winfo_screenheight()
+
+        width = int(screen_width * IMAGE_EDITOR_DIALOG_WINDOW_SIZE[0] / 100)
+        height = int(screen_height * IMAGE_EDITOR_DIALOG_WINDOW_SIZE[1] / 100)
+        window_size = f"{width}x{height}"
+
         # Criar uma janela de diálogo
         self.dialog = tk.Toplevel(parent)
         self.dialog.title(title)
-        self.dialog.geometry("400x250")
-        self.dialog.minsize(400, 250)
+        self.dialog.geometry(window_size)
+        self.dialog.minsize(width, height)
         
         # Permitir maximizar/minimizar a janela de diálogo
         self.dialog.resizable(True, True)
@@ -192,7 +200,7 @@ class ImageEditorWindow:
             self.window.geometry(f"{window_width}x{window_height}+{screen_width//10}+{screen_height//10}")
             print(f"Erro ao dimensionar janela: {e}")
         
-        self.window.minsize(800, 600)
+        self.window.minsize(window_width, window_height)
         icon_path = ICON
         if getattr(sys, 'frozen', False):
             icon_path = os.path.join(sys._MEIPASS, ICON)

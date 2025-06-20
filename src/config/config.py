@@ -1,5 +1,5 @@
 # Versão da aplicação
-APP_VERSION = "0.3.4"
+APP_VERSION = "0.3.5"
 
 # Diretórios
 IMAGES_DIR = "images"
@@ -10,8 +10,33 @@ PDF_OUTPUT = "output.pdf"
 TEXT_OUTPUT = "texto_extraido.txt"
 
 # Configurações de interface
-DEFAULT_WINDOW_SIZE = "1200x700"
+
+## Tamanho da janela principal
+MAIN_WINDOW_SIZE = (60, 55)
+MIN_MAIN_WINDOW_SIZE = (20, 20)
 DEFAULT_IMAGE_DISPLAY_SIZE = (350, 250)
+DIALOG_WINDOW_SIZE = (20, 15)
+
+## Tamanho da janela de configurar preset
+
+PRESET_WINDOW_SIZE = (31, 55)
+MIN_PRESET_WINDOW_SIZE = (20, 20)  # 20%
+
+## Tamanho da janela do editor de sessão
+
+SESSION_WINDOW_SIZE = (70, 60)
+MIN_SESSION_WINDOW_SIZE = (20, 20)
+THUMBNAIL_SIZE = (13, 18)
+
+## Tamanho da janela de editor de imagens
+
+IMAGE_EDITOR_DIALOG_WINDOW_SIZE = (21, 23)
+
+## Tamanho da janela configuração de atalho
+
+HOTKEY_WINDOW_SIZE = (30, 22)
+
+
 ICON = "assets/PDF-Maker.ico"
 
 # Configurações de automação
@@ -57,3 +82,5 @@ TESSERACT_CMD = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 # Configurações de arquivo
 SUPPORTED_IMAGE_FORMATS = ['.png', '.jpg', '.jpeg']
+
+

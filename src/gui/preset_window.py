@@ -9,11 +9,11 @@ import platform
 from typing import Dict, Any, Optional, Tuple, List
 
 # Importar módulos separados
-from src.gui.components.area_selector import AreaSelector
-from src.gui.components.window_selector import WindowSelector
-from src.gui.components.key_capture import KeyCaptureDialog
+from src.gui.preset_components.area_selector import AreaSelector
+from src.gui.preset_components.window_selector import WindowSelector
+from src.gui.preset_components.key_capture import KeyCaptureDialog
 
-from src.config.config import ICON
+from src.config.config import ICON, PRESET_WINDOW_SIZE, MIN_PRESET_WINDOW_SIZE
 
 class PresetConfigWindow:
     """Janela de configuração de presets para automação de capturas"""
@@ -63,11 +63,24 @@ class PresetConfigWindow:
         if self.window is not None:
             self.window.lift()
             return
-            
+        
+        # Calcular o tamanho apropriado para a janela usando porcentagem da tela
+        screen_width = self.parent.winfo_screenwidth()
+        screen_height = self.parent.winfo_screenheight()
+
+        width = int(screen_width * PRESET_WINDOW_SIZE[0] / 100)
+        height = int(screen_height * PRESET_WINDOW_SIZE[1] / 100)
+        window_size = f"{width}x{height}"
+
+
         self.window = tk.Toplevel(self.parent)
         self.window.title("Configurar Captura Automática")
-        self.window.geometry("630x600")  # Aumentado para melhor acomodar todos os elementos
-        self.window.minsize(630, 520)    # Define tamanho mínimo para garantir visibilidade dos botões
+        self.window.geometry(window_size)
+
+        min_width = int(screen_width * MIN_PRESET_WINDOW_SIZE[0] / 100)
+        min_height = int(screen_height * MIN_PRESET_WINDOW_SIZE[1] / 100)
+
+        self.window.minsize(min_width, min_height)
         self.window.resizable(True, True)
         
         icon_path = ICON

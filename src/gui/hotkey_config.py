@@ -6,7 +6,7 @@ from tkinter import ttk, messagebox
 import keyboard
 from src.config.config import (
     DEFAULT_SCREENSHOT_HOTKEY, DEFAULT_AUTOMATION_HOTKEY,
-    SCREENSHOT_HOTKEY, AUTOMATION_HOTKEY, ICON
+    SCREENSHOT_HOTKEY, AUTOMATION_HOTKEY, ICON, HOTKEY_WINDOW_SIZE
 )
 
 class HotkeyConfigWindow:
@@ -30,10 +30,18 @@ class HotkeyConfigWindow:
         if self.window is not None:
             self.window.destroy()
             
+        # Calcular o tamanho apropriado para a janela usando porcentagem da tela
+        screen_width = self.parent.winfo_screenwidth()
+        screen_height = self.parent.winfo_screenheight()
+        width = int(screen_width * HOTKEY_WINDOW_SIZE[0] / 100)
+        height = int(screen_height * HOTKEY_WINDOW_SIZE[1] / 100)
+        window_size = f"{width}x{height}"
+
+        # Cria a janela de configuração de atalhos
         self.window = tk.Toplevel(self.parent)
         self.window.title("Configurar Atalhos")
-        self.window.geometry("400x250")  # Aumentei um pouco a altura para acomodar as labels de instrução
-        self.window.resizable(False, False)
+        self.window.geometry(window_size)  # Aumentei um pouco a altura para acomodar as labels de instrução
+        self.window.resizable(True, True)
         icon_path = ICON
         if getattr(sys, 'frozen', False):
             icon_path = os.path.join(sys._MEIPASS, ICON)

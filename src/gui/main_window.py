@@ -10,9 +10,10 @@ import json
 import platform
 from datetime import datetime
 from src.config.config import (
-    DEFAULT_WINDOW_SIZE, DEFAULT_IMAGE_DISPLAY_SIZE, 
+    MAIN_WINDOW_SIZE, DEFAULT_IMAGE_DISPLAY_SIZE, 
     DEFAULT_INTERVAL, DEFAULT_NUM_CAPTURES, ICON,
-    SCREENSHOT_HOTKEY, AUTOMATION_HOTKEY, APP_VERSION
+    SCREENSHOT_HOTKEY, AUTOMATION_HOTKEY, APP_VERSION,
+    MIN_MAIN_WINDOW_SIZE, DIALOG_WINDOW_SIZE
 )
 from src.core.screenshot import ScreenshotManager
 from src.core.pdf_generator import PDFGenerator
@@ -29,13 +30,21 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 class CustomStringDialog:
     """Diálogo personalizado para entrada de texto com tamanho adequado e ícone."""
     def __init__(self, parent, title, prompt, initialvalue=None):
+        self.parent = parent
         self.result = None
+
+        # Calcular o tamanho apropriado para a janela usando porcentagem da tela
+        dialog_screen_width = self.parent.winfo_screenwidth()
+        dialog_screen_height = self.parent.winfo_screenheight()
+        dialog_width = int(dialog_screen_width * DIALOG_WINDOW_SIZE[0] / 100)
+        dialog_height = int(dialog_screen_height * DIALOG_WINDOW_SIZE[1] / 100)
+        dialog_window_size = f"{dialog_width}x{dialog_height}"
         
         # Criar janela de diálogo
         self.dialog = tk.Toplevel(parent)
         self.dialog.title(title)
-        self.dialog.geometry("400x150")  # Tamanho maior que o padrão
-        self.dialog.resizable(False, False)
+        self.dialog.geometry(dialog_window_size)  # Tamanho maior que o padrão
+        self.dialog.resizable(True, False)
         
         # Configurar ícone
         icon_path = ICON
@@ -93,14 +102,24 @@ class CustomStringDialog:
 class PDFMakerApp:
     def __init__(self, root):
         self.root = root
-        self.root.geometry(DEFAULT_WINDOW_SIZE)
+        
+        # Calculate window size based on screen dimensions
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        width = int(screen_width * MAIN_WINDOW_SIZE[0] / 100)
+        height = int(screen_height * MAIN_WINDOW_SIZE[1] / 100)
+        window_size = f"{width}x{height}"
+
+        min_width = int(screen_width * MIN_MAIN_WINDOW_SIZE[0] / 100)
+        min_height = int(screen_height * MIN_MAIN_WINDOW_SIZE[1] / 100)
+        
+        self.root.geometry(window_size)
         self.root.title(f"PDF Maker v{APP_VERSION} Beta")
         icon_path = ICON
         if getattr(sys, 'frozen', False):
             icon_path = os.path.join(sys._MEIPASS, ICON)
         self.root.iconbitmap(icon_path)
-        width, height = map(int, DEFAULT_WINDOW_SIZE.split('x'))
-        self.root.minsize(width, height)
+        self.root.minsize(min_width, min_height)
         
         # Definir o protocolo de fechamento da janela para usar nosso método _on_exit
         # Garantir que isso seja chamado corretamente quando o usuário clica no X da janela
@@ -953,6 +972,20 @@ class PDFMakerApp:
         last_session_file = os.path.join(sessions_dir, "last_session.json")
         with open(last_session_file, 'w') as f:
             json.dump(session_data, f, indent=4)
+
+        # Criar arquivo .txt na pasta da sessão
+        try:
+            txt_path = os.path.join(self.session_screenshots_dir, f"{session_name}.txt")
+            with open(txt_path, 'w', encoding='utf-8') as txt_file:
+                txt_file.write(f"Sessão: {session_name}\n")
+                txt_file.write(f"Diretório: {self.session_screenshots_dir}\n")
+                txt_file.write(f"Data de salvamento: {session_data['saved_date']}\n")
+                txt_file.write(f"Total de imagens: {session_data['image_count']}\n")
+                txt_file.write("Imagens:\n")
+                for img in session_data['images']:
+                    txt_file.write(f"  - {os.path.basename(img)}\n")
+        except Exception as e:
+            print(f"Erro ao criar arquivo txt da sessão: {e}")
 
     def _get_sessions_directory(self):
         """Retorna o diretório onde são armazenadas as sessões salvas."""
