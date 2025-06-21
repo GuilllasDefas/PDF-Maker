@@ -75,6 +75,7 @@ exe = EXE(
     [],
     exclude_binaries=True,
     name='PDF-Maker',
+    manifest='PDF-Maker.manifest',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

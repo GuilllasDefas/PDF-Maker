@@ -19,6 +19,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      # 1.5) Decodifica o certificado PFX (do Secret) em um arquivo no disco
+      - name: Decode PFX Secret to file
+        shell: pwsh
+        run: |
+          [IO.File]::WriteAllBytes(
+            'PDF-Maker.pfx',
+            [Convert]::FromBase64String('${{ secrets.PFX_BASE64 }}')
+          )
+
       # 2) Seta Python
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -81,6 +90,28 @@ jobs:
           # Executar PyInstaller
           pyinstaller --clean "main.spec"
 
+      # 7) Assina o executável
+      - name: Assinar EXE
+        shell: pwsh
+        env:
+          PFX_PASSWORD: ${{ secrets.PFX_PASSWORD }}
+        run: |
+          $signtool = 'C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64\signtool.exe'
+          & $signtool sign \
+            /f PDF-Maker.pfx \
+            /p $Env:PFX_PASSWORD \
+            /tr http://timestamp.digicert.com \
+            /td sha256 \
+            /fd sha256 \
+            "dist\PDF-Maker\PDF-Maker.exe"
+
+      # 7.1) Verifica a assinatura
+      - name: Verificar assinatura
+        shell: pwsh
+        run: |
+          $signtool = 'C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64\signtool.exe'
+          & $signtool verify /pa "dist\PDF-Maker\PDF-Maker.exe"
+
       # 8) Instala Inno Setup
       - name: Install Inno Setup
         run: |
@@ -88,11 +119,10 @@ jobs:
           Invoke-WebRequest -Uri $url -OutFile "innosetup-installer.exe"
           Start-Process -FilePath "innosetup-installer.exe" -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART" -Wait
 
-      # 9) Cria script do Inno Setup
+      # 9) Cria o script de instalação com Inno Setup
       - name: Create Inno Setup Script
         run: |
           $version = "${{ steps.get_version.outputs.VERSION }}".TrimStart('v')
-          
           $script = @"
           [Setup]
           AppName=PDF Maker
@@ -109,16 +139,16 @@ jobs:
           ArchitecturesInstallIn64BitMode=x64
           RestartIfNeededByRun=no
           SetupIconFile=dist\PDF-Maker\_internal\assets\PDF-Maker.ico
-          
+
           [Languages]
           Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
-          
+
           [Tasks]
           Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-          
+
           [Files]
           Source: "dist\PDF-Maker\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-          
+
           [Icons]
           Name: "{group}\PDF Maker"; Filename: "{app}\PDF-Maker.exe"; IconFilename: "{app}\_internal\assets\PDF-Maker.ico"; WorkingDir: "{app}"
           Name: "{group}\{cm:UninstallProgram,PDF Maker}"; Filename: "{uninstallexe}"
@@ -127,18 +157,17 @@ jobs:
 
           [Run]
           Filename: "{app}\PDF-Maker.exe"; Description: "{cm:LaunchProgram,PDF Maker}"; Flags: nowait postinstall skipifsilent
-          
+
           [UninstallDelete]
           Type: filesandordirs; Name: "{app}"
 
           [Registry]
           Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\PDF-Maker.exe"; ValueType: string; ValueName: ""; ValueData: "PDF Maker"; Flags: uninsdeletekey
           Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\PDF-Maker.exe\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\_internal\assets\PDF-Maker.ico,0"; Flags: uninsdeletekey
-          Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\PDF-Maker.exe\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\PDF-Maker.exe"" ""%1"""; Flags: uninsdeletekey
+          Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\PDF-Maker.exe\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\PDF-Maker.exe"" "%1""; Flags: uninsdeletekey
           "@
-          
           $script | Out-File -FilePath "setup.iss" -Encoding UTF8
-  
+
       # 10) Gera o setup.exe
       - name: Build Setup with Inno Setup
         run: |
@@ -151,7 +180,7 @@ jobs:
       # 11) Empacota num ZIP
       - name: Zip App
         run: Compress-Archive -Path "dist\PDF-Maker\*" -DestinationPath "PDF-Maker.zip"
-        
+
       # 12) Cria uma tag automática
       - name: Criar tag automática
         run: |
@@ -167,18 +196,16 @@ jobs:
         with:
           tag_name: ${{ steps.get_version.outputs.VERSION }}
           release_name: PDF Maker ${{ steps.get_version.outputs.VERSION }}
-          body: |           
+          body: |
             ## Melhorias e Correções
 
             - Correção: Em diferentes resoluções, a resolução se ajusta e também é possível o usuário redimensionar.
             - Melhoria: Adicionado txt de informações da sessão atual na pasta salva.
-            
-            
-              ---
+            - Melhoria: Adiciona manifesto e certificado digital para evitar avisos de segurança do Windows.
 
+            ---
 
             OBS: Por se tratar de uma versão de pre-release, é possível que existam bugs ou problemas não resolvidos. E seu anti-vírus pode acusar falsos positivos.
-
           draft: false
           prerelease: true
         env:
