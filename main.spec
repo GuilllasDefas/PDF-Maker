@@ -93,8 +93,8 @@ coll = COLLECT(
     exe,
     a.binaries,
     a.datas,
-    strip=False,  # Desativado para evitar erros
-    upx=True,
+    strip=False,
+    upx=False,
     upx_exclude=[],
     name='PDF-Maker'
 )
