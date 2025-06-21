@@ -19,7 +19,6 @@
 
 - **Editor de Sessão**
   - No Teste do Redimensionamento Dinâmico de Miniaturas, ocorre um delay de 1 segundo para atualizar o número de miniaturas por linha.
-  - Criar um txt informando o nome da sessão (o proprio txt com o nome da sessão salva), data e hora de criação, e o número de imagens dentro da pasta e etc.
 
 - **Editor de Imagem**
   - Ao editar ordem, não há opção de Salvar a ordem, apenas de Gerar PDF, dessa forma se sair e voltar, a versão original volta.

@@ -134,7 +134,7 @@ jobs:
           [Registry]
           Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\PDF-Maker.exe"; ValueType: string; ValueName: ""; ValueData: "PDF Maker"; Flags: uninsdeletekey
           Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\PDF-Maker.exe\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\_internal\assets\PDF-Maker.ico,0"; Flags: uninsdeletekey
-          Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\PDF-Maker.exe\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\PDF-Maker.exe"" "%1""; Flags: uninsdeletekey
+          Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\PDF-Maker.exe\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\PDF-Maker.exe"" ""%1"""; Flags: uninsdeletekey
           "@
           $script | Out-File -FilePath "setup.iss" -Encoding UTF8
 
