@@ -19,15 +19,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 1.5) Decodifica o certificado PFX (do Secret) em um arquivo no disco
-      - name: Decode PFX Secret to file
-        shell: pwsh
-        run: |
-          [IO.File]::WriteAllBytes(
-            'PDF-Maker.pfx',
-            [Convert]::FromBase64String('${{ secrets.PFX_BASE64 }}')
-          )
-
       # 2) Seta Python
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -90,27 +81,6 @@ jobs:
           # Executar PyInstaller
           pyinstaller --clean "main.spec"
 
-      # 7) Assina o executável
-      - name: Assinar EXE
-        shell: pwsh
-        env:
-          PFX_PASSWORD: ${{ secrets.PFX_PASSWORD }}
-        run: |
-          $signtool = 'C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64\signtool.exe'
-          & $signtool sign `
-            /f PDF-Maker.pfx `
-            /p $Env:PFX_PASSWORD `
-            /tr http://timestamp.digicert.com `
-            /td sha256 `
-            /fd sha256 `
-            "dist\PDF-Maker\PDF-Maker.exe"
-
-      # 7.1) Verifica a assinatura
-      - name: Verificar assinatura
-        shell: pwsh
-        run: |
-          $signtool = 'C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64\signtool.exe'
-          & $signtool verify /pa "dist\PDF-Maker\PDF-Maker.exe"
 
       # 8) Instala Inno Setup
       - name: Install Inno Setup
@@ -201,7 +171,7 @@ jobs:
 
             - Correção: Em diferentes resoluções, a resolução se ajusta e também é possível o usuário redimensionar.
             - Melhoria: Adicionado txt de informações da sessão atual na pasta salva.
-            - Melhoria: Adiciona manifesto e certificado digital para evitar avisos de segurança do Windows.
+            - Melhoria: Adiciona manifest para evitar alguns avisos de segurança do Windows.
 
             ---
 
