@@ -1,8 +1,13 @@
 # Melhorias e Funcionalidades para PDF Maker
 
-## Correções
+# Correções
 
-- **Geral**
+## Editor de Imagens
+
+- **(v0.3.5) Bug:** Não é possível adicionar nenhum texto
+- Ao gerar PDF, a proporção das anotações está errada (verificar se é apenas em monitores de resoluções diferentes de Full HD)
+- Gerar PDF com textos com acentos acaba gerando um caractere estranho
+- Ao salvar uma anotação no Editor de Imagens, deve voltar para o Editor da Sessão ao invés da janela principal.
 
 ---
 
@@ -21,7 +26,11 @@
   - No Teste do Redimensionamento Dinâmico de Miniaturas, ocorre um delay de 1 segundo para atualizar o número de miniaturas por linha.
 
 - **Editor de Imagem**
+  - Deve-se permitir editar um texto existente
+  - Ao adicionar um texto, a Janela de texto não permite quebra de linha (Seria melhor adicionar o texto na própria imagem, ao invés de usar Janela).
+  - Deve-se carregar a última configuração de fonte e cores
   - Ao editar ordem, não há opção de Salvar a ordem, apenas de Gerar PDF, dessa forma se sair e voltar, a versão original volta.
+  - A configuração de texto deve ser feita abaixo na própria Janela do texto para uma melhor experiência e o mesmo para as demais anotações
   - Ao editar uma imagem e tentar fechar sem salvar, o programa deve perguntar se deseja salvar as alterações.
   - Destacar o botão apertado para feedback visual.
   - Em "Texto" adicionar opção de cabeçalho e rodapé a marge da imagem na edição.
