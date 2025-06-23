@@ -457,12 +457,15 @@ class SessionEditorWindow:
     def _on_edit(self, idx):
         """Abre o editor de imagem para a imagem selecionada."""
         path = self.image_paths[idx]
-        
         try:
-            # Abrir o editor de imagem
-            editor = ImageEditorWindow(self.window, path, self.annotation_manager)
-            
-            # Mostrar o editor - ele já tem comportamento modal implementado
+            # Abrir o editor de imagem com a lista completa e índice atual
+            editor = ImageEditorWindow(
+                self.window,
+                path,
+                self.annotation_manager,
+                image_paths=self.image_paths,
+                current_index=idx
+            )
             editor.show()
             
             # Restaurar a modalidade da janela de sessão após o fechamento do editor
@@ -471,10 +474,8 @@ class SessionEditorWindow:
             # Atualizar o frame para refletir anotações
             if idx < len(self.frames):
                 self.frames[idx].update_image(path)
-                
         except Exception as e:
             messagebox.showerror("Erro", f"Falha ao editar imagem: {str(e)}")
-            # Garantir que a modalidade seja restaurada mesmo em caso de erro
             self.window.grab_set()
     
     def _on_cancel(self):

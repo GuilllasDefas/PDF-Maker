@@ -7,13 +7,19 @@ from src.config.config import ICON, IMAGE_EDITOR_DIALOG_WINDOW_SIZE
 from src.core.annotation_manager import AnnotationManager
 from src.gui.image_editor_components.dialog_input import TextInputDialog
 from src.gui.image_editor_components.annotation_element import AnnotationElement
-
+from src.gui.image_editor_components.image_navigator import ImageNavigator
 
 class ImageEditorWindow:
     """Janela de edição de imagem para adicionar anotações."""
-    def __init__(self, parent, image_path, annotation_manager: AnnotationManager):
+    def __init__(self, parent, image_path, annotation_manager, image_paths=None, current_index=0):
+        """
+        Adicionei os parâmetros 'image_paths' e 'current_index' para
+        possibilitar a navegação entre imagens por meio da classe ImageNavigator.
+        """
         self.parent = parent
-        self.image_path = image_path
+        self.image_paths = image_paths if image_paths else [image_path]
+        self.navigator = ImageNavigator(self.image_paths, current_index)
+        self.image_path = self.navigator.get_current_image()
         self.annotation_manager = annotation_manager
         self.window = None
         self.canvas = None
@@ -39,7 +45,7 @@ class ImageEditorWindow:
         
         # Carregar anotações existentes
         self._load_annotations()
-    
+        
     def show(self):
         """Mostra a janela de edição de imagem."""
         if self.window:
@@ -234,6 +240,24 @@ class ImageEditorWindow:
         ttk.Button(action_frame, text="Salvar", 
                  command=self._on_save).pack(side=tk.RIGHT, padx=5)
         
+        # Adicionar rótulo de indicador de imagem
+        self.image_index_label = ttk.Label(action_frame, text="")
+        self.image_index_label.pack(side=tk.LEFT, padx=5)
+        self._update_image_index_label()
+
+        # Botões para avançar e retroceder imagem
+        ttk.Button(
+            action_frame,
+            text="← Anterior",
+            command=self._on_prev_image
+        ).pack(side=tk.LEFT, padx=5)
+
+        ttk.Button(
+            action_frame,
+            text="Próxima →",
+            command=self._on_next_image
+        ).pack(side=tk.LEFT, padx=5)
+
         # Destacar o botão da ferramenta ativa
         self._update_tool_buttons()
         
@@ -894,7 +918,7 @@ class ImageEditorWindow:
         self.window.destroy()
     
     def _on_save(self):
-        """Salva as anotações e fecha a janela."""
+        """Salva as anotações e mantém a janela aberta."""
         try:
             # Preparar dados para salvar
             annotations_data = []
@@ -905,14 +929,61 @@ class ImageEditorWindow:
                 annotation_data = annotation.to_dict()
                 
                 # Garantir que estamos salvando coordenadas absolutas
-                # (O fator de zoom já deve ter sido considerado ao criar as anotações)
                 annotations_data.append(annotation_data)
             
             # Salvar as anotações
             self.annotation_manager.save_annotations(self.image_path, annotations_data)
             
-            messagebox.showinfo("Sucesso", "Anotações salvas com sucesso!")
-            self.window.destroy()
+            # Mostrar confirmação temporária sem fechar a janela
+            messagebox.showinfo("Sucesso", "Anotações salvas com sucesso!", parent=self.window)
+            self.window.lift()
             
         except Exception as e:
             messagebox.showerror("Erro", f"Falha ao salvar anotações: {str(e)}")
+    
+    def _on_next_image(self):
+        """Navega para a próxima imagem se disponível."""
+        if self.navigator.has_next():
+            self.navigator.next_image()
+            self._reload_with_new_image()
+
+    def _on_prev_image(self):
+        """Navega para a imagem anterior se disponível."""
+        if self.navigator.has_prev():
+            self.navigator.prev_image()
+            self._reload_with_new_image()
+
+    def _reload_with_new_image(self):
+        """
+        Recarrega o editor de imagem com base no novo índice,
+        mantendo a mesma janela aberta.
+        """
+        self.image_path = self.navigator.get_current_image()
+        self._clear_state_and_reload()
+        self._update_image_index_label()
+
+    def _clear_state_and_reload(self):
+        if self.canvas:
+            self.canvas.delete("all")
+        self.annotations = []
+        self._load_annotations()
+        self._load_image()
+        self._render_annotations()
+        self._add_to_history()
+        self._add_to_history()
+
+    def _update_image_index_label(self):
+        """Atualiza o texto que mostra o índice atual da imagem."""
+        current = self.navigator.current_index + 1
+        total = self.navigator.get_image_count()
+        self.image_index_label.config(text=f"Imagem {current} / {total}")
+
+    def update_image_list(self, image_paths, current_index=None):
+        """Atualiza a lista de imagens e o índice atual dinamicamente."""
+        self.image_paths = image_paths
+        self.navigator.image_paths = image_paths
+        if current_index is not None:
+            self.navigator.current_index = current_index
+        # Atualiza o label de índice, se necessário
+        if hasattr(self, 'image_index_label'):
+            self._update_image_index_label()

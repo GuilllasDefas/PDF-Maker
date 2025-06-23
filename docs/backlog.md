@@ -4,10 +4,7 @@
 
 ## Editor de Imagens
 
-- **(v0.3.5) Bug:** Não é possível adicionar nenhum texto
-- Ao gerar PDF, a proporção das anotações está errada (verificar se é apenas em monitores de resoluções diferentes de Full HD)
 - Gerar PDF com textos com acentos acaba gerando um caractere estranho
-- Ao salvar uma anotação no Editor de Imagens, deve voltar para o Editor da Sessão ao invés da janela principal.
 
 ---
 
@@ -37,6 +34,7 @@
   - Adicionar opção de Recortar Imagem (ex: cortar para manter apenas a área selecionada).
   - Ferramenta de Seleção, ao selecionar, deve fazer um retângulo ao redor da área selecionada para feedback visual.
   - Aumentar espessura das Formas
+  - Pode haver na Janela o próprio número da ordem da imagem para facilitar a modificação da ordem se o usuário quiser.
   - Ao Fechar o editor de imagem, deve voltar para o Editor da Sessão, ao invés da Janela Principal.
   - Editar itens e anotações, ou seja, rotacionar, redimensionar, editar texto, mudar cor e etc.
 
