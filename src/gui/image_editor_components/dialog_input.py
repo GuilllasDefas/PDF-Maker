@@ -7,7 +7,7 @@ from src.config.config import ICON, IMAGE_EDITOR_DIALOG_WINDOW_SIZE
 
 class TextInputDialog:
     """Diálogo personalizado para entrada de texto."""
-    def __init__(self, parent, title="Digite o texto"):
+    def __init__(self, parent, title="Digite o texto", initial_text=""):
         self.result = None
         self.parent = parent
         
@@ -61,11 +61,18 @@ class TextInputDialog:
         frame = ttk.Frame(self.dialog, padding=20)
         frame.pack(fill=tk.BOTH, expand=True)
         
-        ttk.Label(frame, text="Digite o texto que deseja adicionar:").pack(anchor=tk.W, pady=(0, 10))
+        instruction_text = "Edite o texto:" if initial_text else "Digite o texto que deseja adicionar:"
+        ttk.Label(frame, text=instruction_text).pack(anchor=tk.W, pady=(0, 10))
         
-        # Usar um Text com múltiplas linhas em vez de Entry
-        self.text_widget = tk.Text(frame, width=40, height=5, wrap="word")
+        # Usar um Text com múltiplas linhas com suporte a quebra de linha
+        self.text_widget = tk.Text(frame, width=40, height=5, wrap=tk.WORD)
         self.text_widget.pack(fill=tk.BOTH, expand=True, pady=10)
+        
+        
+        # Preencher o texto inicial se fornecido
+        if initial_text:
+            self.text_widget.insert("1.0", initial_text)
+        
         self.text_widget.focus_set()
         
         # Botões
@@ -93,6 +100,9 @@ class TextInputDialog:
         """Processa o texto inserido e fecha o diálogo."""
         self.result = self.text_widget.get("1.0", "end-1c").strip()
         self.dialog.destroy()
+        
+        # Ajudar a restaurar o foco na janela principal
+        self.parent.after(50, lambda: self.parent.focus_force())
     
     def cancel(self):
         """Cancela a operação e fecha o diálogo."""

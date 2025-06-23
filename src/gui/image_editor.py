@@ -220,6 +220,9 @@ class ImageEditorWindow:
         self.canvas.bind("<B1-Motion>", self._on_drag)
         self.canvas.bind("<ButtonRelease-1>", self._on_release)
         
+        # Adicionar evento de clique duplo para edição de texto
+        self.canvas.bind("<Double-Button-1>", self._on_double_click)
+        
         # Adicionar suporte a zoom com roda do mouse
         self.canvas.bind("<MouseWheel>", self._on_mousewheel)
         
@@ -356,6 +359,34 @@ class ImageEditorWindow:
             else:
                 self._zoom_out()
             return "break"
+    
+    def _on_double_click(self, event):
+        """Manipula o evento de clique duplo para edição de texto."""
+        # Verificar se estamos no modo de seleção
+        if self.active_tool != "select":
+            return
+            
+        # Converter coordenadas do canvas
+        canvas_x = self.canvas.canvasx(event.x)
+        canvas_y = self.canvas.canvasy(event.y)
+        
+        # Verificar se clicou em algum item
+        tolerance = 5 / self.zoom_factor
+        items = self.canvas.find_overlapping(
+            canvas_x-tolerance, canvas_y-tolerance, 
+            canvas_x+tolerance, canvas_y+tolerance
+        )
+        
+        # Filtrar para não selecionar a imagem de fundo
+        filtered_items = [item for item in items if item != self.image_item]
+        
+        if filtered_items:
+            item_id = filtered_items[0]
+            # Verificar se é um texto
+            annotation = self._get_annotation_by_item_id(item_id)
+            if annotation and annotation.type == "text":
+                # Editar o texto
+                self._edit_text_annotation(annotation)
     
     def _redraw_annotations_with_zoom(self):
         """Redesenha todas as anotações com o zoom atual."""
@@ -510,13 +541,14 @@ class ImageEditorWindow:
             # Ajustar tamanho da fonte para o zoom
             font_size = int(props.get('font_size', self.font_size) * self.zoom_factor)
             
-            # Criar caixa de texto
+            # Criar caixa de texto com suporte a quebra de linha
             return self.canvas.create_text(
                 canvas_x, canvas_y,
                 text=props['text'],
                 fill=props['color'],
                 font=(props.get('font_family', self.font_family), font_size),
-                anchor=props.get('anchor', tk.NW)
+                anchor=props.get('anchor', tk.NW),
+                width=props.get('width', 300) * self.zoom_factor  # Adicionar largura máxima para quebra de texto
             )
             
         elif annotation.type == "arrow":
@@ -711,7 +743,7 @@ class ImageEditorWindow:
         canvas_x = self.canvas.canvasx(event.x)
         canvas_y = self.canvas.canvasy(event.y)
         
-        # Converter coordenadas do canvas para coordenadas da imagem original
+        # Converter para coordenadas da imagem original
         x = canvas_x / self.zoom_factor
         y = canvas_y / self.zoom_factor
         
@@ -734,11 +766,14 @@ class ImageEditorWindow:
                     self.current_item = filtered_items[0]
                     # Destacar o item selecionado
                     self._highlight_item(self.current_item)
+                    
+                    # Removida a chamada direta para edição de texto aqui
+                    # para permitir movimentação do texto
                 else:
                     self.current_item = None
             else:
                 self.current_item = None
-                
+        
         elif self.active_tool == "text":
             # Desabilitar todos os widgets da janela antes de abrir o diálogo
             for widget in self.window.winfo_children():
@@ -747,8 +782,8 @@ class ImageEditorWindow:
                         if isinstance(child, (ttk.Button, ttk.Entry)):
                             child.configure(state='disabled')
         
-            # Usar nossa caixa de diálogo personalizada em vez de simpledialog
-            text_dialog = TextInputDialog(self.window, "Adicionar Texto")
+            # Usar nossa caixa de diálogo personalizada com texto inicial vazio
+            text_dialog = TextInputDialog(self.window, "Adicionar Texto", initial_text="")
             text = text_dialog.result
             
             # Reabilitar todos os widgets da janela após fechar o diálogo
@@ -911,7 +946,12 @@ class ImageEditorWindow:
     def _highlight_item(self, item_id):
         """Destaca o item selecionado."""
         # Implementação básica de destaque (pode ser melhorada)
-        pass
+        # Verifique se é um texto para mostrar uma dica visual de que pode ser editado
+        annotation = self._get_annotation_by_item_id(item_id)
+        if annotation and annotation.type == "text":
+            # Mostrar uma dica na barra de status ou em um tooltip
+            # Você pode adicionar uma mensagem como "Clique duplo para editar"
+            pass
     
     def _on_cancel(self):
         """Cancela a edição e fecha a janela."""
@@ -987,3 +1027,82 @@ class ImageEditorWindow:
         # Atualiza o label de índice, se necessário
         if hasattr(self, 'image_index_label'):
             self._update_image_index_label()
+
+    def _get_annotation_by_item_id(self, item_id):
+        """Retorna a anotação correspondente ao ID do item."""
+        for annotation in self.annotations:
+            if annotation.item_id == item_id:
+                return annotation
+        return None
+
+    def _edit_text_annotation(self, annotation):
+        """Abre um diálogo para editar o texto de uma anotação existente."""
+        if annotation.type != "text":
+            return
+            
+        # Desabilitar temporariamente a janela do editor para manter a modalidade
+        self.window.attributes('-disabled', True)
+        
+        try:
+            # Guardar uma referência à janela atual para garantir foco correto depois
+            current_window = self.window
+            
+            # Abrir diálogo de edição com o texto atual
+            text_dialog = TextInputDialog(
+                self.window, 
+                "Editar Texto", 
+                initial_text=annotation.properties['text']
+            )
+            
+            # Obter o novo texto
+            edited_text = text_dialog.result
+            
+            if edited_text is not None and edited_text != annotation.properties['text']:
+                # Atualizar o texto na anotação
+                annotation.properties['text'] = edited_text
+                
+                # Se o texto não tiver uma largura definida, definir uma padrão para quebra de linha
+                if 'width' not in annotation.properties:
+                    annotation.properties['width'] = 300  # Largura padrão em pixels
+                
+                # Atualizar o texto no canvas
+                canvas_x = annotation.properties['x'] * self.zoom_factor
+                canvas_y = annotation.properties['y'] * self.zoom_factor
+                font_size_zoomed = int(annotation.properties.get('font_size', self.font_size) * self.zoom_factor)
+                
+                # Remover o item antigo
+                self.canvas.delete(annotation.item_id)
+                
+                # Criar o novo item com o texto atualizado
+                new_item_id = self.canvas.create_text(
+                    canvas_x, canvas_y,
+                    text=edited_text,
+                    fill=annotation.properties['color'],
+                    font=(annotation.properties.get('font_family', self.font_family), font_size_zoomed),
+                    anchor=annotation.properties.get('anchor', tk.NW),
+                    width=annotation.properties['width'] * self.zoom_factor  # Aplicar largura para quebra de linha
+                )
+                
+                # Atualizar o ID do item na anotação
+                annotation.item_id = new_item_id
+                
+                # Adicionar ao histórico após editar texto
+                self._add_to_history()
+        finally:
+            # Reabilitar a janela do editor após o diálogo ser fechado
+            self.window.attributes('-disabled', False)
+            
+            # Corrigir o problema de foco da janela usando after para dar tempo ao sistema
+            self.window.after(100, lambda: self._restore_window_focus())
+    
+    def _restore_window_focus(self):
+        """Restaura o foco na janela principal corretamente."""
+        # Trazer a janela do editor para a frente novamente
+        self.window.lift()
+        # Garantir que o foco retorne para a janela do editor
+        self.window.focus_force()
+        
+        # Em alguns sistemas, a janela precisa ser destacada antes de receber foco novamente
+        self.window.attributes('-topmost', True)
+        self.window.update()
+        self.window.attributes('-topmost', False)
