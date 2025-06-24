@@ -26,8 +26,6 @@
   - Ao adicionar um texto, a Janela de texto não permite quebra de linha (Seria melhor adicionar o texto na própria imagem, ao invés de usar Janela).
   - Ao editar ordem, não há opção de Salvar a ordem, apenas de Gerar PDF, dessa forma se sair e voltar, a versão original volta.
   - A configuração de texto deve ser feita abaixo na própria Janela do texto para uma melhor experiência e o mesmo para as demais anotações
-  - Ao editar uma imagem e tentar fechar sem salvar, o programa deve perguntar se deseja salvar as alterações.
-  - Destacar o botão apertado para feedback visual.
   - Em "Texto" adicionar opção de cabeçalho e rodapé a marge da imagem na edição.
   - Adicionar opção de Recortar Imagem (ex: cortar para manter apenas a área selecionada).
   - Ferramenta de Seleção, ao selecionar, deve fazer um retângulo ao redor da área selecionada para feedback visual.

@@ -114,8 +114,8 @@ class ImageEditorWindow:
         selection_frame = ttk.LabelFrame(tools_grid, text="Seleção")
         selection_frame.grid(row=0, column=0, padx=5, pady=5, sticky="w")
         
-        self.select_btn = ttk.Button(selection_frame, text="Selecionar", width=10,
-                                   command=lambda: self._set_tool("select"))
+        self.select_btn = tk.Button(selection_frame, text="Selecionar", width=10,
+                            command=lambda: self._set_tool("select"), bg="SystemButtonFace")
         self.select_btn.pack(side=tk.LEFT, padx=2, pady=2)
         
         self.delete_btn = ttk.Button(selection_frame, text="Excluir", width=10,
@@ -126,24 +126,24 @@ class ImageEditorWindow:
         shapes_frame = ttk.LabelFrame(tools_grid, text="Formas")
         shapes_frame.grid(row=0, column=1, padx=5, pady=5, sticky="w")
         
-        self.line_btn = ttk.Button(shapes_frame, text="Linha", width=7,
-                                 command=lambda: self._set_tool("line"))
+        self.line_btn = tk.Button(shapes_frame, text="Linha", width=7,
+                                 command=lambda: self._set_tool("line"), bg="SystemButtonFace")
         self.line_btn.pack(side=tk.LEFT, padx=2, pady=2)
         
-        self.arrow_btn = ttk.Button(shapes_frame, text="Seta", width=7,
-                                  command=lambda: self._set_tool("arrow"))
+        self.arrow_btn = tk.Button(shapes_frame, text="Seta", width=7,
+                                  command=lambda: self._set_tool("arrow"), bg="SystemButtonFace")
         self.arrow_btn.pack(side=tk.LEFT, padx=2, pady=2)
         
-        self.rect_btn = ttk.Button(shapes_frame, text="Retângulo", width=11,
-                                 command=lambda: self._set_tool("rect"))
+        self.rect_btn = tk.Button(shapes_frame, text="Retângulo", width=11,
+                                 command=lambda: self._set_tool("rect"), bg="SystemButtonFace")
         self.rect_btn.pack(side=tk.LEFT, padx=2, pady=2)
         
         # 3. Grupo de Texto
         text_frame = ttk.LabelFrame(tools_grid, text="Texto")
         text_frame.grid(row=0, column=2, padx=5, pady=5, sticky="w")
         
-        self.text_btn = ttk.Button(text_frame, text="Adicionar", width=11,
-                                 command=lambda: self._set_tool("text"))
+        self.text_btn = tk.Button(text_frame, text="Adicionar", width=11,
+                                 command=lambda: self._set_tool("text"), bg="SystemButtonFace")
         self.text_btn.pack(side=tk.LEFT, padx=2, pady=2)
         
         self.font_btn = ttk.Button(text_frame, text="Fonte", width=7,
@@ -617,22 +617,29 @@ class ImageEditorWindow:
     
     def _update_tool_buttons(self):
         """Atualiza o estado visual dos botões de ferramentas."""
-        # Resetar todos os botões
+        # Cores para os botões
+        normal_color = "SystemButtonFace"  # Cor padrão de botões
+        active_color = "#ADD8E6"  # Azul claro
+        
+        # Resetar todos os botões para a cor normal
         for btn in [self.select_btn, self.text_btn, self.arrow_btn, 
                    self.rect_btn, self.line_btn]:
-            btn.configure(style='TButton')
+            btn.config(bg=normal_color)
         
-        # Destacar o botão da ferramenta ativa
+        # Destacar o botão da ferramenta ativa com a cor de destaque
         if self.active_tool == "select":
-            self.select_btn.configure(style='Toolbutton.TButton')
+            self.select_btn.config(bg=active_color)
         elif self.active_tool == "text":
-            self.text_btn.configure(style='Toolbutton.TButton')
+            self.text_btn.config(bg=active_color)
         elif self.active_tool == "arrow":
-            self.arrow_btn.configure(style='Toolbutton.TButton')
+            self.arrow_btn.config(bg=active_color)
         elif self.active_tool == "rect":
-            self.rect_btn.configure(style='Toolbutton.TButton')
+            self.rect_btn.config(bg=active_color)
         elif self.active_tool == "line":
-            self.line_btn.configure(style='Toolbutton.TButton')
+            self.line_btn.config(bg=active_color)
+
+        # Para garantir que a mudança seja visível, atualizar a UI
+        self.window.update_idletasks()
     
     def _choose_color(self):
         """Abre o seletor de cor."""
