@@ -636,27 +636,20 @@ class ImageEditorWindow:
     
     def _choose_color(self):
         """Abre o seletor de cor."""
-        # Desabilitar temporariamente a janela do editor para manter a modalidade
-        self.window.attributes('-disabled', True)
+        # Não há necessidade de desabilitar a janela do editor
+        color = colorchooser.askcolor(initialcolor=self.color, parent=self.window)
+        if color[1]:
+            self.color = color[1]
+            # Atualizar a amostra de cor
+            self.color_sample.config(bg=self.color)
+            
+            # Salvar a configuração
+            global ANNOTATION_COLOR
+            ANNOTATION_COLOR = self.color
+            save_config()
         
-        try:
-            color = colorchooser.askcolor(initialcolor=self.color)
-            if color[1]:
-                self.color = color[1]
-                # Atualizar a amostra de cor
-                self.color_sample.config(bg=self.color)
-                
-                # Salvar a configuração
-                global ANNOTATION_COLOR
-                ANNOTATION_COLOR = self.color
-                save_config()
-        finally:
-            # Reabilitar a janela do editor após o seletor de cor ser fechado
-            self.window.attributes('-disabled', False)
-            # Trazer a janela do editor para a frente novamente
-            self.window.lift()
-            # Garantir que o foco retorne para a janela do editor
-            self.window.focus_force()
+        # Garantir que o foco retorne para a janela do editor
+        self.window.focus_force()
     
     def _choose_font(self):
         """Abre o diálogo de configuração de fonte."""
@@ -667,8 +660,8 @@ class ImageEditorWindow:
         font_dialog = tk.Toplevel(self.window)
         font_dialog.title("Configurações de Fonte")
         font_dialog.geometry("250x150")
-        font_dialog.transient(self.window)
-        font_dialog.grab_set()
+        font_dialog.transient(self.window)  # Vincula a janela de diálogo à janela principal
+        font_dialog.grab_set()  # Torna o diálogo modal
 
         # Adicionar ícone
         icon_path = ICON
