@@ -78,11 +78,13 @@ try:
     import os
     import json
     
-    config_path = os.path.join(os.path.expanduser("~"), ".pdf_maker_config.json")
+    # Caminho absoluto para o arquivo de configuração (sem ponto no início)
+    config_path = os.path.join(os.path.expanduser("~"), "pdf_maker_config.json")
     
     if os.path.exists(config_path):
         with open(config_path, 'r') as f:
             config_data = json.load(f)
+            print(f"Configurações carregadas: {config_data}")
             
         # Atualizar hotkeys se estiverem na configuração
         if 'screenshot_hotkey' in config_data:
@@ -93,39 +95,39 @@ try:
         # Carregar configurações de anotação
         if 'annotation_color' in config_data:
             ANNOTATION_COLOR = config_data['annotation_color']
+            print(f"Cor carregada: {ANNOTATION_COLOR}")
         if 'annotation_font_family' in config_data:
             ANNOTATION_FONT_FAMILY = config_data['annotation_font_family']
+            print(f"Fonte carregada: {ANNOTATION_FONT_FAMILY}")
         if 'annotation_font_size' in config_data:
             ANNOTATION_FONT_SIZE = config_data['annotation_font_size']
-except:
-    # Em caso de erro, manter os valores padrão
-    pass
+            print(f"Tamanho da fonte carregado: {ANNOTATION_FONT_SIZE}")
+except Exception as e:
+    print(f"Erro ao carregar configurações: {e}")
+    # Continuar com os valores padrão
 
 # Função para salvar configurações
 def save_config():
     try:
-        config_path = os.path.join(os.path.expanduser("~"), ".pdf_maker_config.json")
+        # Usar o mesmo caminho ao salvar (sem ponto no início)
+        config_path = os.path.join(os.path.expanduser("~"), "pdf_maker_config.json")
         
-        # Carregar configurações existentes ou criar um novo dicionário
-        if os.path.exists(config_path):
-            with open(config_path, 'r') as f:
-                config_data = json.load(f)
-        else:
-            config_data = {}
-        
-        # Atualizar com as configurações atuais
-        config_data.update({
+        # Valores atuais das configurações
+        config_data = {
             'screenshot_hotkey': SCREENSHOT_HOTKEY,
             'automation_hotkey': AUTOMATION_HOTKEY,
             'annotation_color': ANNOTATION_COLOR,
             'annotation_font_family': ANNOTATION_FONT_FAMILY,
             'annotation_font_size': ANNOTATION_FONT_SIZE
-        })
+        }
+        
+        print(f"Salvando configurações: {config_data}")
         
         # Salvar no arquivo
         with open(config_path, 'w') as f:
             json.dump(config_data, f, indent=2)
             
+        print(f"Configurações salvas em: {config_path}")
         return True
     except Exception as e:
         print(f"Erro ao salvar configurações: {e}")

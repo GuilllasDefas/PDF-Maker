@@ -643,9 +643,13 @@ class ImageEditorWindow:
             # Atualizar a amostra de cor
             self.color_sample.config(bg=self.color)
             
-            # Salvar a configuração
-            global ANNOTATION_COLOR
-            ANNOTATION_COLOR = self.color
+            # Atualizar e salvar a configuração global
+            from src.config.config import ANNOTATION_COLOR, save_config
+            # Atualizar variável global diretamente no módulo config
+            import src.config.config as config_module
+            config_module.ANNOTATION_COLOR = self.color
+            
+            print(f"Nova cor selecionada: {self.color}")
             save_config()
         
         # Garantir que o foco retorne para a janela do editor
@@ -697,10 +701,13 @@ class ImageEditorWindow:
             self.font_size = size_var.get()
             font_dialog.destroy()
             
-            # Salvar as configurações
-            global ANNOTATION_FONT_FAMILY, ANNOTATION_FONT_SIZE
-            ANNOTATION_FONT_FAMILY = self.font_family
-            ANNOTATION_FONT_SIZE = self.font_size
+            # Atualizar variáveis globais diretamente no módulo config
+            import src.config.config as config_module
+            config_module.ANNOTATION_FONT_FAMILY = self.font_family
+            config_module.ANNOTATION_FONT_SIZE = self.font_size
+            
+            print(f"Nova fonte selecionada: {self.font_family}, tamanho: {self.font_size}")
+            from src.config.config import save_config
             save_config()
             
         ttk.Button(btn_frame, text="Aplicar", 
