@@ -673,6 +673,24 @@ class ImageEditorWindow:
             icon_path = os.path.join(sys._MEIPASS, ICON)
         font_dialog.iconbitmap(icon_path)
         
+        # Centralizar o diálogo em relação à janela principal
+        font_dialog.update_idletasks()  # Atualiza o tamanho da janela
+        dialog_width = font_dialog.winfo_width()
+        dialog_height = font_dialog.winfo_height()
+        
+        # Obter a posição e o tamanho da janela principal
+        parent_x = self.window.winfo_rootx()
+        parent_y = self.window.winfo_rooty()
+        parent_width = self.window.winfo_width()
+        parent_height = self.window.winfo_height()
+        
+        # Calcular a posição centralizada
+        x = parent_x + (parent_width - dialog_width) // 2
+        y = parent_y + (parent_height - dialog_height) // 2
+        
+        # Aplicar a posição centralizada
+        font_dialog.geometry(f"+{x}+{y}")
+        
         # Frame principal
         frame = ttk.Frame(font_dialog, padding=10)
         frame.pack(fill=tk.BOTH, expand=True)
@@ -737,7 +755,7 @@ class ImageEditorWindow:
         if not self.annotations:
             return
             
-        if messagebox.askyesno("Confirmar", "Tem certeza que deseja remover todas as anotações?"):
+        if messagebox.askyesno("Confirmar", "Tem certeza que deseja remover todas as anotações?", parent=self.window):
             # Remover do canvas
             for annotation in self.annotations:
                 if annotation.item_id:
