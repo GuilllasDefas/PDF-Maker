@@ -21,6 +21,7 @@
 
 - **Editor de Sessão**
   - No Teste do Redimensionamento Dinâmico de Miniaturas, ocorre um delay de 1 segundo para atualizar o número de miniaturas por linha.
+  - O canto da direita fica muito espaço após a ultima miniatura
 
 - **Editor de Imagem**
   - Ao adicionar um texto, a Janela de texto não permite quebra de linha (Seria melhor adicionar o texto na própria imagem, ao invés de usar Janela).

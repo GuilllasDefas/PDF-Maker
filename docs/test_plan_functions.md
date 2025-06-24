@@ -233,3 +233,30 @@ Os testes abrangem todas as funcionalidades da aplicação, com ênfase em estab
 - [ ] Verificar o comportamento quando o arquivo de configuração está corrompido
 - [ ] Testar a persistência quando múltiplos presets têm nomes semelhantes
 - [ ] Verificar se o preset carregado automaticamente aparece selecionado na interface de configuração de automação
+
+### 24. TESTES DE NAVEGAÇÃO ENTRE IMAGENS
+
+- [x] Verificar a funcionalidade dos botões "Anterior" e "Próxima" no editor de imagem
+- [x] Testar a navegação após fazer anotações em uma imagem
+- [N] Verificar se as anotações são salvas automaticamente ao navegar entre imagens
+- [x] Testar a navegação em uma sessão com grande número de imagens
+- [x] Verificar se o contador de imagens (ex: "Imagem 1 / 10") é atualizado corretamente
+- [x] Testar o comportamento quando se atinge o início/fim da lista de imagens
+- [x] Verificar se o zoom e posição de visualização são mantidos ao navegar entre imagens
+- [x] Testar a navegação durante edição ativa (com item selecionado)
+
+### 25. TESTES DE FEEDBACK VISUAL PARA FERRAMENTAS
+
+- [x] Verificar se o botão da ferramenta ativa (Selecionar, Linha, Seta, etc.) é destacado visualmente
+- [x] Testar se o destaque permanece correto ao alternar entre ferramentas
+- [x] Verificar se o destaque é visível em diferentes temas de sistema
+- [x] Testar se o feedback visual é consistente após redimensionar a janela
+- [x] Testar se o destaque da ferramenta permanece correto após navegar entre imagens
+- [N] Verificar a acessibilidade do feedback visual (contraste adequado)
+
+### 26. TESTES DE RESPONSIVIDADE DA INTERFACE
+
+- [ ] Verificar se a interface responde rapidamente a interações do usuário
+- [ ] Testar se o aplicativo permanece responsivo durante operações de longa duração
+- [ ] Verificar se há feedback visual durante processamento (cursores, barras de progresso)
+- [ ] Verificar se a interface se adapta corretamente a diferentes densidades de pixel

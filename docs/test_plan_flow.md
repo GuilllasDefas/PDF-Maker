@@ -32,40 +32,38 @@ Os seguintes fluxos de trabalho combinam múltiplos casos de teste em sequência
 - [x] Adicionar várias anotações (texto, seta, retângulo e linha)
 - [x] Selecionar e mover uma anotação existente
 - [x] Excluir uma anotação
-- [x] Salvar as edições e verificar se retorna ao editor de sessão
-- [x] Verificar se a imagem editada mostra indicador verde de anotações
+- [x] Salvar as edições e verificar se salva
 - [x] Gerar PDF e confirmar se as anotações aparecem corretamente
 - [x] Testar desfazer/refazer durante edição de imagem
-- [x] Editar uma imagem com conteúdo complexo (textos e gráficos)
 - [x] Testar mudança de cor para diferentes tipos de anotação
 
 ### 3. FLUXO DE AUTOMAÇÃO E PRESETS
 
 **Objetivo:** Verificar a criação e uso de presets de automação.
 
-- [ ] Abrir as configurações de automação
-- [ ] Criar um novo preset configurando:
+- [x] Abrir as configurações de automação
+- [x] Criar um novo preset configurando:
   - Nome personalizado
   - 5 capturas
   - Intervalo de 2 segundos
   - Começar após 3 segundos
   - Capturar área específica (selecionar área da tela)
   - Parar após pressionar uma tecla específica
-- [ ] Salvar o preset e verificar se aparece na lista
-- [ ] Aplicar o preset e iniciar a automação
-- [ ] Verificar se a contagem regressiva funciona
-- [ ] Verificar se as capturas ocorrem no intervalo configurado
-- [ ] Interromper usando a tecla configurada
-- [ ] Verificar se todas as imagens foram capturadas corretamente
-- [ ] Fechar completamente o aplicativo e reabri-lo
-- [ ] Verificar se o último preset aplicado é carregado automaticamente
-- [ ] Iniciar a automação sem fazer nenhuma configuração adicional
-- [ ] Confirmar que as configurações do preset persistiram corretamente
-- [ ] Reabrir configurações e editar o preset existente
-- [ ] Aplicar as mudanças e testar novamente
-- [ ] Excluir o preset e confirmar que foi removido da lista
-- [ ] Testar preset com captura de janela específica em vez de área
-- [ ] Testar automação com diferentes condições de parada
+- [x] Salvar o preset e verificar se aparece na lista
+- [x] Aplicar o preset e iniciar a automação
+- [x] Verificar se a contagem regressiva funciona
+- [x] Verificar se as capturas ocorrem no intervalo configurado
+- [x] Interromper usando a tecla configurada
+- [x] Verificar se todas as imagens foram capturadas corretamente
+- [x] Fechar completamente o aplicativo e reabri-lo
+- [x] Verificar se o último preset aplicado é carregado automaticamente
+- [x] Iniciar a automação sem fazer nenhuma configuração adicional
+- [x] Confirmar que as configurações do preset persistiram corretamente
+- [x] Reabrir configurações e editar o preset existente
+- [x] Aplicar as mudanças e testar novamente
+- [x] Excluir o preset e confirmar que foi removido da lista
+- [x] Testar preset com captura de janela específica em vez de área
+- [x] Testar automação com diferentes condições de parada
 
 ### 4. FLUXO DE SESSÕES E PERSISTÊNCIA
 
@@ -181,3 +179,51 @@ Estes scripts podem economizar tempo significativo em testes de regressão e gar
 - [ ] Excluir o preset que estava sendo usado e fechar o aplicativo
 - [ ] Reabrir o aplicativo e verificar o comportamento quando o último preset não existe mais
 - [ ] Testar a persistência após uma atualização de versão
+
+### 8. FLUXO DE NOVOS RECURSOS E CASOS ESPECÍFICOS
+
+#### Navegação entre Imagens no Editor
+
+- [x] Abrir o editor de imagem com múltiplas imagens carregadas
+- [x] Usar os botões "← Anterior" e "Próxima →" para navegar entre imagens
+- [x] Fazer anotações em uma imagem, navegar para outra e voltar para verificar persistência
+- [x] Testar navegação enquanto edita (verificar se alterações são salvas)
+- [x] Navegar até os limites (primeira/última imagem) e verificar o comportamento dos botões
+
+#### Personalização de Fonte e Cor
+
+- [x] Abrir o diálogo de configuração de fonte e testar todas as opções disponíveis
+- [x] Verificar se o botão da ferramenta ativa é destacado visualmente (fundo colorido)
+- [x] Testar a persistência das configurações de fonte entre sessões
+- [x] Testar fontes com caracteres especiais ou não-latinos
+- [x] Verificar se a amostra de cor atual é atualizada corretamente após escolher uma nova cor
+
+#### Manipulação de Diálogos
+
+- [ ] Verificar se o diálogo de configuração de fonte permanece centralizado em relação à janela principal
+- [ ] Testar se o diálogo de limpar anotações mantém a janela principal visível e em primeiro plano
+- [ ] Confirmar que o foco retorna à janela correta após fechar diálogos
+- [ ] Testar escape ou clique fora para fechar diálogos quando apropriado
+
+#### Recursos do Editor de Imagem
+
+- [x] Testar o recurso desfazer/refazer para cada tipo de anotação
+- [x] Verificar limites de desfazer (número máximo de operações armazenadas)
+- [x] Editar texto existente através de clique duplo
+- [x] Verificar a precisão do posicionamento de anotações em diferentes níveis de zoom
+
+#### Desempenho e Capacidade
+
+- [ ] Testar edição de imagens de resolução muito alta (4K ou superior)
+- [ ] Verificar desempenho com dezenas de anotações em uma única imagem
+- [ ] Testar o tempo de carregamento do editor de sessão com 50+ imagens
+- [ ] Verificar consumo de memória durante operações intensivas
+- [ ] Testar com imagens de diferentes formatos (PNG, JPG, BMP) e transparência
+
+#### Configurações com Múltiplos Monitores
+
+- [ ] Capturar screenshots em configurações com vários monitores
+- [ ] Testar a seleção de área abrangendo múltiplos monitores
+- [ ] Verificar posicionamento correto de janelas ao mover entre monitores
+- [ ] Testar captura de janela específica em monitor secundário
+- [ ] Verificar comportamento da automação em múltiplos monitores
