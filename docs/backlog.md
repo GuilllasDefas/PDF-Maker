@@ -23,9 +23,7 @@
   - No Teste do Redimensionamento Dinâmico de Miniaturas, ocorre um delay de 1 segundo para atualizar o número de miniaturas por linha.
 
 - **Editor de Imagem**
-  - Deve-se permitir editar um texto existente
   - Ao adicionar um texto, a Janela de texto não permite quebra de linha (Seria melhor adicionar o texto na própria imagem, ao invés de usar Janela).
-  - Deve-se carregar a última configuração de fonte e cores
   - Ao editar ordem, não há opção de Salvar a ordem, apenas de Gerar PDF, dessa forma se sair e voltar, a versão original volta.
   - A configuração de texto deve ser feita abaixo na própria Janela do texto para uma melhor experiência e o mesmo para as demais anotações
   - Ao editar uma imagem e tentar fechar sem salvar, o programa deve perguntar se deseja salvar as alterações.
@@ -35,8 +33,7 @@
   - Ferramenta de Seleção, ao selecionar, deve fazer um retângulo ao redor da área selecionada para feedback visual.
   - Aumentar espessura das Formas
   - Pode haver na Janela o próprio número da ordem da imagem para facilitar a modificação da ordem se o usuário quiser.
-  - Ao Fechar o editor de imagem, deve voltar para o Editor da Sessão, ao invés da Janela Principal.
-  - Editar itens e anotações, ou seja, rotacionar, redimensionar, editar texto, mudar cor e etc.
+  - Editar itens e anotações, ou seja, rotacionar, redimensionar, mudar cor e etc.
 
 - **Indicador de Tempo**
   - Incluir indicador de tempo (para eventos com duração).

@@ -3,7 +3,9 @@ import sys
 import tkinter as tk
 from tkinter import ttk, colorchooser, messagebox
 from PIL import Image, ImageTk
-from src.config.config import ICON, IMAGE_EDITOR_DIALOG_WINDOW_SIZE
+from src.config.config import (ICON, IMAGE_EDITOR_DIALOG_WINDOW_SIZE,
+                             ANNOTATION_COLOR, ANNOTATION_FONT_FAMILY, ANNOTATION_FONT_SIZE,
+                             save_config)
 from src.core.annotation_manager import AnnotationManager
 from src.gui.image_editor_components.dialog_input import TextInputDialog
 from src.gui.image_editor_components.annotation_element import AnnotationElement
@@ -29,11 +31,11 @@ class ImageEditorWindow:
         self.start_y = 0
         self.current_item = None
         self.temp_item = None
-        self.color = "#FF0000"  # Cor padrão: vermelho
+        self.color = ANNOTATION_COLOR  # Usar a configuração salva
         
         # Configurações de fonte
-        self.font_family = "Arial"
-        self.font_size = 36
+        self.font_family = ANNOTATION_FONT_FAMILY  # Usar a configuração salva
+        self.font_size = ANNOTATION_FONT_SIZE  # Usar a configuração salva
         
         # Fator de zoom - definir para 48% por padrão
         self.zoom_factor = 0.48
@@ -643,6 +645,11 @@ class ImageEditorWindow:
                 self.color = color[1]
                 # Atualizar a amostra de cor
                 self.color_sample.config(bg=self.color)
+                
+                # Salvar a configuração
+                global ANNOTATION_COLOR
+                ANNOTATION_COLOR = self.color
+                save_config()
         finally:
             # Reabilitar a janela do editor após o seletor de cor ser fechado
             self.window.attributes('-disabled', False)
@@ -696,6 +703,12 @@ class ImageEditorWindow:
             self.font_family = family_var.get()
             self.font_size = size_var.get()
             font_dialog.destroy()
+            
+            # Salvar as configurações
+            global ANNOTATION_FONT_FAMILY, ANNOTATION_FONT_SIZE
+            ANNOTATION_FONT_FAMILY = self.font_family
+            ANNOTATION_FONT_SIZE = self.font_size
+            save_config()
             
         ttk.Button(btn_frame, text="Aplicar", 
                  command=apply_font).pack(side=tk.RIGHT, padx=5)

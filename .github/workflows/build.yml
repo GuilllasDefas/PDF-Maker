@@ -173,8 +173,8 @@ jobs:
             - Melhoria:  Adicionado Botão de Avançar e Retroceder no Editor de Imagem
             - Melhoria: Ao Salvar anotações no Editor de Imagem a janela não é mais fechada possibilitando que o usuário continue editando a imagem
             - Melhoria: No Editor de Imagem, ao usar o duplo clique em um texto, é possível editar o texto diretamente
+            - Melhoria: No Editor de Imagem, a aplicação agora salva as ultimas cores e fontes usadas 
 
-            
             ---
             
             ## Problemas conhecidos

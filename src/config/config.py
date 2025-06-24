@@ -56,7 +56,24 @@ DEFAULT_AUTOMATION_HOTKEY = 'ctrl+alt+r'
 SCREENSHOT_HOTKEY = DEFAULT_SCREENSHOT_HOTKEY
 AUTOMATION_HOTKEY = DEFAULT_AUTOMATION_HOTKEY
 
-# Tenta carregar hotkeys personalizados de arquivo
+# Configurações de OCR (ajustar conforme necessário)
+POPPLER_PATH = r"C:\Program Files\poppler-24.08.0\Library\bin"
+TESSERACT_CMD = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+# Configurações de arquivo
+SUPPORTED_IMAGE_FORMATS = ['.png', '.jpg', '.jpeg']
+
+# Configurações de anotação padrão
+DEFAULT_ANNOTATION_COLOR = "#FF0000"  # Vermelho
+DEFAULT_ANNOTATION_FONT_FAMILY = "Arial"
+DEFAULT_ANNOTATION_FONT_SIZE = 36
+
+# Variáveis para armazenar as configurações atuais (inicialmente são os padrões)
+ANNOTATION_COLOR = DEFAULT_ANNOTATION_COLOR
+ANNOTATION_FONT_FAMILY = DEFAULT_ANNOTATION_FONT_FAMILY
+ANNOTATION_FONT_SIZE = DEFAULT_ANNOTATION_FONT_SIZE
+
+# Tenta carregar configurações personalizadas de arquivo
 try:
     import os
     import json
@@ -72,15 +89,46 @@ try:
             SCREENSHOT_HOTKEY = config_data['screenshot_hotkey']
         if 'automation_hotkey' in config_data:
             AUTOMATION_HOTKEY = config_data['automation_hotkey']
+            
+        # Carregar configurações de anotação
+        if 'annotation_color' in config_data:
+            ANNOTATION_COLOR = config_data['annotation_color']
+        if 'annotation_font_family' in config_data:
+            ANNOTATION_FONT_FAMILY = config_data['annotation_font_family']
+        if 'annotation_font_size' in config_data:
+            ANNOTATION_FONT_SIZE = config_data['annotation_font_size']
 except:
     # Em caso de erro, manter os valores padrão
     pass
 
-# Configurações de OCR (ajustar conforme necessário)
-POPPLER_PATH = r"C:\Program Files\poppler-24.08.0\Library\bin"
-TESSERACT_CMD = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-
-# Configurações de arquivo
-SUPPORTED_IMAGE_FORMATS = ['.png', '.jpg', '.jpeg']
+# Função para salvar configurações
+def save_config():
+    try:
+        config_path = os.path.join(os.path.expanduser("~"), ".pdf_maker_config.json")
+        
+        # Carregar configurações existentes ou criar um novo dicionário
+        if os.path.exists(config_path):
+            with open(config_path, 'r') as f:
+                config_data = json.load(f)
+        else:
+            config_data = {}
+        
+        # Atualizar com as configurações atuais
+        config_data.update({
+            'screenshot_hotkey': SCREENSHOT_HOTKEY,
+            'automation_hotkey': AUTOMATION_HOTKEY,
+            'annotation_color': ANNOTATION_COLOR,
+            'annotation_font_family': ANNOTATION_FONT_FAMILY,
+            'annotation_font_size': ANNOTATION_FONT_SIZE
+        })
+        
+        # Salvar no arquivo
+        with open(config_path, 'w') as f:
+            json.dump(config_data, f, indent=2)
+            
+        return True
+    except Exception as e:
+        print(f"Erro ao salvar configurações: {e}")
+        return False
 
 
