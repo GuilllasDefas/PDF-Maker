@@ -755,6 +755,11 @@ class ImageEditorWindow:
         if not self.annotations:
             return
             
+        # Manter a referência da posição atual da janela
+        window_x = self.window.winfo_x()
+        window_y = self.window.winfo_y()
+        
+        # Exibir a caixa de diálogo com parent
         if messagebox.askyesno("Confirmar", "Tem certeza que deseja remover todas as anotações?", parent=self.window):
             # Remover do canvas
             for annotation in self.annotations:
@@ -767,6 +772,14 @@ class ImageEditorWindow:
             
             # Adicionar ao histórico após limpar
             self._add_to_history()
+        
+        # Forçar a janela de volta para o primeiro plano após a caixa de diálogo
+        self.window.lift()
+        self.window.focus_force()
+        
+        # Reposicionar a janela se necessário
+        if window_x and window_y:
+            self.window.geometry(f"+{window_x}+{window_y}")
 
     def _on_press(self, event):
         """Manipula o evento de pressionar o botão do mouse."""
