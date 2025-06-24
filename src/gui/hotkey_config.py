@@ -296,19 +296,29 @@ class HotkeyConfigWindow:
             
         # Salvar em arquivo
         try:
-            config_data = {
-                'screenshot_hotkey': screenshot_hotkey,
-                'automation_hotkey': automation_hotkey
-            }
+            config_path = os.path.join(os.path.expanduser("~"), "pdf_maker_config.json")
             
-            config_path = os.path.join(os.path.expanduser("~"), ".pdf_maker_config.json")
+            # Verificar se o arquivo de configuração já existe
+            existing_config = {}
+            if os.path.exists(config_path):
+                try:
+                    with open(config_path, 'r') as f:
+                        existing_config = json.load(f)
+                except:
+                    # Se houver erro na leitura, usar um dicionário vazio
+                    existing_config = {}
             
+            # Atualizar apenas as chaves de atalhos, preservando outras configurações
+            existing_config['screenshot_hotkey'] = screenshot_hotkey
+            existing_config['automation_hotkey'] = automation_hotkey
+            
+            # Salvar o arquivo atualizado
             with open(config_path, 'w') as f:
-                json.dump(config_data, f)
+                json.dump(existing_config, f, indent=2)
                 
             # Chamar callback se existir
             if self.on_save_callback:
-                self.on_save_callback(config_data)
+                self.on_save_callback(existing_config)
                 
             self.window.destroy()
             # Nota: removida a mensagem sobre reiniciar, pois agora os atalhos são aplicados imediatamente
